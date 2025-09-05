@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { logout } from '@/store/slices/authSlice'
 import { useRouter } from 'next/navigation'
@@ -39,16 +37,7 @@ export default function Header() {
     <header className="bg-white border-b border-gray-100 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center space-x-3">
-            <Image
-              src="/logo-icon.svg"
-              alt="Fulldata Logo"
-              width={32}
-              height={32}
-              className="w-8 h-8"
-            />
-            <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Fulldata</span>
-          </Link>
+          <div></div>
 
           {isAuthenticated && user && (
             <div className="flex items-center gap-4">
@@ -60,7 +49,7 @@ export default function Header() {
 
               {/* Credits Balance */}
               <button 
-                onClick={() => router.push('/credits/purchase')}
+                onClick={() => router.push('/dashboard/credits/purchase')}
                 className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-all duration-200"
               >
                 <CreditCard className="w-4 h-4" />
@@ -107,7 +96,7 @@ export default function Header() {
                       <button
                         onClick={() => {
                           setShowDropdown(false)
-                          router.push('/credits/history')
+                          router.push('/dashboard/credits/history')
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors"
                       >

@@ -148,17 +148,10 @@ export default function CreditsHistoryPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver al Dashboard
-          </button>
           
           <div className="flex items-center justify-between">
             <div>
@@ -169,7 +162,7 @@ export default function CreditsHistoryPage() {
             </div>
             
             <button
-              onClick={() => router.push('/credits/purchase')}
+              onClick={() => router.push('/dashboard/credits/purchase')}
               className="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-purple-500/25 flex items-center gap-2"
             >
               <ShoppingCart className="w-5 h-5" />

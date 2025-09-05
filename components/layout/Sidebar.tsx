@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import Image from 'next/image'
 import { 
   Home,
   Search,
@@ -186,23 +187,24 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-gray-900 min-h-screen flex flex-col">
+    <aside className="w-64 bg-gray-900 h-screen flex flex-col fixed left-0 top-0 z-40">
       {/* Logo Section */}
       <div className="px-6 py-4 border-b border-gray-800">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/30">
-            <Search className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-white font-bold text-lg">Fulldata</h2>
-            <p className="text-xs text-gray-400">Sistema de Búsqueda</p>
-          </div>
-        </div>
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/logo-icon.svg"
+            alt="Fulldata Logo"
+            width={32}
+            height={32}
+            className="w-8 h-8"
+          />
+          <span className="text-xl font-bold text-white">Fulldata</span>
+        </Link>
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 px-4 py-6 overflow-y-auto">
-        <div className="space-y-1">
+      <nav className="flex-1 px-4 py-6 overflow-y-auto flex flex-col">
+        <div className="space-y-1 flex-1">
           {menuItems.map(item => renderMenuItem(item))}
         </div>
         
@@ -212,30 +214,6 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* Credits Summary */}
-      <div className="p-4 border-t border-gray-800">
-        <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-xl p-4 backdrop-blur">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-purple-400" />
-              <span className="text-xs font-medium text-gray-300">Saldo de Créditos</span>
-            </div>
-            <TrendingUp className="w-4 h-4 text-green-400" />
-          </div>
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="text-2xl font-bold text-white">3,121</p>
-              <p className="text-xs text-gray-400 mt-1">847 usados este mes</p>
-            </div>
-            <Link
-              href="/dashboard/credits/purchase"
-              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur text-white text-xs font-medium rounded-lg transition-colors"
-            >
-              Comprar +
-            </Link>
-          </div>
-        </div>
-      </div>
     </aside>
   )
 }

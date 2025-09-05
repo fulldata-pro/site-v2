@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { 
-  ArrowLeft, ShoppingCart, CreditCard, Check, Info, Plus, Minus,
-  Users, Building, Phone, Car, Landmark, Globe, Shield, Tag,
-  Sparkles, TrendingUp, Gift
+  ShoppingCart, CreditCard, Info, Plus, Minus,
+  Users, Building, Phone, Car, Landmark, Globe, Shield,
+  Sparkles, Gift
 } from 'lucide-react'
 
 interface ServiceCredit {
@@ -21,10 +20,12 @@ interface ServiceCredit {
 }
 
 export default function CreditsPurchasePage() {
-  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'argentina' | 'global' | 'chile'>('argentina')
   const [currency, setCurrency] = useState('ARS')
-  const [hasDiscount, setHasDiscount] = useState(true)
+  const [hasDiscount, setHasDiscount] = useState(false)
+  const [showCodeInput, setShowCodeInput] = useState(false)
+  const [discountCode, setDiscountCode] = useState('')
+  const [discountError, setDiscountError] = useState('')
   
   const [argentinaServices, setArgentinaServices] = useState<ServiceCredit[]>([
     {
@@ -134,6 +135,31 @@ export default function CreditsPurchasePage() {
     return calculateSubtotal() - calculateDiscount()
   }
 
+  const validateDiscountCode = () => {
+    // Simulated validation - in production this would call an API
+    const validCodes = ['PROMO2024', 'FULLDATA10', 'WELCOME5', 'FIRST5']
+    
+    if (discountCode.trim() === '') {
+      setDiscountError('Por favor ingresa un código')
+      return
+    }
+    
+    if (validCodes.includes(discountCode.toUpperCase())) {
+      setHasDiscount(true)
+      setShowCodeInput(false)
+      setDiscountError('')
+    } else {
+      setDiscountError('Código inválido')
+    }
+  }
+
+  const removeDiscount = () => {
+    setHasDiscount(false)
+    setDiscountCode('')
+    setDiscountError('')
+    setShowCodeInput(false)
+  }
+
   const getTotalCredits = () => {
     if (activeTab === 'argentina') {
       return argentinaServices.reduce((acc, service) => acc + service.quantity, 0)
@@ -158,17 +184,10 @@ export default function CreditsPurchasePage() {
   const setCurrentServices = activeTab === 'argentina' ? setArgentinaServices : activeTab === 'global' ? setGlobalServices : () => {}
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver al Dashboard
-          </button>
           
           <div className="flex items-center justify-between">
             <div>
@@ -376,25 +395,82 @@ export default function CreditsPurchasePage() {
                   </div>
                   
                   {hasDiscount && (
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <span className="text-green-600">Descuento</span>
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
-                          Primera compra -5%
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-600">Descuento</span>
+                          <button
+                            onClick={removeDiscount}
+                            className="text-xs text-red-500 hover:text-red-700 underline"
+                          >
+                            quitar
+                          </button>
+                        </div>
+                        <span className="font-semibold text-green-600">
+                          -ARS {calculateDiscount().toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                         </span>
                       </div>
-                      <span className="font-semibold text-green-600">
-                        -ARS {calculateDiscount().toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </span>
+                      <div className="flex justify-center">
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                          Código: {discountCode.toUpperCase()} (-5%)
+                        </span>
+                      </div>
                     </div>
                   )}
                   
-                  <button
-                    className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2 py-2 hover:bg-blue-50 rounded-lg transition-colors"
-                  >
-                    <Gift className="w-4 h-4" />
-                    Agregar Beneficio
-                  </button>
+                  {!hasDiscount && !showCodeInput && (
+                    <button
+                      onClick={() => setShowCodeInput(true)}
+                      className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2 py-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <Gift className="w-4 h-4" />
+                      Agregar Código de Beneficio
+                    </button>
+                  )}
+                  
+                  {showCodeInput && (
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => {
+                            setDiscountCode(e.target.value.toUpperCase())
+                            setDiscountError('')
+                          }}
+                          placeholder="Ingresa tu código"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              validateDiscountCode()
+                            }
+                          }}
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={validateDiscountCode}
+                            className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            Aplicar
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowCodeInput(false)
+                              setDiscountCode('')
+                              setDiscountError('')
+                            }}
+                            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                      {discountError && (
+                        <p className="text-xs text-red-500 text-center">{discountError}</p>
+                      )}
+                      <p className="text-xs text-gray-500 text-center">Códigos de prueba: PROMO2024, FULLDATA10, WELCOME5, FIRST5</p>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex justify-between items-center">
