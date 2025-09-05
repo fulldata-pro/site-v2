@@ -1,13 +1,21 @@
 'use client'
 
-import { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { 
-  ArrowLeft, Shield, Download, FileText, MapPin, Phone, Mail, 
+  Shield, Download, FileText, MapPin, Phone,
   Briefcase, CreditCard, Home, Users, BookOpen, TrendingUp,
-  ChevronRight, User, Calendar, Globe, AlertCircle, Star
+  ChevronRight, AlertCircle, Edit3, RefreshCw, Send, Trash2, Info
 } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import ReportSummary from '@/components/reports/people/ReportSummary'
+import AddressSection from '@/components/reports/people/AddressSection'
+import ContactSection from '@/components/reports/people/ContactSection'
+import LaborSection from '@/components/reports/people/LaborSection'
+import TaxSection from '@/components/reports/people/TaxSection'
+import FinancialSection from '@/components/reports/people/FinancialSection'
+import PersonalPropertySection from '@/components/reports/people/PersonalPropertySection'
+import OfficialBulletinSection from '@/components/reports/people/OfficialBulletinSection'
+import BondsSection from '@/components/reports/people/BondsSection'
+import AdditionalDataSection from '@/components/reports/people/AdditionalDataSection'
 
 interface ReportSection {
   id: string
@@ -17,454 +25,161 @@ interface ReportSection {
 }
 
 export default function ReportDetailPage() {
-  const params = useParams()
-  const router = useRouter()
-  const reportId = params.id as string
   const [activeSection, setActiveSection] = useState('resumen')
+  const [reportData, setReportData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [showActionsDropdown, setShowActionsDropdown] = useState(false)
 
-  // Mock data based on the screenshots
-  const reportData = {
-    id: reportId,
-    completedDate: '31 de julio de 2025',
-    person: {
-      firstName: 'PATRICIO JOSE',
-      lastName: 'FARA AYUP',
-      dni: '37657175',
-      exemplar: 'A',
-      cuit: '20376571751',
-      age: 31,
-      nationality: 'N/A',
-      gender: 'M',
-      birthDate: null,
-      deathDate: null,
-      maritalStatus: 'N/A',
-      score: 568,
-      socioeconomicLevel: 'C2',
-      isProtected: true,
-      address: 'ALVEAR MARCELO T DE 1906, Dept -0, CP: 1122, capital federal, Capital Federal'
-    },
-    scoreHistory: [
-      { period: 'Hace 24 meses', score: 380 },
-      { period: 'Hace 18 meses', score: 315 },
-      { period: 'Hace 12 meses', score: 495 },
-      { period: 'Hace 9 meses', score: 580 },
-      { period: 'Hace 6 meses', score: 590 },
-      { period: 'Hace 3 meses', score: 595 },
-      { period: 'Actual', score: 568 }
-    ],
-    addresses: {
-      fiscal: [
-        {
-          address: 'ALVEAR MARCELO T DE 1906',
-          phone: '-',
-          country: '-',
-          province: 'Capital Federal',
-          city: 'CAPITAL FEDERAL',
-          floor: '-',
-          apartment: '0',
-          zipCode: '1122'
-        }
-      ],
-      other: [
-        {
-          address: 'ARRIBEÑOS 3800',
-          phone: '-',
-          country: '-',
-          province: 'Capital Federal',
-          city: 'CAPITAL FEDERAL',
-          floor: '3',
-          apartment: 'A',
-          zipCode: '1429'
-        },
-        {
-          address: 'PARAGUAY 3098',
-          phone: '-',
-          country: '-',
-          province: 'Tucumán',
-          city: 'S M DE TUCUMAN',
-          floor: '-',
-          apartment: '-',
-          zipCode: '0'
-        }
-      ]
-    },
-    contact: {
-      phones: ['4343958'],
-      emails: [],
-      whatsapp: false
-    },
-    labor: {
-      status: 'MONOTRIBUTO',
-      afipSince: '21 de octubre de 2022'
+  // Load mock data
+  useEffect(() => {
+    const loadMockData = async () => {
+      try {
+        const response = await fetch('/Requests.Reports.json')
+        const data = await response.json()
+        setReportData(data[0]) // Get first report from array
+        setLoading(false)
+      } catch (error) {
+        console.error('Error loading mock data:', error)
+        setLoading(false)
+      }
     }
-  }
+    
+    loadMockData()
+  }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (!target.closest('.actions-dropdown')) {
+        setShowActionsDropdown(false)
+      }
+    }
+
+    if (showActionsDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showActionsDropdown])
 
   const sections: ReportSection[] = [
     { id: 'resumen', label: 'Resumen', icon: FileText },
     { id: 'direcciones', label: 'Direcciones', icon: MapPin },
-    { id: 'contacto', label: 'Datos de Contacto', icon: User },
+    { id: 'contacto', label: 'Datos de Contacto', icon: Phone },
     { id: 'laborales', label: 'Datos Laborales', icon: Briefcase },
     { id: 'impuestos', label: 'Impuestos', icon: CreditCard },
     { id: 'financiera', label: 'Situación Financiera', icon: TrendingUp },
     { id: 'vinculos', label: 'Vínculos', icon: Users },
     { id: 'bienes', label: 'Bienes Personales', icon: Home },
     { id: 'boletin', label: 'Boletín Oficial', icon: BookOpen },
-    { id: 'relaciones', label: 'Relaciones', icon: Users }
+    { id: 'adicional', label: 'Información Adicional', icon: Info }
   ]
 
-  const getSocioeconomicLevelInfo = (level: string) => {
-    const levels = {
-      'A': { label: 'Ingresos elevados, educación universitaria, ocupaciones profesionales.', position: 0 },
-      'B': { label: 'Clase media alta, ingresos sólidos, educación universitaria o técnica.', position: 1 },
-      'C1': { label: 'Clase media, ingresos moderados, educación secundaria completa.', position: 2 },
-      'C2': { label: 'Clase media baja, ingresos ajustados, educación secundaria completa.', position: 3 },
-      'C3': { label: 'Clase media baja, ingresos ligeramente más bajos.', position: 4 },
-      'D1': { label: 'Ingresos bajos, educación básica, ocupaciones manuales.', position: 5 },
-      'D2': { label: 'Ingresos bajos, educación básica, ocupaciones manuales o de servicios.', position: 6 }
+  const formatDate = (timestamp: number | { $numberLong: string } | { $date: string }) => {
+    let date: Date
+    
+    if (typeof timestamp === 'object') {
+      if ('$numberLong' in timestamp) {
+        date = new Date(parseInt(timestamp.$numberLong))
+      } else if ('$date' in timestamp) {
+        date = new Date(timestamp.$date)
+      } else {
+        return 'N/A'
+      }
+    } else if (typeof timestamp === 'number') {
+      date = new Date(timestamp)
+    } else if (typeof timestamp === 'string') {
+      date = new Date(timestamp)
+    } else {
+      return 'N/A'
     }
-    return levels[level as keyof typeof levels] || levels['C2']
+    
+    return date.toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    })
+  }
+
+  const handleAction = (action: string) => {
+    setShowActionsDropdown(false)
+    
+    switch (action) {
+      case 'edit':
+        alert('Función de editar datos - Por implementar')
+        break
+      case 'refresh':
+        alert('Actualizando reporte...')
+        break
+      case 'webhook':
+        alert('Reenviando webhook...')
+        break
+      case 'delete':
+        if (confirm('¿Estás seguro de que quieres eliminar este reporte?')) {
+          alert('Eliminando reporte...')
+        }
+        break
+    }
   }
 
   const renderContent = () => {
+    if (!reportData) return null
+
     switch (activeSection) {
       case 'resumen':
         return (
-          <div className="space-y-8">
-            {/* Basic Information */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-red-500 inline-block">
-                Información Básica
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm text-gray-500">Nombre</label>
-                  <p className="text-gray-900 font-medium">{reportData.person.firstName}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Apellido</label>
-                  <p className="text-gray-900 font-medium">{reportData.person.lastName}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">DNI</label>
-                  <p className="text-gray-900 font-medium">
-                    {reportData.person.dni} 
-                    <span className="text-sm text-gray-500 ml-2">[Ejemplar {reportData.person.exemplar}]</span>
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">CUIT</label>
-                  <p className="text-gray-900 font-medium">{reportData.person.cuit}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Edad</label>
-                  <p className="text-gray-900 font-medium">{reportData.person.age} Años</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Estado Civil</label>
-                  <p className="text-gray-500">{reportData.person.maritalStatus}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Nacionalidad</label>
-                  <p className="text-gray-500">{reportData.person.nationality}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Sexo</label>
-                  <p className="text-gray-900 font-medium">{reportData.person.gender}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Fecha de Nacimiento</label>
-                  <p className="text-gray-500">{reportData.person.birthDate || 'N/A'}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Fecha de Fallecimiento</label>
-                  <p className="text-gray-500">{reportData.person.deathDate || 'N/A'}</p>
-                </div>
-              </div>
-
-              {/* Score Circle */}
-              <div className="mt-8 flex justify-center">
-                <div className="relative">
-                  <svg className="w-48 h-48">
-                    <circle
-                      cx="96"
-                      cy="96"
-                      r="88"
-                      stroke="#e5e7eb"
-                      strokeWidth="12"
-                      fill="none"
-                    />
-                    <circle
-                      cx="96"
-                      cy="96"
-                      r="88"
-                      stroke="#ef4444"
-                      strokeWidth="12"
-                      fill="none"
-                      strokeDasharray={`${(reportData.person.score / 850) * 553} 553`}
-                      strokeLinecap="round"
-                      transform="rotate(-90 96 96)"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-sm text-gray-500">Score</span>
-                    <span className="text-4xl font-bold text-gray-900">{reportData.person.score}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Score History */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Historial de Score</h3>
-              <p className="text-sm text-gray-500 mb-6">Evolución del puntaje crediticio en los últimos 24 meses</p>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={reportData.scoreHistory}>
-                    <defs>
-                      <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis 
-                      dataKey="period" 
-                      tick={{ fontSize: 12, fill: '#6b7280' }}
-                      axisLine={{ stroke: '#e5e7eb' }}
-                    />
-                    <YAxis 
-                      domain={[250, 650]}
-                      tick={{ fontSize: 12, fill: '#6b7280' }}
-                      axisLine={{ stroke: '#e5e7eb' }}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        padding: '8px'
-                      }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="score" 
-                      stroke="#ef4444" 
-                      strokeWidth={3}
-                      fill="url(#scoreGradient)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Socioeconomic Level */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Nivel Socioeconómico</h3>
-              <p className="text-sm text-gray-500 mb-6">Clasificación según ingresos y educación</p>
-              
-              <div className="bg-gray-50 rounded-xl p-8">
-                <div className="flex items-center justify-center mb-6">
-                  <div className="text-4xl font-bold bg-gray-800 text-white w-20 h-20 rounded-full flex items-center justify-center">
-                    {reportData.person.socioeconomicLevel}
-                  </div>
-                </div>
-                
-                {/* Pyramid */}
-                <div className="relative mx-auto" style={{ maxWidth: '400px' }}>
-                  <svg viewBox="0 0 400 280" className="w-full">
-                    {/* Pyramid layers */}
-                    <polygon points="200,20 240,60 160,60" fill="#9ca3af" opacity="0.8" />
-                    <polygon points="160,60 240,60 260,100 140,100" fill="#9ca3af" opacity="0.8" />
-                    <polygon points="140,100 260,100 280,140 120,140" fill="#9ca3af" opacity="0.8" />
-                    <polygon points="120,140 280,140 300,180 100,180" fill={reportData.person.socioeconomicLevel === 'C2' ? '#ef4444' : '#9ca3af'} opacity="0.8" />
-                    <polygon points="100,180 300,180 320,220 80,220" fill="#6b7280" opacity="0.8" />
-                    <polygon points="80,220 320,220 340,260 60,260" fill="#6b7280" opacity="0.8" />
-                    <polygon points="60,260 340,260 360,300 40,300" fill="#374151" opacity="0.8" />
-                    
-                    {/* Labels */}
-                    <text x="200" y="45" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">A</text>
-                    <text x="200" y="85" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">B</text>
-                    <text x="200" y="125" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">C1</text>
-                    <text x="200" y="165" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">C2</text>
-                    <text x="200" y="205" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">C3</text>
-                    <text x="200" y="245" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">D1</text>
-                    <text x="200" y="285" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">D2</text>
-                    
-                    {/* Person icon at C2 level */}
-                    <circle cx="200" cy="160" r="12" fill="#ef4444" />
-                    <text x="200" y="165" textAnchor="middle" fill="#fff" fontSize="16">👤</text>
-                  </svg>
-                </div>
-
-                {/* Level descriptions */}
-                <div className="mt-8 space-y-2">
-                  {['A', 'B', 'C1', 'C2', 'C3', 'D1', 'D2'].map((level) => {
-                    const info = getSocioeconomicLevelInfo(level)
-                    return (
-                      <div key={level} className={`flex items-start gap-3 p-2 rounded ${level === reportData.person.socioeconomicLevel ? 'bg-red-50' : ''}`}>
-                        <div className={`w-2 h-2 rounded-full mt-1.5 ${level === reportData.person.socioeconomicLevel ? 'bg-red-500' : 'bg-gray-400'}`} />
-                        <p className={`text-sm ${level === reportData.person.socioeconomicLevel ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
-                          {info.label}
-                        </p>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ReportSummary 
+            summary={reportData.people.summary} 
+            scoreHistory={reportData.people.summary.score}
+          />
         )
 
       case 'direcciones':
         return (
           <div className="space-y-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-red-500 inline-block">
-                Domicilios Fiscales
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">País</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provincia</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Piso</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código Postal</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {reportData.addresses.fiscal.map((addr, idx) => (
-                      <tr key={idx}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-blue-600">{addr.address}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{addr.phone}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{addr.country}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.province}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.city}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{addr.floor}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.apartment}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.zipCode}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-red-500 inline-block">
-                Otros Domicilios
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">País</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provincia</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Piso</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código Postal</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {reportData.addresses.other.map((addr, idx) => (
-                      <tr key={idx}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-blue-600">{addr.address}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{addr.phone}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{addr.country}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.province}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.city}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.floor}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.apartment}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{addr.zipCode}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <AddressSection 
+              addresses={reportData.people.addressData.filter((addr: any) => addr.type === 'TAX')} 
+              title="Domicilios Fiscales" 
+            />
+            <AddressSection 
+              addresses={reportData.people.addressData.filter((addr: any) => addr.type === 'OTHER')} 
+              title="Otros Domicilios" 
+            />
           </div>
         )
 
       case 'contacto':
-        return (
-          <div className="space-y-8">
-            <div>
-              <div className="flex items-center gap-2 mb-6">
-                <Phone className="w-5 h-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Teléfonos ({reportData.contact.phones.length})</h3>
-              </div>
-              {reportData.contact.phones.map((phone, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-2">
-                  <Phone className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-900 font-medium">{phone}</span>
-                  {!reportData.contact.whatsapp && (
-                    <span className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                      ⚠️ El número no tiene whatsapp.
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-6">
-                <Mail className="w-5 h-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Emails ({reportData.contact.emails.length})</h3>
-              </div>
-              {reportData.contact.emails.length === 0 ? (
-                <p className="text-gray-500">N/A</p>
-              ) : (
-                reportData.contact.emails.map((email, idx) => (
-                  <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-900 font-medium">{email}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )
+        return <ContactSection contactData={reportData.people.contactData} />
 
       case 'laborales':
+        return <LaborSection laborData={reportData.people.laborData} />
+
+      case 'impuestos':
+        return <TaxSection taxData={reportData.people.taxes} />
+
+      case 'financiera':
+        return <FinancialSection financialData={reportData.people.financialSituation} />
+
+      case 'vinculos':
+        return <BondsSection bondsData={reportData.people.bonds} />
+
+      case 'bienes':
+        return <PersonalPropertySection propertyData={reportData.people.personalProperty} />
+
+      case 'boletin':
+        return <OfficialBulletinSection bulletinData={reportData.people.officialBulletin} />
+
+      case 'adicional':
         return (
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-red-500 inline-block">
-                Información Básica
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm text-gray-500">Situación Laboral</label>
-                  <div className="mt-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-800">
-                      {reportData.labor.status}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Inscripto en Afip desde</label>
-                  <p className="text-gray-900 font-medium mt-1">{reportData.labor.afipSince}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <AdditionalDataSection 
+            nicDomains={reportData.people.nicDomains}
+            isDuplicated={reportData.people.isDuplicated}
+            duplicatedList={reportData.people.duplicatedList}
+            isBanked={reportData.people.isBanked}
+          />
         )
 
       default:
@@ -478,84 +193,126 @@ export default function ReportDetailPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando reporte...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!reportData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-gray-400 mb-4 mx-auto" />
+          <p className="text-gray-600">Error al cargar el reporte</p>
+        </div>
+      </div>
+    )
+  }
+
+  const personData = reportData.people.summary
+  const personName = `${personData.firstName} ${personData.lastName}`
+  const initials = personData.firstName.charAt(0) + personData.lastName.charAt(0)
+  
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <button
-              onClick={() => router.push('/searches')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Volver a búsquedas</span>
-            </button>
-            
-            <div className="flex items-center gap-3">
-              <button className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
-                <span>Acciones</span>
-                <ChevronRight className="w-4 h-4 rotate-90" />
-              </button>
-              <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
-                <Download className="w-5 h-5" />
-                <span>Exportar</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Person Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-6">
-              <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                PA
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold mb-2">{reportData.person.firstName} {reportData.person.lastName}</h1>
-                <div className="flex items-center gap-4 text-blue-100">
-                  <span>Dni: {reportData.person.dni}</span>
-                  <span>Cuit: {reportData.person.cuit}</span>
-                  {reportData.person.isProtected && (
-                    <div className="flex items-center gap-1 bg-blue-500/30 px-3 py-1 rounded-full">
-                      <Shield className="w-4 h-4" />
-                      <span className="text-sm">Datos protegidos</span>
-                    </div>
-                  )}
+      <div className="bg-gradient-to-r from-red-600 to-red-800 text-white relative">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Action Buttons - Floating */}
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-8 flex items-center gap-3 z-10">
+            {/* Actions Dropdown */}
+            <div className="relative actions-dropdown">
+              <button 
+                onClick={() => setShowActionsDropdown(!showActionsDropdown)}
+                className="px-3 py-2 bg-white/20 text-white border border-white/30 rounded-lg hover:bg-white/30 transition-all backdrop-blur-sm flex items-center gap-2 text-sm"
+              >
+                <span>Acciones</span>
+                <ChevronRight className={`w-4 h-4 transition-transform ${showActionsDropdown ? 'rotate-90' : 'rotate-0'}`} />
+              </button>
+              
+              {showActionsDropdown && (
+                <div className="absolute top-full mt-2 right-0 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
+                  <button
+                    onClick={() => handleAction('edit')}
+                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-3 text-sm"
+                  >
+                    <Edit3 className="w-4 h-4 text-gray-500" />
+                    <span>Editar datos</span>
+                  </button>
+                  <button
+                    onClick={() => handleAction('refresh')}
+                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-3 text-sm"
+                  >
+                    <RefreshCw className="w-4 h-4 text-gray-500" />
+                    <span>Actualizar reporte</span>
+                  </button>
+                  <button
+                    onClick={() => handleAction('webhook')}
+                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-3 text-sm"
+                  >
+                    <Send className="w-4 h-4 text-gray-500" />
+                    <span>Reenviar webhook</span>
+                  </button>
+                  <div className="border-t border-gray-100 my-1"></div>
+                  <button
+                    onClick={() => handleAction('delete')}
+                    className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-3 text-sm"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                    <span>Eliminar reporte</span>
+                  </button>
                 </div>
-                <div className="mt-2 flex items-center gap-2 text-sm text-blue-100">
+              )}
+            </div>
+            
+            <button className="px-3 py-2 bg-white text-red-600 rounded-lg hover:bg-white/90 transition-all backdrop-blur-sm flex items-center gap-2 text-sm font-medium shadow-sm">
+              <Download className="w-4 h-4" />
+              <span>Exportar</span>
+            </button>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pr-0 sm:pr-40">
+            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-white text-4xl font-bold backdrop-blur-sm">
+              {initials}
+            </div>
+            <div className="text-center sm:text-left flex-1">
+              <h1 className="text-4xl font-bold mb-3">{personName}</h1>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-red-100 mb-2">
+                <span className="bg-white/20 px-3 py-1 rounded-full text-sm backdrop-blur-sm">DNI: {personData.nationalId}</span>
+                <span className="bg-white/20 px-3 py-1 rounded-full text-sm backdrop-blur-sm">CUIT: {personData.taxId}</span>
+                <div className="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                  <Shield className="w-4 h-4" />
+                  <span className="text-sm">Datos verificados</span>
+                </div>
+              </div>
+              {reportData.people.addressData.length > 0 && (
+                <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-red-100">
                   <MapPin className="w-4 h-4" />
-                  <span>{reportData.person.address}</span>
+                  <span>{reportData.people.addressData[0].address} {reportData.people.addressData[0].addressNumber}</span>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Completion Status */}
-      <div className="bg-green-50 border-y border-green-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center gap-2 text-green-700">
-            <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <span className="font-medium">Completado el : {reportData.completedDate}</span>
-          </div>
-        </div>
-      </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-8">
+      <div className="w-full py-6">
+        <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-6">
           {/* Sidebar Navigation */}
-          <div className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="lg:w-80 flex-shrink-0">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-6">
+              <div className="p-4 border-b border-gray-200 bg-gray-50">
+                <h3 className="font-semibold text-gray-900">Secciones del Reporte</h3>
+              </div>
               <nav className="py-2">
                 {sections.map((section) => {
                   const Icon = section.icon
@@ -564,10 +321,10 @@ export default function ReportDetailPage() {
                     <button
                       key={section.id}
                       onClick={() => setActiveSection(section.id)}
-                      className={`w-full px-4 py-3 flex items-center gap-3 text-left transition-colors ${
+                      className={`w-full px-4 py-3 flex items-center gap-3 text-left transition-all duration-200 ${
                         isActive
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-700 hover:bg-gray-50'
+                          ? 'bg-red-600 text-white shadow-sm'
+                          : 'text-gray-700 hover:bg-red-50 hover:text-red-700'
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -577,31 +334,38 @@ export default function ReportDetailPage() {
                 })}
               </nav>
             </div>
+            
+            {/* Completion Status - Subtle */}
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span>Completado el {formatDate(reportData.updatedAt)}</span>
+              </div>
+            </div>
           </div>
 
           {/* Content Area */}
-          <div className="flex-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-              <div className="flex items-center gap-3 mb-6">
-                {(() => {
-                  const Icon = sections.find(s => s.id === activeSection)?.icon || FileText
-                  return <Icon className="w-6 h-6 text-blue-600" />
-                })()}
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {sections.find(s => s.id === activeSection)?.label}
-                </h2>
+          <div className="flex-1 min-w-0">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  {(() => {
+                    const Icon = sections.find(s => s.id === activeSection)?.icon || FileText
+                    return <Icon className="w-6 h-6 text-red-600" />
+                  })()}
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {sections.find(s => s.id === activeSection)?.label}
+                  </h2>
+                </div>
               </div>
-              {renderContent()}
+              <div className="p-4">
+                {renderContent()}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* AI Assistant Button */}
-      <button className="fixed bottom-8 right-8 px-6 py-3 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
-        <Star className="w-5 h-5" />
-        <span>Asistente IA</span>
-      </button>
     </div>
   )
 }
