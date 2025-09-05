@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Plus, Filter, Download, Eye, RefreshCw, ChevronDown, Calendar, CreditCard, Globe, Tag, CheckCircle, Clock, XCircle, User, Building, Car, MoreVertical, ArrowUpDown, ChevronLeft, ChevronRight, FileText, Send, ArrowLeft } from 'lucide-react'
+import { Search, Plus, Filter, Download, Eye, RefreshCw, ChevronDown, Calendar, CreditCard, Globe, Tag, CheckCircle, Clock, XCircle, User, Building, Car, MoreVertical, ArrowUpDown, ChevronLeft, ChevronRight, FileText, Send } from 'lucide-react'
 
 interface SearchRecord {
   id: number
@@ -222,18 +222,8 @@ export default function SearchesPage() {
   const currentSearches = filteredSearches.slice(startIndex, endIndex)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back to Dashboard Link */}
-        <div className="mb-4">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver al Dashboard
-          </button>
-        </div>
 
         {/* Header with Stats */}
         <div className="mb-8">
@@ -243,7 +233,7 @@ export default function SearchesPage() {
               <p className="text-gray-600 mt-1">Gestiona y visualiza todas tus consultas realizadas</p>
             </div>
             <button 
-              onClick={() => router.push('/searches/new')}
+              onClick={() => router.push('/dashboard/searches/new')}
               className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-red-500/25 flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
@@ -568,7 +558,7 @@ export default function SearchesPage() {
                         <div className="flex items-center justify-center gap-1">
                           {search.status === 'completed' && search.reportUrl ? (
                             <button 
-                              onClick={() => router.push(`/reports/${search.id}`)}
+                              onClick={() => router.push(`/dashboard/reports/${search.id}`)
                               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
                               title="Ver reporte"
                             >

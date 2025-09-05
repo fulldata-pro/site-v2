@@ -48,8 +48,10 @@ export default function DashboardLayout({
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="flex-1 p-8">
-          {children}
+        <main className="flex-1 p-8 overflow-x-hidden">
+          <div className="max-w-full">
+            {children}
+          </div>
         </main>
       </div>
     </div>

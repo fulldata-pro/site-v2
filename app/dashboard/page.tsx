@@ -90,28 +90,28 @@ export default function DashboardPage() {
   const quickActions = [
     { 
       name: 'Persona', 
-      href: '/searches/new?type=person', 
+      href: '/dashboard/searches/new?type=person', 
       icon: UsersIcon,
       gradient: 'from-blue-500 to-cyan-500',
       description: 'DNI, CUIT, Nombre'
     },
     { 
       name: 'Empresa', 
-      href: '/searches/new?type=company', 
+      href: '/dashboard/searches/new?type=company', 
       icon: BuildingOfficeIcon,
       gradient: 'from-purple-500 to-pink-500',
       description: 'CUIT, Razón Social'
     },
     { 
       name: 'Vehículo', 
-      href: '/searches/new?type=vehicle', 
+      href: '/dashboard/searches/new?type=vehicle', 
       icon: TruckIcon,
       gradient: 'from-orange-500 to-red-500',
       description: 'Patente, Dominio'
     },
     { 
       name: 'Teléfono', 
-      href: '/searches/new?type=phone', 
+      href: '/dashboard/searches/new?type=phone', 
       icon: PhoneIcon,
       gradient: 'from-green-500 to-emerald-500',
       description: 'Validación, Titular'
@@ -155,14 +155,14 @@ export default function DashboardPage() {
             
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => router.push('/credits/purchase')}
+                onClick={() => router.push('/dashboard/credits/purchase')}
                 className="px-5 py-2.5 bg-white text-purple-600 rounded-xl font-semibold hover:bg-white/90 transition-all duration-200 shadow-lg flex items-center gap-2"
               >
                 <SparklesIcon className="w-5 h-5" />
                 Comprar Créditos
               </button>
               <button
-                onClick={() => router.push('/credits/history')}
+                onClick={() => router.push('/dashboard/credits/history')}
                 className="px-5 py-2.5 bg-white/20 backdrop-blur text-white rounded-xl font-semibold hover:bg-white/30 transition-all duration-200 flex items-center gap-2"
               >
                 <ArrowTrendingUpIcon className="w-5 h-5" />
@@ -202,7 +202,7 @@ export default function DashboardPage() {
               </div>
               
               <button
-                onClick={() => router.push('/credits/history')}
+                onClick={() => router.push('/dashboard/credits/history')}
                 className="w-full mt-4 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 <ClockIcon className="w-4 h-4" />
@@ -225,14 +225,14 @@ export default function DashboardPage() {
           </div>
           <div className="flex gap-3">
             <Link
-              href="/searches"
+              href="/dashboard/searches"
               className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
             >
               <DocumentMagnifyingGlassIcon className="w-5 h-5" />
               Ver Historial
             </Link>
             <Link
-              href="/searches/new"
+              href="/dashboard/searches/new"
               className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-colors flex items-center gap-2 shadow-lg shadow-red-500/25"
             >
               <DocumentMagnifyingGlassIcon className="w-5 h-5" />
@@ -277,7 +277,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">Búsqueda Rápida</h2>
           <Link 
-            href="/searches/new"
+            href="/dashboard/searches/new"
             className="text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 transition-colors"
           >
             Ver todas las opciones
@@ -390,14 +390,14 @@ export default function DashboardPage() {
               <div className="text-center py-8">
                 <ClockIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500">No hay búsquedas activas</p>
-                <Link href="/searches/new" className="text-sm text-blue-600 hover:text-blue-700 font-medium mt-2 inline-block">
+                <Link href="/dashboard/searches/new" className="text-sm text-blue-600 hover:text-blue-700 font-medium mt-2 inline-block">
                   Iniciar nueva búsqueda →
                 </Link>
               </div>
             )}
             
             <Link
-              href="/searches"
+              href="/dashboard/searches"
               className="mt-4 w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg font-medium text-sm text-center transition-colors flex items-center justify-center gap-2"
             >
               Ver todas las búsquedas
@@ -420,7 +420,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <Link
-                href="/history"
+                href="/dashboard/history"
                 className="text-white/90 hover:text-white text-sm font-medium transition-colors"
               >
                 Ver todos →
@@ -450,7 +450,7 @@ export default function DashboardPage() {
                   return (
                     <Link
                       key={report.id}
-                      href={`/reports/${report.id}`}
+                      href={`/dashboard/reports/${report.id}`}
                       className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-200 group"
                     >
                       <div className="flex items-center gap-3">

@@ -42,7 +42,7 @@ const menuItems: MenuItem[] = [
   },
   { 
     name: 'Nueva Búsqueda', 
-    href: '/searches/new', 
+    href: '/dashboard/searches/new', 
     icon: Plus,
     badge: 'Quick',
     badgeColor: 'bg-green-500'
@@ -51,17 +51,17 @@ const menuItems: MenuItem[] = [
     name: 'Búsquedas',
     icon: Search,
     children: [
-      { name: 'Todas las Búsquedas', href: '/searches', icon: FileText },
-      { name: 'Personas', href: '/search/people', icon: Users },
-      { name: 'Empresas', href: '/search/company', icon: Building },
-      { name: 'Vehículos', href: '/search/vehicle', icon: Car },
-      { name: 'Teléfonos', href: '/search/phone', icon: Phone },
-      { name: 'Cuentas Bancarias', href: '/search/bank', icon: Landmark },
+      { name: 'Todas las Búsquedas', href: '/dashboard/searches', icon: FileText },
+      { name: 'Personas', href: '/dashboard/search/people', icon: Users },
+      { name: 'Empresas', href: '/dashboard/search/company', icon: Building },
+      { name: 'Vehículos', href: '/dashboard/search/vehicle', icon: Car },
+      { name: 'Teléfonos', href: '/dashboard/search/phone', icon: Phone },
+      { name: 'Cuentas Bancarias', href: '/dashboard/search/bank', icon: Landmark },
     ]
   },
   { 
     name: 'Historial', 
-    href: '/history', 
+    href: '/dashboard/history', 
     icon: Clock,
     badge: '12',
     badgeColor: 'bg-blue-500'
@@ -70,24 +70,24 @@ const menuItems: MenuItem[] = [
     name: 'Créditos',
     icon: CreditCard,
     children: [
-      { name: 'Comprar Créditos', href: '/credits/purchase', icon: Sparkles },
-      { name: 'Historial de Créditos', href: '/credits/history', icon: TrendingUp },
-      { name: 'Planes y Precios', href: '/credits/plans', icon: BarChart3 },
+      { name: 'Comprar Créditos', href: '/dashboard/credits/purchase', icon: Sparkles },
+      { name: 'Historial de Créditos', href: '/dashboard/credits/history', icon: TrendingUp },
+      { name: 'Planes y Precios', href: '/dashboard/credits/plans', icon: BarChart3 },
     ]
   },
   {
     name: 'Servicios Globales',
     icon: Globe,
     children: [
-      { name: 'Rastreo Web', href: '/services/web-tracking', icon: Globe },
-      { name: 'Validación de Identidad', href: '/services/identity', icon: Shield },
+      { name: 'Rastreo Web', href: '/dashboard/services/web-tracking', icon: Globe },
+      { name: 'Validación de Identidad', href: '/dashboard/services/identity', icon: Shield },
     ]
   },
 ]
 
 const bottomMenuItems: MenuItem[] = [
-  { name: 'Configuración', href: '/settings', icon: Settings },
-  { name: 'Centro de Ayuda', href: '/help', icon: HelpCircle },
+  { name: 'Configuración', href: '/dashboard/settings', icon: Settings },
+  { name: 'Centro de Ayuda', href: '/dashboard/help', icon: HelpCircle },
 ]
 
 export default function Sidebar() {
@@ -104,6 +104,14 @@ export default function Sidebar() {
 
   const isActive = (href?: string) => {
     if (!href) return false
+    // Exact match for dashboard to avoid matching dashboard/searches
+    if (href === '/dashboard') {
+      return pathname === '/dashboard'
+    }
+    // Exact match for searches to avoid matching searches/new
+    if (href === '/dashboard/searches') {
+      return pathname === '/dashboard/searches'
+    }
     return pathname === href || pathname.startsWith(href + '/')
   }
 
@@ -220,7 +228,7 @@ export default function Sidebar() {
               <p className="text-xs text-gray-400 mt-1">847 usados este mes</p>
             </div>
             <Link
-              href="/credits/purchase"
+              href="/dashboard/credits/purchase"
               className="px-3 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur text-white text-xs font-medium rounded-lg transition-colors"
             >
               Comprar +

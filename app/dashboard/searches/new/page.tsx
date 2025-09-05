@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronRight, User, Building, Car, FileText, Search, Upload, Info, AlertCircle, Globe, Tag, CreditCard, Send, ArrowLeft, Sparkles, Clock, Zap, X } from 'lucide-react'
 import Link from 'next/link'
+import { ChevronRight, User, Building, Car, FileText, Search, Upload, Info, Globe, Tag, CreditCard, Send, Sparkles, Clock, Zap, X, TrendingDown } from 'lucide-react'
 
 interface SearchFormData {
   searchType: 'individual' | 'bulk'
@@ -128,17 +128,10 @@ export default function NewSearchPage() {
   const EntityIcon = currentEntityConfig.icon
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/searches"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver al historial
-          </Link>
           
           <div className="flex items-center justify-between">
             <div>
@@ -148,13 +141,39 @@ export default function NewSearchPage() {
               <p className="text-gray-600 mt-1">Consulta información detallada de personas, empresas o vehículos</p>
             </div>
             
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Créditos disponibles</p>
-                <p className="text-2xl font-bold text-gray-900">1,247</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-500/25">
-                <CreditCard className="w-6 h-6" />
+            <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 shadow-sm">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-gray-400" />
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm text-gray-500">Disponible:</span>
+                    <span className="text-lg font-semibold text-gray-900">1,247</span>
+                  </div>
+                </div>
+                
+                <div className="w-px h-6 bg-gray-200"></div>
+                
+                <div className="flex items-center gap-2">
+                  <TrendingDown className="w-4 h-4 text-orange-500" />
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm text-gray-500">Consumo:</span>
+                    <span className="text-lg font-semibold text-orange-600">
+                      {activeTab === 'individual' ? estimatedCredits : '15-20'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="w-px h-6 bg-gray-200"></div>
+                
+                <div className="flex items-baseline gap-1">
+                  <span className="text-sm text-gray-500">Restante:</span>
+                  <span className="text-lg font-semibold text-gray-900">
+                    {activeTab === 'individual' 
+                      ? (1247 - estimatedCredits).toLocaleString() 
+                      : '~1,230'
+                    }
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -280,90 +299,48 @@ export default function NewSearchPage() {
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Datos de Búsqueda</h3>
                 
-                {/* Search Type Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Buscar por</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {formData.entityType === 'person' && (
-                      <>
-                        <label className="relative">
-                          <input
-                            type="radio"
-                            name="searchBy"
-                            value="dni"
-                            checked={formData.searchBy === 'dni'}
-                            onChange={(e) => setFormData(prev => ({ ...prev, searchBy: 'dni' }))}
-                            className="sr-only peer"
-                          />
-                          <div className="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl cursor-pointer transition-all duration-200 peer-checked:border-red-500 peer-checked:bg-red-50 hover:bg-gray-100">
-                            <div className="font-medium text-gray-900">DNI</div>
-                          </div>
-                        </label>
-                        <label className="relative">
-                          <input
-                            type="radio"
-                            name="searchBy"
-                            value="cuit"
-                            checked={formData.searchBy === 'cuit'}
-                            onChange={(e) => setFormData(prev => ({ ...prev, searchBy: 'cuit' }))}
-                            className="sr-only peer"
-                          />
-                          <div className="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl cursor-pointer transition-all duration-200 peer-checked:border-red-500 peer-checked:bg-red-50 hover:bg-gray-100">
-                            <div className="font-medium text-gray-900">CUIT/CUIL</div>
-                          </div>
-                        </label>
-                      </>
-                    )}
-                    {formData.entityType === 'company' && (
-                      <label className="relative col-span-2">
-                        <input
-                          type="radio"
-                          name="searchBy"
-                          value="cuit"
-                          checked={true}
-                          className="sr-only peer"
-                        />
-                        <div className="px-4 py-3 bg-red-50 border-2 border-red-500 rounded-xl cursor-pointer">
-                          <div className="font-medium text-gray-900">CUIT</div>
-                        </div>
-                      </label>
-                    )}
-                    {formData.entityType === 'vehicle' && (
-                      <label className="relative col-span-2">
-                        <input
-                          type="radio"
-                          name="searchBy"
-                          value="patente"
-                          checked={true}
-                          className="sr-only peer"
-                        />
-                        <div className="px-4 py-3 bg-red-50 border-2 border-red-500 rounded-xl cursor-pointer">
-                          <div className="font-medium text-gray-900">Patente/Dominio</div>
-                        </div>
-                      </label>
-                    )}
-                  </div>
-                </div>
-
-                {/* Document Input */}
+                {/* Document Input with Search Type Dropdown */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {formData.searchBy === 'dni' ? 'DNI' : 
                      formData.searchBy === 'cuit' ? 'CUIT/CUIL' : 
                      'Patente'}
                   </label>
-                  <input
-                    type="text"
-                    placeholder={
-                      formData.searchBy === 'dni' ? '12345678' : 
-                      formData.searchBy === 'cuit' ? '20-12345678-9' : 
-                      'ABC123'
-                    }
-                    value={formData.documentValue}
-                    onChange={(e) => setFormData(prev => ({ ...prev, documentValue: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-lg font-mono"
-                    required
-                  />
+                  <div className="flex gap-0 relative">
+                    {/* Dropdown for search type */}
+                    <select
+                      value={formData.searchBy}
+                      onChange={(e) => setFormData(prev => ({ ...prev, searchBy: e.target.value as 'dni' | 'cuit' | 'patente' }))}
+                      className="px-4 py-3 bg-gray-100 border border-r-0 border-gray-200 rounded-l-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 font-medium text-gray-900 min-w-[140px]"
+                    >
+                      {formData.entityType === 'person' && (
+                        <>
+                          <option value="dni">DNI</option>
+                          <option value="cuit">CUIT/CUIL</option>
+                        </>
+                      )}
+                      {formData.entityType === 'company' && (
+                        <option value="cuit">CUIT</option>
+                      )}
+                      {formData.entityType === 'vehicle' && (
+                        <option value="patente">Patente</option>
+                      )}
+                    </select>
+                    
+                    {/* Input field */}
+                    <input
+                      type="text"
+                      placeholder={
+                        formData.searchBy === 'dni' ? '12345678' : 
+                        formData.searchBy === 'cuit' ? '20-12345678-9' : 
+                        'ABC123'
+                      }
+                      value={formData.documentValue}
+                      onChange={(e) => setFormData(prev => ({ ...prev, documentValue: e.target.value }))}
+                      className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-r-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 text-lg font-mono"
+                      required
+                    />
+                  </div>
                 </div>
 
                 {/* Additional Fields Button */}
@@ -420,8 +397,8 @@ export default function NewSearchPage() {
                 )}
               </div>
 
-              {/* Priority and Options */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+{/* Priority and Options - Hidden per request */}
+              {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Opciones de Búsqueda</h3>
                 
                 <div className="space-y-4">
@@ -480,7 +457,7 @@ export default function NewSearchPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           ) : (
             /* Bulk Upload Section */
@@ -569,8 +546,8 @@ export default function NewSearchPage() {
             </div>
           )}
 
-          {/* Cost Estimation */}
-          <div className="mt-6 mb-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-white shadow-lg">
+{/* Cost Estimation - Hidden per request */}
+          {/* <div className="mt-6 mb-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-white shadow-lg">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold mb-1">Estimación de Créditos</h3>
@@ -594,12 +571,12 @@ export default function NewSearchPage() {
                 </p>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Action Buttons */}
           <div className="flex gap-4 mt-6">
             <Link
-              href="/searches"
+              href="/dashboard/searches"
               className="flex-1 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors text-center"
             >
               Cancelar

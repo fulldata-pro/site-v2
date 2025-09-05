@@ -130,7 +130,7 @@ export default function HistoryPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       {search.status === 'completed' && (
                         <Link
-                          href={`/report/${search.id}`}
+                          href={`/dashboard/report/${search.id}`}
                           className="text-primary hover:text-primary-dark flex items-center"
                         >
                           <DocumentTextIcon className="w-4 h-4 mr-1" />
@@ -152,7 +152,7 @@ export default function HistoryPage() {
             Las búsquedas que realice aparecerán aquí
           </p>
           <Link
-            href="/search"
+            href="/dashboard/searches/new"
             className="btn-primary inline-block mt-6"
           >
             Nueva Búsqueda
