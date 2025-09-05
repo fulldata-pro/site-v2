@@ -1,0 +1,684 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Search, Plus, Filter, Download, Eye, RefreshCw, ChevronDown, Calendar, CreditCard, Globe, Tag, CheckCircle, Clock, XCircle, User, Building, Car, MoreVertical, ArrowUpDown, ChevronLeft, ChevronRight, FileText, Send, ArrowLeft } from 'lucide-react'
+
+interface SearchRecord {
+  id: number
+  type: 'person' | 'company' | 'vehicle'
+  name: string
+  document: string
+  documentType: string
+  status: 'completed' | 'processing' | 'failed' | 'pending'
+  date: string
+  country: string
+  label?: string
+  credits: number
+  provider?: string
+  deliveryMethod?: 'sync' | 'async'
+  reportUrl?: string
+}
+
+export default function SearchesPage() {
+  const router = useRouter()
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedType, setSelectedType] = useState('all')
+  const [selectedStatus, setSelectedStatus] = useState('all')
+  const [selectedDateRange, setSelectedDateRange] = useState('all')
+  const [showFilters, setShowFilters] = useState(false)
+  const [selectedRows, setSelectedRows] = useState<number[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'status'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+
+  const searches: SearchRecord[] = [
+    {
+      id: 267,
+      type: 'person',
+      name: 'PATRICIO JOSE FARA AYUP',
+      document: '20376571751',
+      documentType: 'CUIT',
+      status: 'completed',
+      date: '06/08/2025, 3:16 p.m.',
+      country: 'Argentina',
+      label: 'VIP Client',
+      credits: 2,
+      provider: 'Nosis',
+      deliveryMethod: 'sync',
+      reportUrl: '/reports/267'
+    },
+    {
+      id: 258,
+      type: 'person',
+      name: 'PATRICIO JOSE FARA AYUP',
+      document: '20376571751',
+      documentType: 'CUIT',
+      status: 'completed',
+      date: '31/07/2025, 3:23 p.m.',
+      country: 'Argentina',
+      credits: 2,
+      provider: 'BIND',
+      deliveryMethod: 'async',
+      reportUrl: '/reports/258'
+    },
+    {
+      id: 245,
+      type: 'company',
+      name: 'TECH SOLUTIONS S.A.',
+      document: '30712345678',
+      documentType: 'CUIT',
+      status: 'processing',
+      date: '30/07/2025, 2:15 p.m.',
+      country: 'Argentina',
+      label: 'Priority',
+      credits: 3,
+      provider: 'Agildata'
+    },
+    {
+      id: 234,
+      type: 'vehicle',
+      name: 'Toyota Corolla 2020',
+      document: 'ABC123',
+      documentType: 'Patente',
+      status: 'completed',
+      date: '29/07/2025, 11:30 a.m.',
+      country: 'Argentina',
+      credits: 1,
+      provider: 'OSINT',
+      reportUrl: '/reports/234'
+    },
+    {
+      id: 223,
+      type: 'person',
+      name: 'MARIA GONZALEZ',
+      document: '27458963',
+      documentType: 'DNI',
+      status: 'failed',
+      date: '28/07/2025, 4:45 p.m.',
+      country: 'Argentina',
+      credits: 2,
+      provider: 'Didit'
+    },
+    {
+      id: 212,
+      type: 'company',
+      name: 'INVERSIONES DEL SUR SRL',
+      document: '30698741236',
+      documentType: 'CUIT',
+      status: 'pending',
+      date: '27/07/2025, 10:00 a.m.',
+      country: 'Argentina',
+      label: 'New',
+      credits: 3
+    }
+  ]
+
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return {
+          color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+          icon: CheckCircle,
+          text: 'Completado'
+        }
+      case 'processing':
+        return {
+          color: 'text-blue-700 bg-blue-50 border-blue-200',
+          icon: Clock,
+          text: 'Procesando'
+        }
+      case 'failed':
+        return {
+          color: 'text-red-700 bg-red-50 border-red-200',
+          icon: XCircle,
+          text: 'Fallido'
+        }
+      case 'pending':
+        return {
+          color: 'text-amber-700 bg-amber-50 border-amber-200',
+          icon: Clock,
+          text: 'Pendiente'
+        }
+      default:
+        return {
+          color: 'text-gray-700 bg-gray-50 border-gray-200',
+          icon: Clock,
+          text: 'Desconocido'
+        }
+    }
+  }
+
+  const getTypeConfig = (type: string) => {
+    switch (type) {
+      case 'person':
+        return {
+          icon: User,
+          color: 'text-indigo-600',
+          bg: 'bg-indigo-50',
+          label: 'Persona'
+        }
+      case 'company':
+        return {
+          icon: Building,
+          color: 'text-purple-600',
+          bg: 'bg-purple-50',
+          label: 'Empresa'
+        }
+      case 'vehicle':
+        return {
+          icon: Car,
+          color: 'text-cyan-600',
+          bg: 'bg-cyan-50',
+          label: 'Vehículo'
+        }
+      default:
+        return {
+          icon: FileText,
+          color: 'text-gray-600',
+          bg: 'bg-gray-50',
+          label: 'Otro'
+        }
+    }
+  }
+
+  const handleSelectAll = () => {
+    if (selectedRows.length === searches.length) {
+      setSelectedRows([])
+    } else {
+      setSelectedRows(searches.map(s => s.id))
+    }
+  }
+
+  const handleSelectRow = (id: number) => {
+    if (selectedRows.includes(id)) {
+      setSelectedRows(selectedRows.filter(rowId => rowId !== id))
+    } else {
+      setSelectedRows([...selectedRows, id])
+    }
+  }
+
+  const handleSort = (field: 'date' | 'name' | 'status') => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(field)
+      setSortOrder('asc')
+    }
+  }
+
+  const filteredSearches = searches.filter(search => {
+    const matchesSearch = search.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         search.document.includes(searchTerm)
+    const matchesType = selectedType === 'all' || search.type === selectedType
+    const matchesStatus = selectedStatus === 'all' || search.status === selectedStatus
+    return matchesSearch && matchesType && matchesStatus
+  })
+
+  const totalPages = Math.ceil(filteredSearches.length / rowsPerPage)
+  const startIndex = (currentPage - 1) * rowsPerPage
+  const endIndex = startIndex + rowsPerPage
+  const currentSearches = filteredSearches.slice(startIndex, endIndex)
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back to Dashboard Link */}
+        <div className="mb-4">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver al Dashboard
+          </button>
+        </div>
+
+        {/* Header with Stats */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Historial de Búsquedas</h1>
+              <p className="text-gray-600 mt-1">Gestiona y visualiza todas tus consultas realizadas</p>
+            </div>
+            <button 
+              onClick={() => router.push('/searches/new')}
+              className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-red-500/25 flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Nueva Búsqueda
+            </button>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total Búsquedas</p>
+                  <p className="text-2xl font-bold text-gray-900">{searches.length}</p>
+                </div>
+                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <Search className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Completadas</p>
+                  <p className="text-2xl font-bold text-emerald-600">{searches.filter(s => s.status === 'completed').length}</p>
+                </div>
+                <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-emerald-600" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">En Proceso</p>
+                  <p className="text-2xl font-bold text-blue-600">{searches.filter(s => s.status === 'processing').length}</p>
+                </div>
+                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Créditos Usados</p>
+                  <p className="text-2xl font-bold text-purple-600">{searches.reduce((acc, s) => acc + s.credits, 0)}</p>
+                </div>
+                <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filters Bar */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col gap-4">
+            {/* Main Search and Actions */}
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="Buscar por nombre, documento o ID..."
+                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent focus:bg-white transition-all duration-200"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 ${
+                    showFilters
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Filter className="w-4 h-4" />
+                  Filtros
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {selectedRows.length > 0 && (
+                  <button className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-2">
+                    <Download className="w-4 h-4" />
+                    Exportar ({selectedRows.length})
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Expandable Filters */}
+            {showFilters && (
+              <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-4 gap-4 animate-in slide-in-from-top-2 duration-200">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                  <select
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                    value={selectedType}
+                    onChange={(e) => setSelectedType(e.target.value)}
+                  >
+                    <option value="all">Todos los tipos</option>
+                    <option value="person">Personas</option>
+                    <option value="company">Empresas</option>
+                    <option value="vehicle">Vehículos</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                  <select
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                  >
+                    <option value="all">Todos los estados</option>
+                    <option value="completed">Completados</option>
+                    <option value="processing">Procesando</option>
+                    <option value="failed">Fallidos</option>
+                    <option value="pending">Pendientes</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Período</label>
+                  <select
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                    value={selectedDateRange}
+                    onChange={(e) => setSelectedDateRange(e.target.value)}
+                  >
+                    <option value="all">Todo el tiempo</option>
+                    <option value="today">Hoy</option>
+                    <option value="week">Última semana</option>
+                    <option value="month">Último mes</option>
+                    <option value="year">Último año</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">País</label>
+                  <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200">
+                    <option value="all">Todos los países</option>
+                    <option value="ar">Argentina</option>
+                    <option value="br">Brasil</option>
+                    <option value="cl">Chile</option>
+                    <option value="uy">Uruguay</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Search Results Table */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50/50">
+                <tr>
+                  <th className="w-12 px-6 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedRows.length === searches.length}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
+                    />
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    <div className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      ID
+                      <ArrowUpDown className="w-3 h-3 text-gray-400" />
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    <button
+                      onClick={() => handleSort('name')}
+                      className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900 transition-colors"
+                    >
+                      Nombre
+                      <ArrowUpDown className="w-3 h-3" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Búsqueda</div>
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    <button
+                      onClick={() => handleSort('status')}
+                      className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900 transition-colors"
+                    >
+                      Estado
+                      <ArrowUpDown className="w-3 h-3" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Etiqueta</div>
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    <div className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <Globe className="w-3 h-3" />
+                      País
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Usuario</div>
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    <button
+                      onClick={() => handleSort('date')}
+                      className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900 transition-colors"
+                    >
+                      <Calendar className="w-3 h-3" />
+                      Fecha
+                      <ArrowUpDown className="w-3 h-3" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-center">
+                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-100">
+                {currentSearches.map((search) => {
+                  const typeConfig = getTypeConfig(search.type)
+                  const statusConfig = getStatusConfig(search.status)
+                  const StatusIcon = statusConfig.icon
+                  const TypeIcon = typeConfig.icon
+                  
+                  return (
+                    <tr
+                      key={search.id}
+                      className={`hover:bg-gray-50/50 transition-all duration-150 ${
+                        selectedRows.includes(search.id) ? 'bg-red-50/30' : ''
+                      }`}
+                    >
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.includes(search.id)}
+                          onChange={() => handleSelectRow(search.id)}
+                          className="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm font-medium text-gray-900">#{search.id}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 ${typeConfig.bg} rounded-xl flex items-center justify-center`}>
+                            <TypeIcon className={`w-5 h-5 ${typeConfig.color}`} />
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">{search.name}</div>
+                            <div className="text-xs text-gray-500">{typeConfig.label}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="text-sm text-gray-900">{search.documentType}: {search.document}</div>
+                          {search.provider && (
+                            <div className="text-xs text-gray-500 mt-1">via {search.provider}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusConfig.color}`}>
+                          <StatusIcon className="w-3.5 h-3.5" />
+                          {statusConfig.text}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {search.label ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium">
+                            <Tag className="w-3 h-3" />
+                            {search.label}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={`https://flagcdn.com/16x12/${
+                              search.country === 'Argentina' ? 'ar' : 'un'
+                            }.png`}
+                            alt={search.country}
+                            className="w-4 h-3"
+                          />
+                          <span className="text-sm text-gray-600">{search.country}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-600">-</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{search.date}</div>
+                        {search.deliveryMethod && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {search.deliveryMethod === 'sync' ? (
+                              <span className="flex items-center gap-1">
+                                <Send className="w-3 h-3" />
+                                Síncrono
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Asíncrono
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1">
+                          {search.status === 'completed' && search.reportUrl ? (
+                            <button 
+                              onClick={() => router.push(`/reports/${search.id}`)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                              title="Ver reporte"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          ) : search.status === 'processing' ? (
+                            <button className="p-2 text-gray-400 cursor-not-allowed" disabled>
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                            </button>
+                          ) : search.status === 'failed' ? (
+                            <button className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors" title="Reintentar">
+                              <RefreshCw className="w-4 h-4" />
+                            </button>
+                          ) : null}
+                          
+                          {search.status === 'completed' && (
+                            <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" title="Descargar">
+                              <Download className="w-4 h-4" />
+                            </button>
+                          )}
+                          
+                          <button className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors" title="Más opciones">
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Pagination */}
+          <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-700">
+                  Mostrando <span className="font-semibold">{startIndex + 1}</span> a{' '}
+                  <span className="font-semibold">
+                    {Math.min(endIndex, filteredSearches.length)}
+                  </span>{' '}
+                  de <span className="font-semibold">{filteredSearches.length}</span> resultados
+                </span>
+                
+                <select
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value))
+                    setCurrentPage(1)
+                  }}
+                  className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                >
+                  <option value={10}>10 por página</option>
+                  <option value={25}>25 por página</option>
+                  <option value={50}>50 por página</option>
+                  <option value={100}>100 por página</option>
+                </select>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNumber
+                    if (totalPages <= 5) {
+                      pageNumber = i + 1
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + i
+                    } else {
+                      pageNumber = currentPage - 2 + i
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => setCurrentPage(pageNumber)}
+                        className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
+                          currentPage === pageNumber
+                            ? 'bg-red-500 text-white'
+                            : 'text-gray-600 hover:bg-gray-100'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    )
+                  })}
+                </div>
+                
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
