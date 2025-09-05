@@ -1,0 +1,20 @@
+// Export all schemas from a single entry point
+export { default as AdminSchema, type IAdmin } from './admin.schema';
+export { default as UserSchema, type IUser } from './user.schema';
+export { default as AccountSchema, type IAccount } from './account.schema';
+export { default as ReceiptSchema, type IReceipt } from './receipt.schema';
+export { default as StatementSchema, type IStatement } from './statement.schema';
+export { default as MovementSchema, type IMovement } from './movement.schema';
+export { default as RequestSchema, type IRequest } from './request.schema';
+export { default as ProxySchema, type IProxy } from './proxy.schema';
+export { default as BenefitSchema, type IBenefit } from './benefit.schema';
+export { default as ReferralSchema, type IReferral } from './referral.schema';
+export { default as AccountApiSchema, type IAccountApi } from './account-api.schema';
+export { default as CountrySchema, type ICountry } from './country.schema';
+export { default as ProvinceSchema, type IProvince } from './province.schema';
+export { default as CurrencySchema, type ICurrency } from './currency.schema';
+export { default as PaymentMethodSchema, type IPaymentMethod } from './payment-method.schema';
+export { default as FileSchema, type IFile } from './file.schema';
+export { default as ParameterSchema, type IParameter } from './parameter.schema';
+export { default as AccountTagSchema, type IAccountTag } from './account-tag.schema';
+export { default as InvitationSchema, type IInvitation } from './invitation.schema';
