@@ -2,7 +2,18 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ChevronRight, User, Building, Car, FileText, Search, Upload, Info, Globe, Tag, CreditCard, Send, Sparkles, Clock, Zap, X, TrendingDown } from 'lucide-react'
+import { ArrowRightIcon } from '@/components/icons/ArrowRight'
+import { DocumentIcon } from '@/components/icons/Document-icon'
+import { SearchIcon } from '@/components/icons/search-icon'
+import { InformationIcon } from '@/components/icons/information-icon'
+import { Technology4 } from '@/components/icons/technology-4'
+import { BadgeIcon } from '@/components/icons/badge'
+import { WalletEmptyIcon } from '@/components/icons/wallet-empty'
+import GeminiStarsIcon from '@/components/icons/Magic-wand'
+import { TimeIcon } from '@/components/icons/time-icon'
+import { CrossCircleIcon } from '@/components/icons/cross-circle-icon'
+import { ChartIcon } from '@/components/icons/chart'
+import { ServiceIcon } from '@/components/icons/service-icon'
 
 interface SearchFormData {
   searchType: 'individual' | 'bulk'
@@ -51,7 +62,7 @@ export default function NewSearchPage() {
     switch (type) {
       case 'person':
         return {
-          icon: User,
+          service: 'PEOPLE',
           color: 'from-indigo-500 to-blue-500',
           bgLight: 'bg-indigo-50',
           borderColor: 'border-indigo-200',
@@ -61,7 +72,7 @@ export default function NewSearchPage() {
         }
       case 'company':
         return {
-          icon: Building,
+          service: 'COMPANIES',
           color: 'from-purple-500 to-pink-500',
           bgLight: 'bg-purple-50',
           borderColor: 'border-purple-200',
@@ -71,7 +82,7 @@ export default function NewSearchPage() {
         }
       case 'vehicle':
         return {
-          icon: Car,
+          service: 'VEHICLES',
           color: 'from-cyan-500 to-teal-500',
           bgLight: 'bg-cyan-50',
           borderColor: 'border-cyan-200',
@@ -81,7 +92,7 @@ export default function NewSearchPage() {
         }
       default:
         return {
-          icon: FileText,
+          service: null,
           color: 'from-gray-500 to-gray-600',
           bgLight: 'bg-gray-50',
           borderColor: 'border-gray-200',
@@ -125,7 +136,6 @@ export default function NewSearchPage() {
   }
 
   const currentEntityConfig = getEntityConfig(formData.entityType)
-  const EntityIcon = currentEntityConfig.icon
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -144,7 +154,7 @@ export default function NewSearchPage() {
             <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 shadow-sm">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-gray-400" />
+                  <WalletEmptyIcon className="w-4 h-4 text-gray-400" />
                   <div className="flex items-baseline gap-1">
                     <span className="text-sm text-gray-500">Disponible:</span>
                     <span className="text-lg font-semibold text-gray-900">1,247</span>
@@ -154,7 +164,7 @@ export default function NewSearchPage() {
                 <div className="w-px h-6 bg-gray-200"></div>
                 
                 <div className="flex items-center gap-2">
-                  <TrendingDown className="w-4 h-4 text-orange-500" />
+                  <ChartIcon className="w-4 h-4 text-orange-500" />
                   <div className="flex items-baseline gap-1">
                     <span className="text-sm text-gray-500">Consumo:</span>
                     <span className="text-lg font-semibold text-orange-600">
@@ -191,7 +201,7 @@ export default function NewSearchPage() {
               }`}
             >
               <div className="flex items-center justify-center gap-2">
-                <Search className="w-5 h-5" />
+                <SearchIcon className="w-5 h-5" />
                 Búsqueda Individual
               </div>
             </button>
@@ -204,7 +214,7 @@ export default function NewSearchPage() {
               }`}
             >
               <div className="flex items-center justify-center gap-2">
-                <Upload className="w-5 h-5" />
+                <DocumentIcon className="w-5 h-5" />
                 Búsqueda Múltiple
               </div>
             </button>
@@ -221,7 +231,6 @@ export default function NewSearchPage() {
                 <div className="grid grid-cols-3 gap-4">
                   {['person', 'company', 'vehicle'].map((type) => {
                     const config = getEntityConfig(type)
-                    const Icon = config.icon
                     const isSelected = formData.entityType === type
                     
                     return (
@@ -246,7 +255,11 @@ export default function NewSearchPage() {
                         )}
                         
                         <div className={`w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-br ${config.color} flex items-center justify-center text-white`}>
-                          <Icon className="w-6 h-6" />
+                          {config.service ? (
+                            <ServiceIcon service={config.service} className="w-6 h-6" />
+                          ) : (
+                            <DocumentIcon className="w-6 h-6" />
+                          )}
                         </div>
                         
                         <h4 className="font-semibold text-gray-900 mb-1">{config.title}</h4>
@@ -282,7 +295,7 @@ export default function NewSearchPage() {
                       <span className="text-xs text-gray-400 ml-2">(Opcional)</span>
                     </label>
                     <div className="relative">
-                      <Tag className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <BadgeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
                         type="text"
                         placeholder="Ej: Cliente VIP, Proveedor..."
@@ -349,7 +362,7 @@ export default function NewSearchPage() {
                   onClick={() => setShowAdvanced(!showAdvanced)}
                   className="text-sm text-gray-600 hover:text-gray-900 font-medium flex items-center gap-2 transition-colors"
                 >
-                  <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${showAdvanced ? 'rotate-90' : ''}`} />
+                  <ArrowRightIcon className={`w-4 h-4 transition-transform duration-200 ${showAdvanced ? 'rotate-90' : ''}`} />
                   Datos adicionales (opcional)
                 </button>
 
@@ -406,9 +419,9 @@ export default function NewSearchPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-3">Prioridad</label>
                     <div className="grid grid-cols-3 gap-3">
                       {[
-                        { value: 'normal', label: 'Normal', description: '24-48 hs', icon: Clock },
-                        { value: 'high', label: 'Alta', description: '2-6 hs', icon: Zap },
-                        { value: 'urgent', label: 'Urgente', description: 'Inmediato', icon: Sparkles }
+                        { value: 'normal', label: 'Normal', description: '24-48 hs', icon: TimeIcon },
+                        { value: 'high', label: 'Alta', description: '2-6 hs', icon: GeminiStarsIcon },
+                        { value: 'urgent', label: 'Urgente', description: 'Inmediato', icon: GeminiStarsIcon }
                       ].map((priority) => {
                         const Icon = priority.icon
                         const isSelected = formData.priority === priority.value
@@ -446,7 +459,7 @@ export default function NewSearchPage() {
                       <span className="text-xs text-gray-400 ml-2">(Para notificaciones)</span>
                     </label>
                     <div className="relative">
-                      <Send className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <ArrowRightIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
                         type="url"
                         placeholder="https://tu-servidor.com/webhook"
@@ -473,12 +486,12 @@ export default function NewSearchPage() {
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <DocumentIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 
                 {formData.bulkFile ? (
                   <div>
                     <div className="flex items-center justify-center gap-3 mb-2">
-                      <FileText className="w-8 h-8 text-gray-600" />
+                      <DocumentIcon className="w-8 h-8 text-gray-600" />
                       <div className="text-left">
                         <p className="font-medium text-gray-900">{formData.bulkFile.name}</p>
                         <p className="text-sm text-gray-500">
@@ -490,7 +503,7 @@ export default function NewSearchPage() {
                         onClick={() => setFormData(prev => ({ ...prev, bulkFile: undefined }))}
                         className="p-1 hover:bg-gray-200 rounded-lg transition-colors"
                       >
-                        <X className="w-4 h-4 text-gray-600" />
+                        <CrossCircleIcon className="w-4 h-4 text-gray-600" />
                       </button>
                     </div>
                     <button
@@ -532,7 +545,7 @@ export default function NewSearchPage() {
               </div>
               
               <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <InformationIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <p className="text-blue-900 font-medium mb-1">Formato del archivo</p>
                   <p className="text-blue-700">
@@ -593,7 +606,7 @@ export default function NewSearchPage() {
                 </>
               ) : (
                 <>
-                  <Search className="w-5 h-5" />
+                  <SearchIcon className="w-5 h-5" />
                   Iniciar Búsqueda
                 </>
               )}

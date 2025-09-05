@@ -2,7 +2,19 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Plus, Filter, Download, Eye, RefreshCw, ChevronDown, Calendar, CreditCard, Globe, Tag, CheckCircle, Clock, XCircle, User, Building, Car, MoreVertical, ArrowUpDown, ChevronLeft, ChevronRight, FileText, Send } from 'lucide-react'
+import { SearchIcon } from '@/components/icons/search-icon'
+import GeminiStarsIcon from '@/components/icons/Magic-wand'
+import { ArrowRightIcon } from '@/components/icons/ArrowRight'
+import { ArrowLeftIcon } from '@/components/icons/ArrowLeft'
+import { DocumentIcon } from '@/components/icons/Document-icon'
+import { FocusIcon } from '@/components/icons/Focus-icon'
+import { TimeIcon } from '@/components/icons/time-icon'
+import { WalletEmptyIcon } from '@/components/icons/wallet-empty'
+import { Technology4 } from '@/components/icons/technology-4'
+import { BadgeIcon } from '@/components/icons/badge'
+import { CheckCircleIcon } from '@/components/icons/check-circle-icon'
+import { CrossCircleIcon } from '@/components/icons/cross-circle-icon'
+import { ServiceIcon } from '@/components/icons/service-icon'
 
 interface SearchRecord {
   id: number
@@ -120,31 +132,31 @@ export default function SearchesPage() {
       case 'completed':
         return {
           color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
-          icon: CheckCircle,
+          icon: CheckCircleIcon,
           text: 'Completado'
         }
       case 'processing':
         return {
           color: 'text-blue-700 bg-blue-50 border-blue-200',
-          icon: Clock,
+          icon: TimeIcon,
           text: 'Procesando'
         }
       case 'failed':
         return {
           color: 'text-red-700 bg-red-50 border-red-200',
-          icon: XCircle,
+          icon: CrossCircleIcon,
           text: 'Fallido'
         }
       case 'pending':
         return {
           color: 'text-amber-700 bg-amber-50 border-amber-200',
-          icon: Clock,
+          icon: TimeIcon,
           text: 'Pendiente'
         }
       default:
         return {
           color: 'text-gray-700 bg-gray-50 border-gray-200',
-          icon: Clock,
+          icon: TimeIcon,
           text: 'Desconocido'
         }
     }
@@ -154,28 +166,28 @@ export default function SearchesPage() {
     switch (type) {
       case 'person':
         return {
-          icon: User,
+          service: 'PEOPLE',
           color: 'text-indigo-600',
           bg: 'bg-indigo-50',
           label: 'Persona'
         }
       case 'company':
         return {
-          icon: Building,
+          service: 'COMPANIES',
           color: 'text-purple-600',
           bg: 'bg-purple-50',
           label: 'Empresa'
         }
       case 'vehicle':
         return {
-          icon: Car,
+          service: 'VEHICLES',
           color: 'text-cyan-600',
           bg: 'bg-cyan-50',
           label: 'Vehículo'
         }
       default:
         return {
-          icon: FileText,
+          service: null,
           color: 'text-gray-600',
           bg: 'bg-gray-50',
           label: 'Otro'
@@ -236,7 +248,7 @@ export default function SearchesPage() {
               onClick={() => router.push('/dashboard/searches/new')}
               className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-red-500/25 flex items-center gap-2"
             >
-              <Plus className="w-5 h-5" />
+              <GeminiStarsIcon className="w-5 h-5" />
               Nueva Búsqueda
             </button>
           </div>
@@ -250,7 +262,7 @@ export default function SearchesPage() {
                   <p className="text-2xl font-bold text-gray-900">{searches.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <Search className="w-6 h-6 text-blue-600" />
+                  <SearchIcon className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
             </div>
@@ -261,7 +273,7 @@ export default function SearchesPage() {
                   <p className="text-2xl font-bold text-emerald-600">{searches.filter(s => s.status === 'completed').length}</p>
                 </div>
                 <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-emerald-600" />
+                  <CheckCircleIcon className="w-6 h-6 text-emerald-600" />
                 </div>
               </div>
             </div>
@@ -272,7 +284,7 @@ export default function SearchesPage() {
                   <p className="text-2xl font-bold text-blue-600">{searches.filter(s => s.status === 'processing').length}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-blue-600" />
+                  <TimeIcon className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
             </div>
@@ -283,7 +295,7 @@ export default function SearchesPage() {
                   <p className="text-2xl font-bold text-purple-600">{searches.reduce((acc, s) => acc + s.credits, 0)}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
-                  <CreditCard className="w-6 h-6 text-purple-600" />
+                  <WalletEmptyIcon className="w-6 h-6 text-purple-600" />
                 </div>
               </div>
             </div>
@@ -297,7 +309,7 @@ export default function SearchesPage() {
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Buscar por nombre, documento o ID..."
@@ -317,14 +329,14 @@ export default function SearchesPage() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <Filter className="w-4 h-4" />
+                  <BadgeIcon className="w-4 h-4" />
                   Filtros
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`} />
+                  <ArrowRightIcon className={`w-4 h-4 transition-transform duration-200 ${showFilters ? 'rotate-90' : ''}`} />
                 </button>
                 
                 {selectedRows.length > 0 && (
                   <button className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-2">
-                    <Download className="w-4 h-4" />
+                    <DocumentIcon className="w-4 h-4" />
                     Exportar ({selectedRows.length})
                   </button>
                 )}
@@ -410,7 +422,7 @@ export default function SearchesPage() {
                   <th className="px-6 py-4 text-left">
                     <div className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       ID
-                      <ArrowUpDown className="w-3 h-3 text-gray-400" />
+                      <ArrowRightIcon className="w-3 h-3 text-gray-400" />
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left">
@@ -419,7 +431,7 @@ export default function SearchesPage() {
                       className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900 transition-colors"
                     >
                       Nombre
-                      <ArrowUpDown className="w-3 h-3" />
+                      <ArrowRightIcon className="w-3 h-3" />
                     </button>
                   </th>
                   <th className="px-6 py-4 text-left">
@@ -431,7 +443,7 @@ export default function SearchesPage() {
                       className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900 transition-colors"
                     >
                       Estado
-                      <ArrowUpDown className="w-3 h-3" />
+                      <ArrowRightIcon className="w-3 h-3" />
                     </button>
                   </th>
                   <th className="px-6 py-4 text-left">
@@ -439,7 +451,7 @@ export default function SearchesPage() {
                   </th>
                   <th className="px-6 py-4 text-left">
                     <div className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      <Globe className="w-3 h-3" />
+                      <Technology4 className="w-3 h-3" />
                       País
                     </div>
                   </th>
@@ -451,9 +463,9 @@ export default function SearchesPage() {
                       onClick={() => handleSort('date')}
                       className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900 transition-colors"
                     >
-                      <Calendar className="w-3 h-3" />
+                      <TimeIcon className="w-3 h-3" />
                       Fecha
-                      <ArrowUpDown className="w-3 h-3" />
+                      <ArrowRightIcon className="w-3 h-3" />
                     </button>
                   </th>
                   <th className="px-6 py-4 text-center">
@@ -466,7 +478,6 @@ export default function SearchesPage() {
                   const typeConfig = getTypeConfig(search.type)
                   const statusConfig = getStatusConfig(search.status)
                   const StatusIcon = statusConfig.icon
-                  const TypeIcon = typeConfig.icon
                   
                   return (
                     <tr
@@ -489,7 +500,11 @@ export default function SearchesPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 ${typeConfig.bg} rounded-xl flex items-center justify-center`}>
-                            <TypeIcon className={`w-5 h-5 ${typeConfig.color}`} />
+                            {typeConfig.service ? (
+                              <ServiceIcon service={typeConfig.service} className={`w-5 h-5 ${typeConfig.color}`} />
+                            ) : (
+                              <DocumentIcon className={`w-5 h-5 ${typeConfig.color}`} />
+                            )}
                           </div>
                           <div>
                             <div className="text-sm font-semibold text-gray-900">{search.name}</div>
@@ -514,7 +529,7 @@ export default function SearchesPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {search.label ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium">
-                            <Tag className="w-3 h-3" />
+                            <BadgeIcon className="w-3 h-3" />
                             {search.label}
                           </span>
                         ) : (
@@ -542,12 +557,12 @@ export default function SearchesPage() {
                           <div className="text-xs text-gray-500 mt-1">
                             {search.deliveryMethod === 'sync' ? (
                               <span className="flex items-center gap-1">
-                                <Send className="w-3 h-3" />
+                                <ArrowRightIcon className="w-3 h-3" />
                                 Síncrono
                               </span>
                             ) : (
                               <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
+                                <TimeIcon className="w-3 h-3" />
                                 Asíncrono
                               </span>
                             )}
@@ -562,26 +577,26 @@ export default function SearchesPage() {
                               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
                               title="Ver reporte"
                             >
-                              <Eye className="w-4 h-4" />
+                              <FocusIcon className="w-4 h-4" />
                             </button>
                           ) : search.status === 'processing' ? (
                             <button className="p-2 text-gray-400 cursor-not-allowed" disabled>
-                              <RefreshCw className="w-4 h-4 animate-spin" />
+                              <TimeIcon className="w-4 h-4 animate-spin" />
                             </button>
                           ) : search.status === 'failed' ? (
                             <button className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors" title="Reintentar">
-                              <RefreshCw className="w-4 h-4" />
+                              <TimeIcon className="w-4 h-4" />
                             </button>
                           ) : null}
                           
                           {search.status === 'completed' && (
                             <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" title="Descargar">
-                              <Download className="w-4 h-4" />
+                              <DocumentIcon className="w-4 h-4" />
                             </button>
                           )}
                           
                           <button className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors" title="Más opciones">
-                            <MoreVertical className="w-4 h-4" />
+                            <BadgeIcon className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -625,7 +640,7 @@ export default function SearchesPage() {
                   disabled={currentPage === 1}
                   className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ArrowLeftIcon className="w-4 h-4" />
                 </button>
                 
                 <div className="flex items-center gap-1">
@@ -662,7 +677,7 @@ export default function SearchesPage() {
                   disabled={currentPage === totalPages}
                   className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ArrowRightIcon className="w-4 h-4" />
                 </button>
               </div>
             </div>

@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  ShoppingCart, CreditCard, Info, Plus, Minus,
-  Users, Building, Phone, Car, Landmark, Globe, Shield,
-  Sparkles, Gift
-} from 'lucide-react'
+import { WalletEmptyIcon } from '@/components/icons/wallet-empty'
+import { InformationIcon } from '@/components/icons/information-icon'
+import GeminiStarsIcon from '@/components/icons/Magic-wand'
+import { ServiceIcon } from '@/components/icons/service-icon'
+import { Technology4 } from '@/components/icons/technology-4'
+import { FaceIdIcon } from '@/components/icons/face-id-icon'
 
 interface ServiceCredit {
   id: string
   name: string
-  icon: React.ElementType
+  service: string
   color: string
   bgColor: string
   price: number
@@ -31,7 +32,7 @@ export default function CreditsPurchasePage() {
     {
       id: 'personas',
       name: 'Personas',
-      icon: Users,
+      service: 'PEOPLE',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       price: 1389.66,
@@ -42,7 +43,7 @@ export default function CreditsPurchasePage() {
     {
       id: 'empresas',
       name: 'Empresas',
-      icon: Building,
+      service: 'COMPANIES',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
       price: 2751.8,
@@ -53,7 +54,7 @@ export default function CreditsPurchasePage() {
     {
       id: 'telefonos',
       name: 'Teléfonos',
-      icon: Phone,
+      service: 'PHONES',
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       price: 385.25,
@@ -64,7 +65,7 @@ export default function CreditsPurchasePage() {
     {
       id: 'vehiculos',
       name: 'Vehículos',
-      icon: Car,
+      service: 'VEHICLES',
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
       price: 1100.72,
@@ -75,7 +76,7 @@ export default function CreditsPurchasePage() {
     {
       id: 'cuentas',
       name: 'Cuentas Bancarias',
-      icon: Landmark,
+      service: 'BANKS',
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-50',
       price: 151.35,
@@ -89,7 +90,7 @@ export default function CreditsPurchasePage() {
     {
       id: 'rastreo',
       name: 'Rastreo Web',
-      icon: Globe,
+      service: 'OSINT',
       color: 'text-red-600',
       bgColor: 'bg-red-50',
       price: 450.00,
@@ -99,7 +100,7 @@ export default function CreditsPurchasePage() {
     {
       id: 'validacion',
       name: 'Validación de Identidad',
-      icon: Shield,
+      service: 'IDENTITY',
       color: 'text-cyan-600',
       bgColor: 'bg-cyan-50',
       price: 850.00,
@@ -205,7 +206,7 @@ export default function CreditsPurchasePage() {
                 <p className="text-2xl font-bold text-gray-900">3,121</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-500/25">
-                <CreditCard className="w-6 h-6" />
+                <WalletEmptyIcon className="w-6 h-6" />
               </div>
             </div>
           </div>
@@ -236,7 +237,7 @@ export default function CreditsPurchasePage() {
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  <Globe className="w-5 h-5" />
+                  <Technology4 className="w-5 h-5" />
                   Global
                 </button>
                 <button
@@ -257,7 +258,6 @@ export default function CreditsPurchasePage() {
             {activeTab !== 'chile' ? (
               <div className="space-y-4">
                 {currentServices.map((service) => {
-                  const Icon = service.icon
                   return (
                     <div
                       key={service.id}
@@ -268,7 +268,7 @@ export default function CreditsPurchasePage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <div className={`w-12 h-12 ${service.bgColor} rounded-xl flex items-center justify-center`}>
-                            <Icon className={`w-6 h-6 ${service.color}`} />
+                            <ServiceIcon service={service.service} className={`w-6 h-6 ${service.color}`} />
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
@@ -292,7 +292,7 @@ export default function CreditsPurchasePage() {
                             className="w-10 h-10 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors"
                             disabled={service.quantity === 0}
                           >
-                            <Minus className="w-4 h-4 text-gray-600" />
+                            <span className="text-gray-600">−</span>
                           </button>
                           <div className="w-16 text-center">
                             <span className="text-xl font-semibold text-gray-900">{service.quantity}</span>
@@ -301,7 +301,7 @@ export default function CreditsPurchasePage() {
                             onClick={() => updateQuantity(currentServices, setCurrentServices, service.id, 1)}
                             className="w-10 h-10 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors"
                           >
-                            <Plus className="w-4 h-4 text-gray-600" />
+                            <span className="text-gray-600">+</span>
                           </button>
                         </div>
                       </div>
@@ -312,7 +312,7 @@ export default function CreditsPurchasePage() {
             ) : (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Info className="w-10 h-10 text-gray-400" />
+                  <InformationIcon className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Próximamente</h3>
                 <p className="text-gray-500">Los servicios para Chile estarán disponibles pronto</p>
@@ -323,7 +323,7 @@ export default function CreditsPurchasePage() {
             {activeTab !== 'chile' && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <div className="flex gap-3">
-                  <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <InformationIcon className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-amber-800">
                     <p className="font-medium mb-1">Nota importante</p>
                     <p>(*) Las compras que se realicen en fullData pueden demorar algunos minutos en impactar. 
@@ -339,7 +339,7 @@ export default function CreditsPurchasePage() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 sticky top-8">
               <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6 rounded-t-2xl">
                 <div className="flex items-center gap-2 mb-4">
-                  <ShoppingCart className="w-5 h-5" />
+                  <WalletEmptyIcon className="w-5 h-5" />
                   <h3 className="text-lg font-semibold">Resumen de Compra</h3>
                 </div>
                 
@@ -367,11 +367,10 @@ export default function CreditsPurchasePage() {
                       <span className="font-medium">Argentina</span>
                     </div>
                     {argentinaServices.filter(s => s.quantity > 0).map(service => {
-                      const Icon = service.icon
-                      return (
+                          return (
                         <div key={service.id} className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2">
-                            <Icon className="w-4 h-4 text-white/80" />
+                            <ServiceIcon service={service.service} className="w-4 h-4 text-white/80" />
                             <span className="text-white/90">{service.name} x{service.quantity}</span>
                           </div>
                           <span className="font-medium">
@@ -423,7 +422,7 @@ export default function CreditsPurchasePage() {
                       onClick={() => setShowCodeInput(true)}
                       className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2 py-2 hover:bg-blue-50 rounded-lg transition-colors"
                     >
-                      <Gift className="w-4 h-4" />
+                      <GeminiStarsIcon className="w-4 h-4" />
                       Agregar Código de Beneficio
                     </button>
                   )}
@@ -484,7 +483,7 @@ export default function CreditsPurchasePage() {
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-purple-600" />
+                      <GeminiStarsIcon className="w-5 h-5 text-purple-600" />
                       <span className="text-sm text-purple-700 font-medium">Total de créditos</span>
                     </div>
                     <span className="text-xl font-bold text-purple-900">{getTotalCredits()}</span>
@@ -497,13 +496,13 @@ export default function CreditsPurchasePage() {
                   disabled={getTotalCredits() === 0}
                   className="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  <CreditCard className="w-5 h-5" />
+                  <WalletEmptyIcon className="w-5 h-5" />
                   Pagar con Mercado Pago
                 </button>
                 
                 {/* Security Note */}
                 <div className="flex items-center gap-2 text-xs text-gray-500 justify-center">
-                  <Shield className="w-4 h-4" />
+                  <FaceIdIcon className="w-4 h-4" />
                   <span>Pago 100% seguro y procesado al instante</span>
                 </div>
                 

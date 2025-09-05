@@ -4,27 +4,24 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import Image from 'next/image'
-import { 
-  Home,
-  Search,
-  Users,
-  Building,
-  Car,
-  Phone,
-  Landmark,
-  Clock,
-  CreditCard,
-  BarChart3,
-  Settings,
-  HelpCircle,
-  ChevronDown,
-  Plus,
-  TrendingUp,
-  FileText,
-  Globe,
-  Shield,
-  Sparkles
-} from 'lucide-react'
+import { HomeIcon } from '@/components/icons/Home-icon'
+import { SearchIcon } from '@/components/icons/search-icon'
+import { ProfileUserIcon } from '@/components/icons/profile-user-icon'
+import { Cube2Icon } from '@/components/icons/cube-2-icon'
+import { Car2Icon } from '@/components/icons/car-2-icon'
+import { WhatsappIcon } from '@/components/icons/whatsapp-icon'
+import { BankIcon } from '@/components/icons/bank-icon'
+import { TimeIcon } from '@/components/icons/time-icon'
+import { WalletEmptyIcon } from '@/components/icons/wallet-empty'
+import { ChartIcon } from '@/components/icons/chart'
+import { Abstract26Icon } from '@/components/icons/abstract-26-icon'
+import { Question2Icon } from '@/components/icons/question-2-icon'
+import { ArrowRightIcon } from '@/components/icons/ArrowRight'
+import GeminiStarsIcon from '@/components/icons/Magic-wand'
+import { DocumentIcon } from '@/components/icons/Document-icon'
+import { Technology4 } from '@/components/icons/technology-4'
+import { FaceIdIcon } from '@/components/icons/face-id-icon'
+import { ServiceIcon } from '@/components/icons/service-icon'
 
 interface MenuItem {
   name: string
@@ -39,56 +36,56 @@ const menuItems: MenuItem[] = [
   { 
     name: 'Dashboard', 
     href: '/dashboard', 
-    icon: Home 
+    icon: HomeIcon 
   },
   { 
     name: 'Nueva Búsqueda', 
     href: '/dashboard/searches/new', 
-    icon: Plus,
+    icon: GeminiStarsIcon,
     badge: 'Quick',
     badgeColor: 'bg-green-500'
   },
   {
     name: 'Búsquedas',
-    icon: Search,
+    icon: SearchIcon,
     children: [
-      { name: 'Todas las Búsquedas', href: '/dashboard/searches', icon: FileText },
-      { name: 'Personas', href: '/dashboard/search/people', icon: Users },
-      { name: 'Empresas', href: '/dashboard/search/company', icon: Building },
-      { name: 'Vehículos', href: '/dashboard/search/vehicle', icon: Car },
-      { name: 'Teléfonos', href: '/dashboard/search/phone', icon: Phone },
-      { name: 'Cuentas Bancarias', href: '/dashboard/search/bank', icon: Landmark },
+      { name: 'Todas las Búsquedas', href: '/dashboard/searches', icon: DocumentIcon },
+      { name: 'Personas', href: '/dashboard/search/people', icon: ProfileUserIcon },
+      { name: 'Empresas', href: '/dashboard/search/company', icon: Cube2Icon },
+      { name: 'Vehículos', href: '/dashboard/search/vehicle', icon: Car2Icon },
+      { name: 'Teléfonos', href: '/dashboard/search/phone', icon: WhatsappIcon },
+      { name: 'Cuentas Bancarias', href: '/dashboard/search/bank', icon: BankIcon },
     ]
   },
   { 
     name: 'Historial', 
     href: '/dashboard/history', 
-    icon: Clock,
+    icon: TimeIcon,
     badge: '12',
     badgeColor: 'bg-blue-500'
   },
   {
     name: 'Créditos',
-    icon: CreditCard,
+    icon: WalletEmptyIcon,
     children: [
-      { name: 'Comprar Créditos', href: '/dashboard/credits/purchase', icon: Sparkles },
-      { name: 'Historial de Créditos', href: '/dashboard/credits/history', icon: TrendingUp },
-      { name: 'Planes y Precios', href: '/dashboard/credits/plans', icon: BarChart3 },
+      { name: 'Comprar Créditos', href: '/dashboard/credits/purchase', icon: ChartIcon },
+      { name: 'Historial de Créditos', href: '/dashboard/credits/history', icon: ChartIcon },
+      { name: 'Planes y Precios', href: '/dashboard/credits/plans', icon: ChartIcon },
     ]
   },
   {
     name: 'Servicios Globales',
-    icon: Globe,
+    icon: Technology4,
     children: [
-      { name: 'Rastreo Web', href: '/dashboard/services/web-tracking', icon: Globe },
-      { name: 'Validación de Identidad', href: '/dashboard/services/identity', icon: Shield },
+      { name: 'Rastreo Web', href: '/dashboard/services/web-tracking', icon: Technology4 },
+      { name: 'Validación de Identidad', href: '/dashboard/services/identity', icon: FaceIdIcon },
     ]
   },
 ]
 
 const bottomMenuItems: MenuItem[] = [
-  { name: 'Configuración', href: '/dashboard/settings', icon: Settings },
-  { name: 'Centro de Ayuda', href: '/dashboard/help', icon: HelpCircle },
+  { name: 'Configuración', href: '/dashboard/settings', icon: Abstract26Icon },
+  { name: 'Centro de Ayuda', href: '/dashboard/help', icon: Question2Icon },
 ]
 
 export default function Sidebar() {
@@ -142,9 +139,9 @@ export default function Sidebar() {
               <Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-500 group-hover:text-white'}`} />
               <span className="font-medium text-sm">{item.name}</span>
             </div>
-            <ChevronDown 
+            <ArrowRightIcon 
               className={`w-4 h-4 transition-transform duration-200 ${
-                isExpanded ? 'rotate-180' : ''
+                isExpanded ? 'rotate-90' : ''
               }`}
             />
           </button>
