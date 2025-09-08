@@ -376,7 +376,33 @@ Este documento describe la estructura de base de datos de la plataforma Fulldata
 | updatedAt | Number | Timestamp de actualización | No | No | - |
 | deletedAt | Number | Timestamp de eliminación | No | No | - |
 
-### 19. INVITATIONS (invitations)
+### 19. CONFIG (config)
+
+**Propósito**: Almacena la configuración global del sistema para búsquedas, referidos y beneficios.
+
+| Campo | Tipo | Descripción | Requerido | Único | Referencias |
+|-------|------|-------------|-----------|-------|-------------|
+| searches.expirations.time | Number | Tiempo de expiración en días | Sí | No | - |
+| searches.expirations.isEnabled | Boolean | Si la expiración está habilitada | Sí | No | - |
+| referrals.account.isEnabled | Boolean | Si está habilitado para cuentas | Sí | No | - |
+| referrals.account.type | String | Tipo (percentage/amount) | Sí | No | - |
+| referrals.account.amount | Number | Cantidad o porcentaje | Sí | No | - |
+| referrals.account.maxAmount | Number | Monto máximo | Sí | No | - |
+| referrals.referred.isEnabled | Boolean | Si está habilitado para referidos | Sí | No | - |
+| referrals.referred.type | String | Tipo (percentage/amount) | Sí | No | - |
+| referrals.referred.amount | Number | Cantidad o porcentaje | Sí | No | - |
+| referrals.referred.maxAmount | Number | Monto máximo | Sí | No | - |
+| referrals.limits.referrals | Number | Límite de referidos por cuenta | Sí | No | - |
+| referrals.limits.referred | Number | Límite de veces referido | Sí | No | - |
+| referrals.minAmount | Number | Monto mínimo para referidos | Sí | No | - |
+| benefit.firstPurchase.isEnabled | Boolean | Si está habilitado | Sí | No | - |
+| benefit.firstPurchase.type | String | Tipo (percentage/amount) | Sí | No | - |
+| benefit.firstPurchase.amount | Number | Cantidad o porcentaje | Sí | No | - |
+| benefit.firstPurchase.maxAmount | Number | Monto máximo del beneficio | Sí | No | - |
+| createdAt | Date | Timestamp de creación | Sí | No | - |
+| updatedAt | Date | Timestamp de actualización | Sí | No | - |
+
+### 20. INVITATIONS (invitations)
 
 **Propósito**: Gestiona invitaciones para unirse a cuentas.
 

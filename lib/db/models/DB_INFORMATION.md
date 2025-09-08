@@ -110,6 +110,10 @@ Fields: id: Number, uid: String, name: String, type: String, account: ObjectId, 
 
 Relationships: account references ACCOUNTS and createdBy references USERS.
 
+Config (DBConfig): Stores global system configuration for searches, referrals, and benefits.
+
+Fields: searches: Object (expirations: {time: Number, isEnabled: Boolean}), referrals: Object (account: {isEnabled: Boolean, type: String, amount: Number, maxAmount: Number}, referred: {isEnabled: Boolean, type: String, amount: Number, maxAmount: Number}, limits: {referrals: Number, referred: Number}, minAmount: Number), benefit: Object (firstPurchase: {isEnabled: Boolean, type: String, amount: Number, maxAmount: Number}), createdAt: Date, updatedAt: Date.
+
 Invitaciones (DBInvitation): Manages invitations for users to join accounts.
 
 Fields: id: Number, uid: String, account: ObjectId, user: ObjectId, email: String, role: String, status: String, createdBy: ObjectId, createdAt: Number, updatedAt: Number, expiredAt: Number, deletedAt: Number.
