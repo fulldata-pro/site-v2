@@ -18,3 +18,4 @@ export { default as FileSchema, type IFile } from './file.schema';
 export { default as ParameterSchema, type IParameter } from './parameter.schema';
 export { default as AccountTagSchema, type IAccountTag } from './account-tag.schema';
 export { default as InvitationSchema, type IInvitation } from './invitation.schema';
+export { default as ConfigSchema, type IConfig } from './config.schema';
