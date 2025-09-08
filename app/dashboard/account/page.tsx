@@ -7,6 +7,7 @@ import { updateProfile } from '@/store/slices/authSlice'
 import { UserIcon } from '@/components/icons/User-icon'
 import { Setting2Icon } from '@/components/icons/setting-2-icon'
 import { ProfileUserIcon } from '@/components/icons/profile-user-icon'
+import AvatarUpload from '@/components/ui/avatar-upload'
 import { 
   updateProfileSchema, 
   changePasswordSchema, 
@@ -33,6 +34,9 @@ export default function MyAccountPage() {
     phonePrefix: ''
   })
 
+  // Avatar state
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '')
+
   // Security form state  
   const [securityForm, setSecurityForm] = useState<ChangePasswordInput | SetPasswordInput>({
     newPassword: '',
@@ -49,6 +53,7 @@ export default function MyAccountPage() {
         phone: user.phone || '',
         phonePrefix: user.phonePrefix || ''
       })
+      setAvatarUrl(user.avatar || '')
     }
   }, [user])
 
@@ -79,6 +84,14 @@ export default function MyAccountPage() {
   const clearMessages = () => {
     if (successMessage) setSuccessMessage('')
     if (errorMessage) setErrorMessage('')
+  }
+
+  const handleAvatarChange = (newAvatarUrl: string) => {
+    setAvatarUrl(newAvatarUrl)
+    // También actualizar el store de Redux si es necesario
+    if (user) {
+      dispatch(updateProfile({ ...user, avatar: newAvatarUrl }))
+    }
   }
 
   const handlePersonalInfoSubmit = async (e: React.FormEvent) => {
@@ -258,6 +271,17 @@ export default function MyAccountPage() {
               )}
 
               <form onSubmit={handlePersonalInfoSubmit} className="space-y-8">
+                {/* Avatar Upload Section */}
+                <div className="flex justify-center pb-8 border-b border-gray-200">
+                  <AvatarUpload
+                    currentAvatar={avatarUrl}
+                    onAvatarChange={handleAvatarChange}
+                    userId={user?.id || 'anonymous'}
+                    size="large"
+                    disabled={isLoading}
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <label htmlFor="firstName" className="flex items-center gap-2 text-sm font-semibold text-gray-700">

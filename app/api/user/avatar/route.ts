@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateProfileSchema } from '@/lib/validations/auth.validation';
+import { updateAvatarSchema } from '@/lib/validations/auth.validation';
 import { verifyToken } from '@/lib/auth/jwt';
 import { db } from '@/lib/db/services/database.service';
 
@@ -30,7 +30,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     
     // Validate input
-    const validationResult = updateProfileSchema.safeParse(body);
+    const validationResult = updateAvatarSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
         { error: validationResult.error.issues[0].message },
@@ -38,15 +38,11 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { firstName, lastName, phone, phonePrefix, avatar } = validationResult.data;
+    const { avatar } = validationResult.data;
 
-    // Update user profile
+    // Update user avatar
     const updatedUser = await db.users.update(payload.userId, {
-      firstName,
-      lastName,
-      phone,
-      phonePrefix,
-      ...(avatar !== undefined && { avatar }),
+      avatar,
       updatedAt: Date.now()
     });
 
@@ -71,12 +67,12 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Perfil actualizado exitosamente',
+      message: 'Avatar actualizado exitosamente',
       user: userResponse
     });
 
   } catch (error) {
-    console.error('Update profile error:', error);
+    console.error('Update avatar error:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

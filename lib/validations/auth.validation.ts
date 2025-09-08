@@ -78,7 +78,12 @@ export const updateProfileSchema = z.object({
     .min(1, 'El apellido es requerido')
     .min(2, 'El apellido debe tener al menos 2 caracteres'),
   phone: z.string().optional(),
-  phonePrefix: z.string().optional()
+  phonePrefix: z.string().optional(),
+  avatar: z.string().url('URL de avatar inválida').optional()
+});
+
+export const updateAvatarSchema = z.object({
+  avatar: z.string().url('URL de avatar inválida').min(1, 'URL de avatar es requerida').or(z.null())
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -88,3 +93,4 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type SetPasswordInput = z.infer<typeof setPasswordSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type UpdateAvatarInput = z.infer<typeof updateAvatarSchema>;

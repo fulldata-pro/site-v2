@@ -38,15 +38,16 @@ Este documento describe la estructura de base de datos de la plataforma Fulldata
 | uid | String | Identificador único universal | Sí | Sí | - |
 | accounts | [ObjectId] | Cuentas asociadas al usuario | No | No | accounts |
 | email | String | Correo electrónico | Sí | Sí | - |
-| password | String | Contraseña encriptada | Sí | No | - |
+| password | String | Contraseña encriptada | No | No | - |
 | firstName | String | Nombre | Sí | No | - |
 | lastName | String | Apellido | Sí | No | - |
-| avatar | String | URL de imagen de perfil | No | No | - |
+| avatar | String | URL de imagen de perfil del usuario | No | No | - |
 | phone | String | Número de teléfono | No | No | - |
 | phonePrefix | String | Prefijo telefónico del país | No | No | - |
-| createdAt | Number | Timestamp de creación | Sí | No | - |
-| updatedAt | Number | Timestamp de actualización | No | No | - |
-| deletedAt | Number | Timestamp de eliminación lógica | No | No | - |
+| googleId | String | ID de Google para autenticación OAuth | No | No | - |
+| createdAt | Date | Timestamp de creación | Sí | No | - |
+| updatedAt | Date | Timestamp de actualización | No | No | - |
+| deletedAt | Date | Timestamp de eliminación lógica | No | No | - |
 
 ### 3. ACCOUNTS (accounts)
 
