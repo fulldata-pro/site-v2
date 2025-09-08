@@ -1,6 +1,10 @@
 import React from 'react'
 import { TaxData } from '@/lib/types/people_types'
-import { Calculator, FileText, Calendar, CheckCircle, XCircle } from 'lucide-react'
+import { Calculator } from '@/components/icons/CalculatorIcon'
+import { DocumentIcon } from '@/components/icons/Document-icon'
+import { TimeIcon } from '@/components/icons/time-icon'
+import { CheckCircleIcon } from '@/components/icons/check-circle-icon'
+import { CrossCircleIcon } from '@/components/icons/cross-circle-icon'
 
 interface TaxSectionProps {
   taxData: TaxData
@@ -9,7 +13,7 @@ interface TaxSectionProps {
 export default function TaxSection({ taxData }: TaxSectionProps) {
   const formatDate = (timestamp: number | { $numberLong: string } | null) => {
     if (!timestamp) return 'N/A'
-    
+
     let date: Date
     if (typeof timestamp === 'object' && '$numberLong' in timestamp) {
       date = new Date(parseInt(timestamp.$numberLong))
@@ -18,14 +22,14 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
     } else {
       return 'N/A'
     }
-    
+
     return date.toLocaleDateString('es-AR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     })
   }
-  
+
   const formatTaxId = (taxId: number | { $numberLong: string }) => {
     if (typeof taxId === 'object' && '$numberLong' in taxId) {
       return taxId.$numberLong
@@ -43,7 +47,7 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
           </h3>
           <div className="bg-blue-50 p-6 rounded-lg">
             <div className="flex items-start gap-3">
-              <Calculator className="w-6 h-6 text-blue-600 mt-0.5" />
+              <Calculator className="text-xl text-blue-600 mt-0.5" />
               <div className="flex-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -60,9 +64,9 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
                     <label className="text-sm text-gray-500">GCIA</label>
                     <div className="flex items-center gap-2">
                       {taxData.monotribute.gcia === 'No' ? (
-                        <XCircle className="w-4 h-4 text-red-500" />
+                        <CrossCircleIcon className="text-base text-red-500" />
                       ) : (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <CheckCircleIcon className="text-base text-green-500" />
                       )}
                       <span className="text-gray-900 font-medium">{taxData.monotribute.gcia}</span>
                     </div>
@@ -71,9 +75,9 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
                     <label className="text-sm text-gray-500">IVA</label>
                     <div className="flex items-center gap-2">
                       {taxData.monotribute.iva === 'No' ? (
-                        <XCircle className="w-4 h-4 text-red-500" />
+                        <CrossCircleIcon className="text-base text-red-500" />
                       ) : (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <CheckCircleIcon className="text-base text-green-500" />
                       )}
                       <span className="text-gray-900 font-medium">{taxData.monotribute.iva}</span>
                     </div>
@@ -82,9 +86,9 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
                     <label className="text-sm text-gray-500">En Sociedad</label>
                     <div className="flex items-center gap-2">
                       {taxData.monotribute.inSociety ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <CheckCircleIcon className="text-base text-green-500" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-red-500" />
+                        <CrossCircleIcon className="text-base text-red-500" />
                       )}
                       <span className="text-gray-900 font-medium">
                         {taxData.monotribute.inSociety ? 'Sí' : 'No'}
@@ -94,7 +98,7 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
                   <div>
                     <label className="text-sm text-gray-500">Fecha de inicio</label>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <TimeIcon className="text-base text-gray-400" />
                       <span className="text-gray-900 font-medium">
                         {formatDate(taxData.monotribute.startDate || 0)}
                       </span>
@@ -103,7 +107,7 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
                   <div>
                     <label className="text-sm text-gray-500">Fecha de fin</label>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <TimeIcon className="text-base text-gray-400" />
                       <span className="text-gray-900 font-medium">
                         {taxData.monotribute.finishDate ? formatDate(taxData.monotribute.finishDate) : 'Activo'}
                       </span>
@@ -131,7 +135,7 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
           {/* GCIA */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-3">
-              <FileText className="w-5 h-5 text-gray-600" />
+              <DocumentIcon className="text-lg text-gray-600" />
               <h4 className="font-medium text-gray-900">Ganancias</h4>
             </div>
             <div className="space-y-2">
@@ -139,9 +143,9 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
                 <label className="text-sm text-gray-500">Inscrito</label>
                 <div className="flex items-center gap-2">
                   {taxData.gciaInscription ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <CheckCircleIcon className="text-base text-green-500" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-red-500" />
+                    <CrossCircleIcon className="text-base text-red-500" />
                   )}
                   <span className="text-gray-900 font-medium">
                     {taxData.gciaInscription ? 'Sí' : 'No'}
@@ -162,7 +166,7 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
           {/* IVA */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-3">
-              <FileText className="w-5 h-5 text-gray-600" />
+              <DocumentIcon className="text-lg text-gray-600" />
               <h4 className="font-medium text-gray-900">IVA</h4>
             </div>
             <div className="space-y-2">
@@ -170,9 +174,9 @@ export default function TaxSection({ taxData }: TaxSectionProps) {
                 <label className="text-sm text-gray-500">Inscrito</label>
                 <div className="flex items-center gap-2">
                   {taxData.ivaInscription ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <CheckCircleIcon className="text-base text-green-500" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-red-500" />
+                    <CrossCircleIcon className="text-base text-red-500" />
                   )}
                   <span className="text-gray-900 font-medium">
                     {taxData.ivaInscription ? 'Sí' : 'No'}

@@ -9,7 +9,7 @@ import { ChipRequestStatus } from '@/components/ChipRequestStatus'
 import { ServiceIcon } from '@/components/icons/service-icon'
 import { ServicesType } from '@/lib/constants'
 
-interface BankSearchRecord {
+interface IdentitySearchRecord {
   id: number
   name: string
   document: string
@@ -21,137 +21,139 @@ interface BankSearchRecord {
   label?: string
 }
 
-export default function BankSearchPage() {
+export default function IdentitySearchPage() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<RequestStatus | 'all'>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  const searches: BankSearchRecord[] = [
+  const searches: IdentitySearchRecord[] = [
     {
-      id: 578,
-      name: 'CUENTA BANCO NACIÓN',
-      document: '0110599520000001234567',
-      documentType: 'CBU',
+      id: 701,
+      name: 'BIOMETRIC VERIFICATION',
+      document: 'face-scan-001.jpg',
+      documentType: 'Biometric',
       status: RequestStatus.SUCCESS,
-      date: '06/09/2025, 3:45 p.m.',
-      credits: 2,
-      provider: 'BCRA',
-      label: 'Compliance'
+      date: '06/09/2025, 4:50 p.m.',
+      credits: 5,
+      provider: 'AWS Rekognition',
+      label: 'KYC'
     },
     {
-      id: 556,
-      name: 'CUENTA BANCO GALICIA',
-      document: '0070033020000009876543',
-      documentType: 'CBU',
+      id: 689,
+      name: 'DOCUMENT AUTHENTICITY',
+      document: 'dni-scan-456789.pdf',
+      documentType: 'Document',
       status: RequestStatus.PROCESSING,
-      date: '05/09/2025, 10:30 a.m.',
-      credits: 2,
-      provider: 'Coelsa'
+      date: '05/09/2025, 2:30 p.m.',
+      credits: 3,
+      provider: 'IDAnalyzer',
+      label: 'Onboarding'
     },
     {
-      id: 534,
-      name: 'CUENTA BANCO SANTANDER',
-      document: '0720001920000005555555',
-      documentType: 'CBU',
+      id: 665,
+      name: 'LIVENESS DETECTION',
+      document: 'video-selfie-789.mp4',
+      documentType: 'Video',
       status: RequestStatus.SUCCESS,
-      date: '04/09/2025, 2:00 p.m.',
-      credits: 2,
-      provider: 'BCRA',
-      label: 'AML Check'
+      date: '04/09/2025, 10:15 a.m.',
+      credits: 4,
+      provider: 'Jumio',
+      label: 'Anti-Fraud'
     },
     {
-      id: 523,
-      name: 'CUENTA BANCO PROVINCIA',
-      document: '0140999801000012345678',
-      documentType: 'CBU',
+      id: 654,
+      name: 'PASSPORT VERIFICATION',
+      document: 'passport-scan-102.pdf',
+      documentType: 'Document',
       status: RequestStatus.SUCCESS,
-      date: '03/09/2025, 11:15 a.m.',
-      credits: 2,
-      provider: 'BCRA'
+      date: '03/09/2025, 3:45 p.m.',
+      credits: 3,
+      provider: 'IDAnalyzer'
     },
     {
-      id: 512,
-      name: 'CUENTA BANCO MACRO',
-      document: '2850001540000024681357',
-      documentType: 'CBU',
+      id: 643,
+      name: 'FACIAL RECOGNITION',
+      document: 'face-match-303.jpg',
+      documentType: 'Biometric',
       status: RequestStatus.ERROR,
-      date: '02/09/2025, 4:30 p.m.',
-      credits: 2,
-      provider: 'Coelsa'
+      date: '02/09/2025, 11:20 a.m.',
+      credits: 5,
+      provider: 'AWS Rekognition'
     },
     {
-      id: 501,
-      name: 'CUENTA BANCO HSBC',
-      document: '1500609940000087654321',
-      documentType: 'CBU',
+      id: 632,
+      name: 'ID CARD VERIFICATION',
+      document: 'id-card-405.jpg',
+      documentType: 'Document',
       status: RequestStatus.SUCCESS,
       date: '01/09/2025, 9:00 a.m.',
-      credits: 2,
-      provider: 'BCRA',
+      credits: 3,
+      provider: 'Veriff',
       label: 'Priority'
     },
     {
-      id: 490,
-      name: 'CUENTA BANCO BBVA',
-      document: '0170888801000011223344',
-      documentType: 'CBU',
+      id: 621,
+      name: 'SELFIE VERIFICATION',
+      document: 'selfie-506.jpg',
+      documentType: 'Biometric',
       status: RequestStatus.PROCESSING,
-      date: '31/08/2025, 2:45 p.m.',
-      credits: 2,
-      provider: 'Coelsa'
+      date: '31/08/2025, 2:15 p.m.',
+      credits: 4,
+      provider: 'Jumio'
     },
     {
-      id: 479,
-      name: 'CUENTA BANCO CIUDAD',
-      document: '0290011210000033445566',
-      documentType: 'CBU',
+      id: 610,
+      name: 'DRIVER LICENSE CHECK',
+      document: 'license-607.pdf',
+      documentType: 'Document',
       status: RequestStatus.SUCCESS,
-      date: '30/08/2025, 10:20 a.m.',
-      credits: 2,
-      provider: 'BCRA'
+      date: '30/08/2025, 4:30 p.m.',
+      credits: 3,
+      provider: 'IDAnalyzer'
     },
     {
-      id: 468,
-      name: 'CUENTA BANCO PATAGONIA',
-      document: '0340100800000099887766',
-      documentType: 'CBU',
+      id: 599,
+      name: 'AGE VERIFICATION',
+      document: 'age-verify-708.jpg',
+      documentType: 'Biometric',
       status: RequestStatus.SUCCESS,
-      date: '29/08/2025, 3:30 p.m.',
+      date: '29/08/2025, 1:00 p.m.',
       credits: 2,
-      provider: 'BCRA',
-      label: 'VIP'
+      provider: 'Yoti',
+      label: 'Compliance'
     },
     {
-      id: 457,
-      name: 'CUENTA BANCO ICBC',
-      document: '0150502601000055667788',
-      documentType: 'CBU',
+      id: 588,
+      name: 'MULTI-FACTOR AUTH',
+      document: 'mfa-session-809.mp4',
+      documentType: 'Video',
       status: RequestStatus.ERROR,
-      date: '28/08/2025, 1:00 p.m.',
-      credits: 2,
-      provider: 'Coelsa'
+      date: '28/08/2025, 10:45 a.m.',
+      credits: 6,
+      provider: 'Onfido'
     },
     {
-      id: 446,
-      name: 'CUENTA BANCO SUPERVIELLE',
-      document: '0270001910000044556677',
-      documentType: 'CBU',
+      id: 577,
+      name: 'DOCUMENT TAMPERING CHECK',
+      document: 'doc-tamper-910.pdf',
+      documentType: 'Document',
       status: RequestStatus.SUCCESS,
-      date: '27/08/2025, 4:15 p.m.',
-      credits: 2,
-      provider: 'BCRA'
+      date: '27/08/2025, 3:20 p.m.',
+      credits: 4,
+      provider: 'Veriff'
     },
     {
-      id: 435,
-      name: 'CUENTA BANCO HIPOTECARIO',
-      document: '0440000010000066778899',
-      documentType: 'CBU',
+      id: 566,
+      name: 'VOICE BIOMETRICS',
+      document: 'voice-sample-011.wav',
+      documentType: 'Audio',
       status: RequestStatus.PROCESSING,
-      date: '26/08/2025, 11:45 a.m.',
-      credits: 2,
-      provider: 'Coelsa'
+      date: '26/08/2025, 12:00 p.m.',
+      credits: 5,
+      provider: 'Nuance',
+      label: 'VIP'
     }
   ]
 
@@ -190,11 +192,11 @@ export default function BankSearchPage() {
         <div className="border-b border-gray-200 mb-6">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                <ServiceIcon service={ServicesType.BANKS} className="text-2xl text-red-600" />
+              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+                <ServiceIcon service={ServicesType.IDENTITY} className="text-2xl text-indigo-600" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Bancos</h1>
+                <h1 className="text-xl font-semibold text-gray-900">Validación de Identidad</h1>
                 <p className="text-sm text-gray-500 mt-0.5">
                   {searches.length} búsquedas realizadas
                 </p>
@@ -219,7 +221,7 @@ export default function BankSearchPage() {
               </div>
               <input
                 type="text"
-                placeholder="Buscar banco o CBU..."
+                placeholder="Buscar validación o documento..."
                 className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
@@ -249,10 +251,10 @@ export default function BankSearchPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Cuenta
+                  Validación
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  CBU
+                  Archivo
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Estado
@@ -270,7 +272,7 @@ export default function BankSearchPage() {
                 <tr>
                   <td colSpan={5} className="px-4 py-16 text-center">
                     <div className="mx-auto max-w-sm">
-                      <ServiceIcon service={ServicesType.BANKS} className="text-4xl text-gray-300 mx-auto mb-4" />
+                      <ServiceIcon service={ServicesType.IDENTITY} className="text-4xl text-gray-300 mx-auto mb-4" />
                       <h3 className="text-sm font-medium text-gray-900 mb-1">
                         No se encontraron búsquedas
                       </h3>
@@ -300,7 +302,7 @@ export default function BankSearchPage() {
                         <div className="flex items-center">
                           <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
                             <span className="text-xs font-medium text-gray-600">
-                              {search.name.split(' ').slice(-1)[0].slice(0, 2)}
+                              {search.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
                             </span>
                           </div>
                           <div className="ml-3">
@@ -315,8 +317,8 @@ export default function BankSearchPage() {
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 font-mono">{search.document}</div>
-                        <div className="text-xs text-gray-500">{search.provider}</div>
+                        <div className="text-sm text-gray-900">{search.document}</div>
+                        <div className="text-xs text-gray-500">{search.documentType} • {search.provider}</div>
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap">

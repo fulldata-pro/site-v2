@@ -1,6 +1,9 @@
 import React from 'react'
 import { NicDomains } from '@/lib/types/people_types'
-import { Globe, CheckCircle, XCircle, Copy, AlertTriangle } from 'lucide-react'
+import { CheckCircleIcon } from '@/components/icons/check-circle-icon'
+import { CrossCircleIcon } from '@/components/icons/cross-circle-icon'
+import { DangerIcon } from '@/components/icons/danger-icon'
+import { Globe, Copy } from 'lucide-react'
 
 interface AdditionalDataSectionProps {
   nicDomains?: NicDomains[]
@@ -29,12 +32,12 @@ export default function AdditionalDataSection({
             <div className="flex items-center gap-2 mt-2">
               {isBanked ? (
                 <>
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <CheckCircleIcon className="text-lg text-green-600" />
                   <span className="text-green-600 font-medium">Sí</span>
                 </>
               ) : (
                 <>
-                  <XCircle className="w-5 h-5 text-red-600" />
+                  <CrossCircleIcon className="text-lg text-red-600" />
                   <span className="text-red-600 font-medium">No</span>
                 </>
               )}
@@ -47,12 +50,12 @@ export default function AdditionalDataSection({
               <div className="flex items-center gap-2 mt-2">
                 {isDuplicated ? (
                   <>
-                    <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                    <DangerIcon className="text-lg text-yellow-600" />
                     <span className="text-yellow-600 font-medium">Sí</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <CheckCircleIcon className="text-lg text-green-600" />
                     <span className="text-green-600 font-medium">No</span>
                   </>
                 )}
@@ -88,12 +91,12 @@ export default function AdditionalDataSection({
                   <div>
                     {domain.status === 'VERIFIED' ? (
                       <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <CheckCircle className="w-3 h-3" />
+                        <CheckCircleIcon className="text-xs" />
                         Verificado
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                        <XCircle className="w-3 h-3" />
+                        <CrossCircleIcon className="text-xs" />
                         No Verificado
                       </span>
                     )}

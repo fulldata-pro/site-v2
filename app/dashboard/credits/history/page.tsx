@@ -2,10 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { PeopleIcon } from '@/components/icons/People-icon'
+import { PhoneIcon } from '@/components/icons/Phone-icon'
+import { Car2Icon } from '@/components/icons/car-2-icon'
+import { BankIcon } from '@/components/icons/bank-icon'
 import { 
   ArrowLeft, CreditCard, TrendingUp, TrendingDown, Calendar, 
-  Filter, Download, ChevronDown, Search, Users, Building, 
-  Phone, Car, Landmark, Globe, Shield, ShoppingCart, ArrowUpRight, ArrowDownRight
+  Filter, Download, ChevronDown, Search, Building, 
+  Globe, Shield, ShoppingCart, ArrowUpRight, ArrowDownRight
 } from 'lucide-react'
 
 interface CreditTransaction {
@@ -45,7 +49,7 @@ export default function CreditsHistoryPage() {
       date: '2024-11-14 10:15',
       type: 'usage',
       service: 'personas',
-      serviceIcon: Users,
+      serviceIcon: PeopleIcon,
       description: 'Búsqueda de persona - DNI: 37657175',
       amount: -2,
       balance: 3021,
@@ -67,7 +71,7 @@ export default function CreditsHistoryPage() {
       date: '2024-11-13 16:20',
       type: 'usage',
       service: 'vehiculos',
-      serviceIcon: Car,
+      serviceIcon: Car2Icon,
       description: 'Búsqueda de vehículo - Patente: ABC123',
       amount: -1,
       balance: 3026,
@@ -99,7 +103,7 @@ export default function CreditsHistoryPage() {
       date: '2024-11-10 09:00',
       type: 'usage',
       service: 'telefonos',
-      serviceIcon: Phone,
+      serviceIcon: PhoneIcon,
       description: 'Validación telefónica - +54 11 4343-9580',
       amount: -1,
       balance: 2532,
@@ -110,7 +114,7 @@ export default function CreditsHistoryPage() {
       date: '2024-11-09 14:15',
       type: 'usage',
       service: 'cuentas',
-      serviceIcon: Landmark,
+      serviceIcon: BankIcon,
       description: 'Búsqueda cuentas bancarias - CUIT: 20-37657175-1',
       amount: -2,
       balance: 2533,
@@ -128,11 +132,11 @@ export default function CreditsHistoryPage() {
 
   const getServiceConfig = (service?: string) => {
     const configs: Record<string, { icon: React.ElementType, color: string, bg: string }> = {
-      personas: { icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+      personas: { icon: PeopleIcon, color: 'text-blue-600', bg: 'bg-blue-50' },
       empresas: { icon: Building, color: 'text-purple-600', bg: 'bg-purple-50' },
-      telefonos: { icon: Phone, color: 'text-green-600', bg: 'bg-green-50' },
-      vehiculos: { icon: Car, color: 'text-orange-600', bg: 'bg-orange-50' },
-      cuentas: { icon: Landmark, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+      telefonos: { icon: PhoneIcon, color: 'text-green-600', bg: 'bg-green-50' },
+      vehiculos: { icon: Car2Icon, color: 'text-orange-600', bg: 'bg-orange-50' },
+      cuentas: { icon: BankIcon, color: 'text-indigo-600', bg: 'bg-indigo-50' },
       rastreo: { icon: Globe, color: 'text-red-600', bg: 'bg-red-50' },
       validacion: { icon: Shield, color: 'text-cyan-600', bg: 'bg-cyan-50' }
     }
@@ -356,7 +360,7 @@ export default function CreditsHistoryPage() {
                         {transaction.service ? (
                           <div className="flex items-center gap-2">
                             <div className={`w-8 h-8 ${serviceConfig.bg} rounded-lg flex items-center justify-center`}>
-                              <Icon className={`w-4 h-4 ${serviceConfig.color}`} />
+                              <Icon className={`text-base ${serviceConfig.color}`} />
                             </div>
                             <span className="text-sm text-gray-700 capitalize">{transaction.service}</span>
                           </div>

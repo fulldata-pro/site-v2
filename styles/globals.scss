@@ -17,6 +17,29 @@
   }
 }
 
+.text-services-people {
+  color: #eb1034;
+}
+.text-services-companies {
+  color: #1e90ff;
+}
+.text-services-vehicles {
+  color: #32cd32;
+}
+.text-services-phones {
+  color: #ffa500;
+}
+.text-services-banks {
+  color: #8a2be2;
+}
+.text-services-identity {
+  color: #ff1493;
+}
+.text-services-osint {
+  color: #20b2aa;
+}
+
+
 @layer components {
   .btn-primary {
     @apply bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors duration-200 font-medium;

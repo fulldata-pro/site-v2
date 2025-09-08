@@ -3,14 +3,12 @@ import React from "react";
 
 interface LoginIconProps extends React.HTMLAttributes<SVGSVGElement> {}
 
-export function LoginIcon({ className, ...props }: LoginIconProps) {
+export function LoginIcon({ className = "w-full h-full", ...props }: LoginIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			data-name="Login Icon"
 			className={classNames("fill-current", className)}
-			width="722.45196"
-			height="364.19648"
 			viewBox="0 0 722.45196 364.19648"
 			xmlnsXlink="http://www.w3.org/1999/xlink"
 			{...props}

@@ -1,6 +1,8 @@
 import React from 'react'
 import { PersonalPropertyData } from '@/lib/types/people_types'
-import { Home, Car, CreditCard, Building } from 'lucide-react'
+import { HomeIcon } from '@/components/icons/Home-icon'
+import { Car2Icon } from '@/components/icons/car-2-icon'
+import { CreditCard, Building } from 'lucide-react'
 
 interface PersonalPropertySectionProps {
   propertyData: PersonalPropertyData
@@ -81,7 +83,7 @@ export default function PersonalPropertySection({ propertyData }: PersonalProper
             {propertyData.cars.map((car, idx) => (
               <div key={idx} className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <Car className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <Car2Icon className="text-lg text-blue-600 mt-0.5" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <h4 className="font-medium text-gray-900">
@@ -179,7 +181,7 @@ export default function PersonalPropertySection({ propertyData }: PersonalProper
             {propertyData.registeredTrademarks.map((trademark, idx) => (
               <div key={idx} className="bg-gray-50 p-3 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Home className="w-4 h-4 text-blue-600" />
+                  <HomeIcon className="text-base text-blue-600" />
                   <span className="text-gray-900 font-medium">{trademark}</span>
                 </div>
               </div>

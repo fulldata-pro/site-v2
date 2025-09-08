@@ -1,6 +1,11 @@
 import React from 'react'
 import { OfficialBolletinData } from '@/lib/types/people_types'
-import { FileText, AlertTriangle, Users, Scale, Calendar, MapPin, Phone } from 'lucide-react'
+import { DocumentIcon } from '@/components/icons/Document-icon'
+import { DangerIcon } from '@/components/icons/danger-icon'
+import { PeopleIcon } from '@/components/icons/People-icon'
+import { PinIcon } from '@/components/icons/Pin-icon'
+import { PhoneIcon } from '@/components/icons/Phone-icon'
+import { Scale } from 'lucide-react'
 
 interface OfficialBulletinSectionProps {
   bulletinData: OfficialBolletinData
@@ -28,7 +33,7 @@ export default function OfficialBulletinSection({ bulletinData }: OfficialBullet
   if (isEmpty) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <FileText className="w-16 h-16 text-gray-400 mb-4" />
+        <DocumentIcon className="text-6xl text-gray-400 mb-4" />
         <p className="text-gray-500 text-lg">Sin información en Boletín Oficial</p>
         <p className="text-gray-400 text-sm mt-2">No se encontraron registros en el boletín oficial</p>
       </div>
@@ -47,7 +52,7 @@ export default function OfficialBulletinSection({ bulletinData }: OfficialBullet
             {bulletinData.bulletin.map((item, idx) => (
               <div key={idx} className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <FileText className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <DocumentIcon className="text-lg text-blue-600 mt-0.5" />
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900 mb-2">{item.rz}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -84,7 +89,7 @@ export default function OfficialBulletinSection({ bulletinData }: OfficialBullet
             {bulletinData.embargoes.map((embargo, idx) => (
               <div key={idx} className="bg-red-50 border border-red-200 p-4 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
+                  <DangerIcon className="text-lg text-red-600 mt-0.5" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -127,13 +132,13 @@ export default function OfficialBulletinSection({ bulletinData }: OfficialBullet
                       <div className="mt-3 flex flex-col gap-2">
                         {embargo.adress && (
                           <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-gray-400" />
+                            <PinIcon className="text-base text-gray-400" />
                             <span className="text-sm text-gray-900">{embargo.adress}</span>
                           </div>
                         )}
                         {embargo.phone && (
                           <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-gray-400" />
+                            <PhoneIcon className="text-base text-gray-400" />
                             <span className="text-sm text-gray-900">{embargo.phone}</span>
                           </div>
                         )}
@@ -157,7 +162,7 @@ export default function OfficialBulletinSection({ bulletinData }: OfficialBullet
             {bulletinData.participationSocietal.map((participation, idx) => (
               <div key={idx} className="bg-purple-50 border border-purple-200 p-4 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-purple-600 mt-0.5" />
+                  <PeopleIcon className="text-lg text-purple-600 mt-0.5" />
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900 mb-2">{participation.rz}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

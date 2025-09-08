@@ -15,10 +15,11 @@ import { BadgeIcon } from '@/components/icons/badge'
 import { CheckCircleIcon } from '@/components/icons/check-circle-icon'
 import { CrossCircleIcon } from '@/components/icons/cross-circle-icon'
 import { ServiceIcon } from '@/components/icons/service-icon'
+import { ServicesLabel, ServicesType } from '@/lib/constants'
 
 interface SearchRecord {
   id: number
-  type: 'person' | 'company' | 'vehicle'
+  type: ServicesType
   name: string
   document: string
   documentType: string
@@ -48,7 +49,7 @@ export default function SearchesPage() {
   const searches: SearchRecord[] = [
     {
       id: 267,
-      type: 'person',
+      type: ServicesType.PEOPLE,
       name: 'PATRICIO JOSE FARA AYUP',
       document: '20376571751',
       documentType: 'CUIT',
@@ -63,7 +64,7 @@ export default function SearchesPage() {
     },
     {
       id: 258,
-      type: 'person',
+      type: ServicesType.PEOPLE,
       name: 'PATRICIO JOSE FARA AYUP',
       document: '20376571751',
       documentType: 'CUIT',
@@ -77,7 +78,7 @@ export default function SearchesPage() {
     },
     {
       id: 245,
-      type: 'company',
+      type: ServicesType.COMPANIES,
       name: 'TECH SOLUTIONS S.A.',
       document: '30712345678',
       documentType: 'CUIT',
@@ -90,7 +91,7 @@ export default function SearchesPage() {
     },
     {
       id: 234,
-      type: 'vehicle',
+      type: ServicesType.VEHICLES,
       name: 'Toyota Corolla 2020',
       document: 'ABC123',
       documentType: 'Patente',
@@ -103,7 +104,7 @@ export default function SearchesPage() {
     },
     {
       id: 223,
-      type: 'person',
+      type: ServicesType.PEOPLE,
       name: 'MARIA GONZALEZ',
       document: '27458963',
       documentType: 'DNI',
@@ -115,7 +116,7 @@ export default function SearchesPage() {
     },
     {
       id: 212,
-      type: 'company',
+      type: ServicesType.COMPANIES,
       name: 'INVERSIONES DEL SUR SRL',
       document: '30698741236',
       documentType: 'CUIT',
@@ -162,38 +163,38 @@ export default function SearchesPage() {
     }
   }
 
-  const getTypeConfig = (type: string) => {
-    switch (type) {
-      case 'person':
-        return {
-          service: 'PEOPLE',
-          color: 'text-indigo-600',
-          bg: 'bg-indigo-50',
-          label: 'Persona'
-        }
-      case 'company':
-        return {
-          service: 'COMPANIES',
-          color: 'text-purple-600',
-          bg: 'bg-purple-50',
-          label: 'Empresa'
-        }
-      case 'vehicle':
-        return {
-          service: 'VEHICLES',
-          color: 'text-cyan-600',
-          bg: 'bg-cyan-50',
-          label: 'Vehículo'
-        }
-      default:
-        return {
-          service: null,
-          color: 'text-gray-600',
-          bg: 'bg-gray-50',
-          label: 'Otro'
-        }
-    }
-  }
+  // const getTypeConfig = (type: string) => {
+  //   switch (type) {
+  //     case ServicesType.PEOPLE:
+  //       return {
+  //         service: 'PEOPLE',
+  //         color: 'text-indigo-600',
+  //         bg: 'bg-indigo-50',
+  //         label: 'Persona'
+  //       }
+  //     case 'company':
+  //       return {
+  //         service: 'COMPANIES',
+  //         color: 'text-purple-600',
+  //         bg: 'bg-purple-50',
+  //         label: 'Empresa'
+  //       }
+  //     case 'vehicle':
+  //       return {
+  //         service: 'VEHICLES',
+  //         color: 'text-cyan-600',
+  //         bg: 'bg-cyan-50',
+  //         label: 'Vehículo'
+  //       }
+  //     default:
+  //       return {
+  //         service: null,
+  //         color: 'text-gray-600',
+  //         bg: 'bg-gray-50',
+  //         label: 'Otro'
+  //       }
+  //   }
+  // }
 
   const handleSelectAll = () => {
     if (selectedRows.length === searches.length) {
@@ -222,7 +223,7 @@ export default function SearchesPage() {
 
   const filteredSearches = searches.filter(search => {
     const matchesSearch = search.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         search.document.includes(searchTerm)
+      search.document.includes(searchTerm)
     const matchesType = selectedType === 'all' || search.type === selectedType
     const matchesStatus = selectedStatus === 'all' || search.status === selectedStatus
     return matchesSearch && matchesType && matchesStatus
@@ -244,7 +245,7 @@ export default function SearchesPage() {
               <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Historial de Búsquedas</h1>
               <p className="text-gray-600 mt-1">Gestiona y visualiza todas tus consultas realizadas</p>
             </div>
-            <button 
+            <button
               onClick={() => router.push('/dashboard/searches/new')}
               className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-red-500/25 flex items-center gap-2"
             >
@@ -319,21 +320,20 @@ export default function SearchesPage() {
                   />
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 ${
-                    showFilters
+                  className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 ${showFilters
                       ? 'bg-gray-900 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <BadgeIcon className="w-4 h-4" />
                   Filtros
                   <ArrowRightIcon className={`w-4 h-4 transition-transform duration-200 ${showFilters ? 'rotate-90' : ''}`} />
                 </button>
-                
+
                 {selectedRows.length > 0 && (
                   <button className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-2">
                     <DocumentIcon className="w-4 h-4" />
@@ -359,7 +359,7 @@ export default function SearchesPage() {
                     <option value="vehicle">Vehículos</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
                   <select
@@ -374,7 +374,7 @@ export default function SearchesPage() {
                     <option value="pending">Pendientes</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Período</label>
                   <select
@@ -389,7 +389,7 @@ export default function SearchesPage() {
                     <option value="year">Último año</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">País</label>
                   <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200">
@@ -475,16 +475,15 @@ export default function SearchesPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {currentSearches.map((search) => {
-                  const typeConfig = getTypeConfig(search.type)
+                  // const typeConfig = getTypeConfig(search.type)
                   const statusConfig = getStatusConfig(search.status)
                   const StatusIcon = statusConfig.icon
-                  
+
                   return (
                     <tr
                       key={search.id}
-                      className={`hover:bg-gray-50/50 transition-all duration-150 ${
-                        selectedRows.includes(search.id) ? 'bg-red-50/30' : ''
-                      }`}
+                      className={`hover:bg-gray-50/50 transition-all duration-150 ${selectedRows.includes(search.id) ? 'bg-red-50/30' : ''
+                        }`}
                     >
                       <td className="px-6 py-4">
                         <input
@@ -499,16 +498,12 @@ export default function SearchesPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 ${typeConfig.bg} rounded-xl flex items-center justify-center`}>
-                            {typeConfig.service ? (
-                              <ServiceIcon service={typeConfig.service} className={`w-5 h-5 ${typeConfig.color}`} />
-                            ) : (
-                              <DocumentIcon className={`w-5 h-5 ${typeConfig.color}`} />
-                            )}
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center`}>
+                            <ServiceIcon service={search.type} className={`text-lg`} />
                           </div>
                           <div>
                             <div className="text-sm font-semibold text-gray-900">{search.name}</div>
-                            <div className="text-xs text-gray-500">{typeConfig.label}</div>
+                            <div className="text-xs text-gray-500">{ServicesLabel[search.type]}</div>
                           </div>
                         </div>
                       </td>
@@ -539,9 +534,8 @@ export default function SearchesPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <img
-                            src={`https://flagcdn.com/16x12/${
-                              search.country === 'Argentina' ? 'ar' : 'un'
-                            }.png`}
+                            src={`https://flagcdn.com/16x12/${search.country === 'Argentina' ? 'ar' : 'un'
+                              }.png`}
                             alt={search.country}
                             className="w-4 h-3"
                           />
@@ -572,9 +566,9 @@ export default function SearchesPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center justify-center gap-1">
                           {search.status === 'completed' && search.reportUrl ? (
-                            <button 
+                            <button
                               onClick={() => router.push(`/dashboard/reports/${search.id}`)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                               title="Ver reporte"
                             >
                               <FocusIcon className="w-4 h-4" />
@@ -588,13 +582,13 @@ export default function SearchesPage() {
                               <TimeIcon className="w-4 h-4" />
                             </button>
                           ) : null}
-                          
+
                           {search.status === 'completed' && (
                             <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" title="Descargar">
                               <DocumentIcon className="w-4 h-4" />
                             </button>
                           )}
-                          
+
                           <button className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors" title="Más opciones">
                             <BadgeIcon className="w-4 h-4" />
                           </button>
@@ -606,7 +600,7 @@ export default function SearchesPage() {
               </tbody>
             </table>
           </div>
-          
+
           {/* Pagination */}
           <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
             <div className="flex items-center justify-between">
@@ -618,7 +612,7 @@ export default function SearchesPage() {
                   </span>{' '}
                   de <span className="font-semibold">{filteredSearches.length}</span> resultados
                 </span>
-                
+
                 <select
                   value={rowsPerPage}
                   onChange={(e) => {
@@ -633,7 +627,7 @@ export default function SearchesPage() {
                   <option value={100}>100 por página</option>
                 </select>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -642,7 +636,7 @@ export default function SearchesPage() {
                 >
                   <ArrowLeftIcon className="w-4 h-4" />
                 </button>
-                
+
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNumber
@@ -655,23 +649,22 @@ export default function SearchesPage() {
                     } else {
                       pageNumber = currentPage - 2 + i
                     }
-                    
+
                     return (
                       <button
                         key={pageNumber}
                         onClick={() => setCurrentPage(pageNumber)}
-                        className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
-                          currentPage === pageNumber
+                        className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${currentPage === pageNumber
                             ? 'bg-red-500 text-white'
                             : 'text-gray-600 hover:bg-gray-100'
-                        }`}
+                          }`}
                       >
                         {pageNumber}
                       </button>
                     )
                   })}
                 </div>
-                
+
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}

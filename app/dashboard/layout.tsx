@@ -49,7 +49,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className={`${isReportPage ? 'ml-6' : 'ml-64'} flex flex-col min-h-screen`}>
         <Header />
         <main className={`flex-1 ${isReportPage ? '' : 'p-8'} overflow-x-hidden`}>
           <div className="max-w-full">

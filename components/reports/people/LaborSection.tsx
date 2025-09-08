@@ -1,6 +1,9 @@
 import React from 'react'
 import { LaborData } from '@/lib/types/people_types'
-import { Briefcase, Calendar, Building2, Users, Shield } from 'lucide-react'
+import { BriefcaseIcon } from '@/components/icons/Briefcase-icon'
+import { TimeIcon } from '@/components/icons/time-icon'
+import { PeopleIcon } from '@/components/icons/People-icon'
+import { Building2, Shield } from 'lucide-react'
 
 interface LaborSectionProps {
   laborData: LaborData
@@ -102,7 +105,7 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
             {laborData.activities.map((activity, idx) => (
               <div key={idx} className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <Briefcase className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <BriefcaseIcon className="text-lg text-blue-600 mt-0.5" />
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900">{activity.description}</h4>
                     <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -168,7 +171,7 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
                     
                     <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <TimeIcon className="text-base text-gray-400" />
                         <span className="text-gray-600">
                           {formatDate(employer.startDate)} - {formatDate(employer.finishDate)}
                         </span>
@@ -217,7 +220,7 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
                           )}
                           {employer.employerData.employees !== undefined && (
                             <div className="flex items-center gap-1">
-                              <Users className="w-4 h-4 text-gray-400" />
+                              <PeopleIcon className="text-base text-gray-400" />
                               <span className="text-gray-500">Empleados:</span>
                               <span className="ml-1 text-gray-900 font-medium">
                                 {employer.employerData.employees}

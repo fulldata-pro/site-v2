@@ -1,619 +1,698 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { ArrowRightIcon } from '@/components/icons/ArrowRight'
-import { DocumentIcon } from '@/components/icons/Document-icon'
-import { SearchIcon } from '@/components/icons/search-icon'
-import { InformationIcon } from '@/components/icons/information-icon'
-import { Technology4 } from '@/components/icons/technology-4'
-import { BadgeIcon } from '@/components/icons/badge'
-import { WalletEmptyIcon } from '@/components/icons/wallet-empty'
-import GeminiStarsIcon from '@/components/icons/Magic-wand'
-import { TimeIcon } from '@/components/icons/time-icon'
-import { CrossCircleIcon } from '@/components/icons/cross-circle-icon'
-import { ChartIcon } from '@/components/icons/chart'
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ServiceIcon } from '@/components/icons/service-icon'
+import { ServicesLabel, ServicesType } from '@/lib/constants'
+import Image from 'next/image'
 
-interface SearchFormData {
-  searchType: 'individual' | 'bulk'
-  entityType: 'person' | 'company' | 'vehicle'
-  country: string
-  label: string
-  searchBy: 'dni' | 'cuit' | 'patente' | 'name'
-  documentValue: string
-  additionalData: {
-    name?: string
-    lastName?: string
-    birthDate?: string
-    address?: string
+// Mock credit data - in real app this would come from Redux store or API
+const mockCredits = {
+  available: 1247,
+  serviceCosts: {
+    [ServicesType.PEOPLE]: 2,
+    [ServicesType.COMPANIES]: 3,
+    [ServicesType.VEHICLES]: 2,
+    [ServicesType.PHONES]: 1,
+    [ServicesType.BANKS]: 4,
+    [ServicesType.OSINT]: 5,
+    [ServicesType.IDENTITY]: 2,
   }
-  bulkFile?: File
-  priority: 'normal' | 'high' | 'urgent'
-  webhookUrl?: string
+}
+
+const servicePatterns = {
+  [ServicesType.PEOPLE]: {
+    pattern: /^\d{2}-?\d{8}-?\d$/,
+    name: ServicesLabel.people,
+    example: '20-12345678-9',
+    placeholder: 'Ingresa el CUIT/CUIL (ej: 20-12345678-9)'
+  },
+  [ServicesType.COMPANIES]: {
+    pattern: /^\d{2}-?\d{8}-?\d$/,
+    name: ServicesLabel.companies,
+    example: '30-12345678-9',
+    placeholder: 'Ingresa el CUIT de la empresa (ej: 30-12345678-9)'
+  },
+  [ServicesType.VEHICLES]: {
+    pattern: /^[A-Z]{2,3}\d{3}[A-Z]{0,2}$/i,
+    name: ServicesLabel.vehicles,
+    example: 'AB123CD',
+    placeholder: 'Ingresa la patente del vehículo (ej: AB123CD)'
+  },
+  [ServicesType.PHONES]: {
+    pattern: /^(\+?54\s?)?(\(?\d{2,4}\)?[\s-]?)?\d{4}[\s-]?\d{4}$/,
+    name: ServicesLabel.phones,
+    example: '+54 11 1234-5678',
+    placeholder: 'Ingresa el número telefónico (ej: +54 11 1234-5678)'
+  },
+  [ServicesType.BANKS]: {
+    pattern: /^\d{2}-?\d{8}-?\d$/,
+    name: ServicesLabel.banks,
+    example: '20-12345678-9',
+    placeholder: 'Ingresa el CUIT para búsqueda bancaria (ej: 20-12345678-9)'
+  },
+  [ServicesType.OSINT]: {
+    pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    name: ServicesLabel.osint,
+    example: 'usuario@ejemplo.com',
+    placeholder: 'Ingresa el email para búsqueda OSINT (ej: usuario@ejemplo.com)'
+  },
+  [ServicesType.IDENTITY]: {
+    pattern: /^\d{2}-?\d{8}-?\d$/,
+    name: ServicesLabel.identity,
+    example: '20-12345678-9',
+    placeholder: 'Ingresa el CUIT/CUIL para búsqueda de identidad (ej: 20-12345678-9)'
+  }
+}
+
+function detectServiceType(input: string): ServicesType | null {
+  const trimmedInput = input.trim()
+  for (const [serviceType, config] of Object.entries(servicePatterns)) {
+    if (config.pattern.test(trimmedInput)) {
+      return serviceType as ServicesType
+    }
+  }
+  return null
 }
 
 export default function NewSearchPage() {
-  const [activeTab, setActiveTab] = useState<'individual' | 'bulk'>('individual')
-  const [formData, setFormData] = useState<SearchFormData>({
-    searchType: 'individual',
-    entityType: 'person',
-    country: 'ar',
-    label: '',
-    searchBy: 'cuit',
-    documentValue: '',
-    additionalData: {},
-    priority: 'normal'
-  })
-  const [estimatedCredits, setEstimatedCredits] = useState(2)
-  const [showAdvanced, setShowAdvanced] = useState(false)
+  const router = useRouter()
+  const [input, setInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
-  const [dragActive, setDragActive] = useState(false)
+  const [detectedService, setDetectedService] = useState<ServicesType | null>(null)
+  const [selectedService, setSelectedService] = useState<ServicesType | null>(ServicesType.PEOPLE)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [placeholder, setPlaceholder] = useState(servicePatterns[ServicesType.PEOPLE].placeholder)
+  const [displayedPlaceholder, setDisplayedPlaceholder] = useState(servicePatterns[ServicesType.PEOPLE].placeholder)
+  const [isTyping, setIsTyping] = useState(false)
 
-  const countries = [
-    { code: 'ar', name: 'Argentina', flag: '🇦🇷', available: 478 },
-    { code: 'br', name: 'Brasil', flag: '🇧🇷', available: 215 },
-    { code: 'cl', name: 'Chile', flag: '🇨🇱', available: 189 },
-    { code: 'uy', name: 'Uruguay', flag: '🇺🇾', available: 94 },
-    { code: 'py', name: 'Paraguay', flag: '🇵🇾', available: 67 }
-  ]
+  // Excel upload states
+  const [excelData, setExcelData] = useState<any[]>([])
+  const [showColumnModal, setShowColumnModal] = useState(false)
+  const [excelColumns, setExcelColumns] = useState<string[]>([])
+  const [selectedColumn, setSelectedColumn] = useState<string>('')
+  const [bulkSearchData, setBulkSearchData] = useState<string[]>([])
 
-  const getEntityConfig = (type: string) => {
-    switch (type) {
-      case 'person':
-        return {
-          service: 'PEOPLE',
-          color: 'from-indigo-500 to-blue-500',
-          bgLight: 'bg-indigo-50',
-          borderColor: 'border-indigo-200',
-          title: 'Personas',
-          description: 'Búsqueda de datos personales, laborales y patrimoniales',
-          searchFields: ['DNI', 'CUIT/CUIL', 'Nombre Completo']
-        }
-      case 'company':
-        return {
-          service: 'COMPANIES',
-          color: 'from-purple-500 to-pink-500',
-          bgLight: 'bg-purple-50',
-          borderColor: 'border-purple-200',
-          title: 'Empresas',
-          description: 'Información corporativa, financiera y societaria',
-          searchFields: ['CUIT', 'Razón Social', 'Denominación']
-        }
-      case 'vehicle':
-        return {
-          service: 'VEHICLES',
-          color: 'from-cyan-500 to-teal-500',
-          bgLight: 'bg-cyan-50',
-          borderColor: 'border-cyan-200',
-          title: 'Vehículos',
-          description: 'Datos de dominio, titularidad e historial',
-          searchFields: ['Patente', 'Dominio', 'VIN']
-        }
-      default:
-        return {
-          service: null,
-          color: 'from-gray-500 to-gray-600',
-          bgLight: 'bg-gray-50',
-          borderColor: 'border-gray-200',
-          title: 'Otros',
-          description: 'Búsquedas especializadas',
-          searchFields: []
-        }
+  // Helper function to check if service is available based on credits
+  const isServiceAvailable = (service: ServicesType) => {
+    const cost = mockCredits.serviceCosts[service]
+    return mockCredits.available >= cost
+  }
+
+  // Helper function to get dynamic padding based on service name length
+  const getServiceSelectorPadding = (service: ServicesType | null) => {
+    if (!service) return 'pl-32'
+
+    const serviceName = servicePatterns[service].name
+    const baseWidth = 80 // Base width for icon + padding + chevron
+
+    // Approximate character widths (in pixels) for the font size
+    const charWidth = 7.5 // Approximate width per character for text-sm font-medium
+    const estimatedWidth = baseWidth + (serviceName.length * charWidth)
+
+    // Convert to Tailwind padding classes (4px per unit)
+    const paddingUnits = Math.ceil(estimatedWidth / 4)
+
+    // Map to closest Tailwind class, with some buffer
+    if (paddingUnits <= 32) return 'pl-40'      // ~144px - for short names like "Banco"
+    else if (paddingUnits <= 36) return 'pl-44' // ~160px - for medium names like "Persona"  
+    else if (paddingUnits <= 40) return 'pl-48' // ~176px - for longer names like "Empresa"
+    else if (paddingUnits <= 44) return 'pl-52' // ~192px - for longest names like "Teléfono"
+    else return 'pl-52'                          // ~208px - for very long names
+  }
+
+  // Helper function to get dynamic left positioning for placeholder and indicators
+  const getServiceSelectorLeftPosition = (service: ServicesType | null) => {
+    if (!service) return 'left-32'
+
+    const serviceName = servicePatterns[service].name
+    const baseWidth = 80
+    const charWidth = 7.5
+    const estimatedWidth = baseWidth + (serviceName.length * charWidth)
+    const paddingUnits = Math.ceil(estimatedWidth / 4)
+
+    // Map to corresponding left positioning classes
+    if (paddingUnits <= 32) return 'left-40'
+    else if (paddingUnits <= 36) return 'left-44'
+    else if (paddingUnits <= 40) return 'left-48'
+    else if (paddingUnits <= 44) return 'left-52'
+    else return 'left-52'
+  }
+
+  // Show dropdown when input is focused and has content
+  useEffect(() => {
+    const detected = detectServiceType(input)
+    setDetectedService(detected)
+  }, [input])
+
+  // Typewriter effect for placeholder
+  useEffect(() => {
+    if (placeholder === displayedPlaceholder) return
+
+    setIsTyping(true)
+
+    // Clear current placeholder first
+    let clearIndex = displayedPlaceholder.length
+    const clearIntervalId = setInterval(() => {
+      setDisplayedPlaceholder(prev => prev.slice(0, clearIndex - 1))
+      clearIndex--
+
+      if (clearIndex <= 0) {
+        clearInterval(clearIntervalId)
+
+        // Small delay before typing new placeholder
+        setTimeout(() => {
+          // Start typing new placeholder
+          let typeIndex = 0
+          const typeIntervalId = setInterval(() => {
+            setDisplayedPlaceholder(placeholder.slice(0, typeIndex + 1))
+            typeIndex++
+
+            if (typeIndex >= placeholder.length) {
+              clearInterval(typeIntervalId)
+              setIsTyping(false)
+            }
+          }, 50) // Typing speed
+        }, 100) // Delay before starting to type
+      }
+    }, 30) // Clearing speed
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      clearInterval(clearIntervalId)
     }
-  }
+  }, [placeholder])
 
-  const handleDrag = (e: React.DragEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    e.stopPropagation()
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true)
-    } else if (e.type === "dragleave") {
-      setDragActive(false)
-    }
-  }
+    if (!input.trim() || isProcessing) return
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileUpload(e.dataTransfer.files[0])
-    }
-  }
+    const service = detectServiceType(input.trim())
+    if (!service) return
 
-  const handleFileUpload = (file: File) => {
-    setFormData(prev => ({ ...prev, bulkFile: file }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
     setIsProcessing(true)
+    setShowDropdown(false)
+
+    // Simulate processing
     setTimeout(() => {
-      setIsProcessing(false)
+      router.push('/dashboard/reports/001')
     }, 2000)
   }
 
-  const currentEntityConfig = getEntityConfig(formData.entityType)
+  const handleServiceSelect = (service: ServicesType) => {
+    if (!isServiceAvailable(service)) return
+
+    setSelectedService(service)
+    setInput('')
+    setShowDropdown(false)
+
+    // Reset typewriter effect completely
+    setIsTyping(false)
+    setDisplayedPlaceholder('')
+
+    // Set new placeholder after a brief delay to trigger typewriter effect
+    setTimeout(() => {
+      setPlaceholder(servicePatterns[service].placeholder)
+    }, 50)
+
+    // Focus the input after a brief delay to ensure state updates
+    setTimeout(() => {
+      const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement
+      if (inputElement) {
+        inputElement.focus()
+      }
+    }, 200)
+  }
+
+  const handleServiceDropdownToggle = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowDropdown(!showDropdown)
+  }
+
+  const handleInputFocus = () => {
+    // Input focus doesn't show dropdown anymore
+  }
+
+  const handleInputBlur = () => {
+    // Input blur doesn't hide dropdown anymore
+  }
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = document.querySelector('[data-dropdown]')
+      const button = document.querySelector('[data-dropdown-trigger]')
+
+      if (dropdown && button && !dropdown.contains(event.target as Node) && !button.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showDropdown])
+
+  // Handle Excel file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer)
+        // For demo purposes, we'll simulate Excel parsing
+        // In a real app, you'd use a library like xlsx or similar
+        const mockExcelData = [
+          { 'CUIT': '20-12345678-9', 'Nombre': 'Juan Pérez', 'Email': 'juan@example.com' },
+          { 'CUIT': '27-87654321-3', 'Nombre': 'María García', 'Email': 'maria@example.com' },
+          { 'CUIT': '23-45678912-7', 'Nombre': 'Carlos López', 'Email': 'carlos@example.com' }
+        ]
+
+        setExcelData(mockExcelData)
+        setExcelColumns(Object.keys(mockExcelData[0]))
+        setShowColumnModal(true)
+      } catch (error) {
+        console.error('Error reading Excel file:', error)
+        alert('Error al leer el archivo Excel')
+      }
+    }
+    reader.readAsArrayBuffer(file)
+  }
+
+  // Handle column selection
+  const handleColumnSelection = () => {
+    if (!selectedColumn) return
+
+    const columnData = excelData.map(row => row[selectedColumn]).filter(Boolean)
+    setBulkSearchData(columnData)
+    setShowColumnModal(false)
+
+    // Simulate API call
+    console.log('Sending bulk data to API:', {
+      service: selectedService,
+      data: columnData,
+      totalItems: columnData.length
+    })
+  }
+
+  // Send bulk data to API
+  const processBulkSearch = async () => {
+    if (bulkSearchData.length === 0) return
+
+    setIsProcessing(true)
+
+    try {
+      // Simulate API call - replace with actual endpoint
+      const response = await fetch('/api/bulk-search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service: selectedService,
+          data: bulkSearchData,
+          totalItems: bulkSearchData.length
+        })
+      })
+
+      if (response.ok) {
+        console.log('Bulk search initiated successfully')
+        router.push('/dashboard/reports/bulk-001')
+      } else {
+        throw new Error('Error en la búsqueda masiva')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error al procesar la búsqueda masiva')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                Nueva Búsqueda
-              </h1>
-              <p className="text-gray-600 mt-1">Consulta información detallada de personas, empresas o vehículos</p>
+    <div className="min-h-screen bg-white flex  justify-center p-4">
+      <div className="w-full max-w-2xl">
+        {/* Header with Animated Logo */}
+        <div className="text-center mb-20 transition-all duration-700 ease-out">
+          {/* Credits Display */}
+          <div className="absolute top-4 right-4">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-gray-600">Créditos:</span>
+              <span className="font-semibold text-gray-800">{mockCredits.available.toLocaleString()}</span>
             </div>
-            
-            <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 shadow-sm">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <WalletEmptyIcon className="w-4 h-4 text-gray-400" />
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-sm text-gray-500">Disponible:</span>
-                    <span className="text-lg font-semibold text-gray-900">1,247</span>
-                  </div>
+          </div>
+
+          <div className="mb-4 mt-24">
+            <div className="inline-block">
+              <Image
+                src="/images/logo-icon.svg"
+                alt="Fulldata Logo"
+                width={80}
+                height={80}
+                className="mx-auto mb-6 animate-pulse"
+                style={{
+                  animation: 'float 3s ease-in-out infinite'
+                }}
+              />
+            </div>
+          </div>
+          <div className="inline-flex items-center gap-3 group">
+            <div className="w-2 h-2 bg-slate-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <h1 className="text-3xl font-extralight text-slate-800 tracking-wide">
+              ¿Qué necesitas encontrar?
+            </h1>
+          </div>
+        </div>
+
+        {/* Search Interface */}
+        <div className="space-y-8">
+          {/* Main Input */}
+          <form onSubmit={handleSubmit} className='relative'>
+            <div className="relative group">
+              <div className="relative">
+                {/* Service Selector as Start Content */}
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <button
+                    type="button"
+                    data-dropdown-trigger
+                    onClick={handleServiceDropdownToggle}
+                    className={`flex items-center gap-2 px-3 py-2 h-10 rounded-xl transition-all duration-200 border-2 ${showDropdown
+                      ? 'bg-slate-200 border-slate-300 shadow-md'
+                      : 'bg-slate-100 hover:bg-slate-200 border-transparent hover:border-slate-300'
+                      }`}
+                  >
+                    <ServiceIcon service={selectedService!} className="text-xl" />
+                    <span className="text-sm font-medium text-slate-700 whitespace-nowrap">
+                      {servicePatterns[selectedService!].name}
+                    </span>
+                    <svg className="w-3 h-3 text-slate-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
                 </div>
-                
-                <div className="w-px h-6 bg-gray-200"></div>
-                
-                <div className="flex items-center gap-2">
-                  <ChartIcon className="w-4 h-4 text-orange-500" />
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-sm text-gray-500">Consumo:</span>
-                    <span className="text-lg font-semibold text-orange-600">
-                      {activeTab === 'individual' ? estimatedCredits : '15-20'}
+
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onFocus={handleInputFocus}
+                  onBlur={handleInputBlur}
+                  placeholder=""
+                  className={`w-full ${getServiceSelectorPadding(selectedService)} pr-32 py-6 text-xl font-light border border-gray-200 rounded-3xl focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 transition-all duration-300 bg-white shadow-sm hover:shadow-md focus:shadow-lg`}
+                  disabled={isProcessing}
+                  autoFocus
+                />
+
+                {/* Custom placeholder with typewriter effect */}
+                {!input && (
+                  <div className={`absolute ${getServiceSelectorLeftPosition(selectedService)} top-1/2 transform -translate-y-1/2 pointer-events-none`}>
+                    <span className="text-sm text-gray-400 font-light">
+                      {displayedPlaceholder}
+                      {isTyping && (
+                        <span className="animate-pulse ml-1 text-slate-600">|</span>
+                      )}
                     </span>
                   </div>
-                </div>
-                
-                <div className="w-px h-6 bg-gray-200"></div>
-                
-                <div className="flex items-baseline gap-1">
-                  <span className="text-sm text-gray-500">Restante:</span>
-                  <span className="text-lg font-semibold text-gray-900">
-                    {activeTab === 'individual' 
-                      ? (1247 - estimatedCredits).toLocaleString() 
-                      : '~1,230'
-                    }
-                  </span>
-                </div>
+                )}
+
+                {/* Service Indicator when input matches pattern */}
+                {detectedService && !isProcessing && (
+                  <div className={`absolute ${getServiceSelectorLeftPosition(selectedService)} top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out`}>
+                    <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>{input}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={!input.trim() || !selectedService || isProcessing || (selectedService && !detectedService)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 px-8 py-3 bg-slate-800 text-white rounded-2xl hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+                >
+                  {isProcessing ? (
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Buscando</span>
+                    </div>
+                  ) : (
+                    'Buscar'
+                  )}
+                </button>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Search Type Tabs */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 mb-6">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setActiveTab('individual')}
-              className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                activeTab === 'individual'
-                  ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <SearchIcon className="w-5 h-5" />
-                Búsqueda Individual
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('bulk')}
-              className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                activeTab === 'bulk'
-                  ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <DocumentIcon className="w-5 h-5" />
-                Búsqueda Múltiple
-              </div>
-            </button>
-          </div>
-        </div>
+            {/* Service Dropdown */}
+            {showDropdown && (
+              <div
+                data-dropdown
+                className="absolute left-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl z-30 overflow-hidden backdrop-blur-sm"
+                style={{ transform: 'translateX(4px)' }}
+              >
+                <div className="p-3 border-b border-gray-100 bg-slate-50/50">
+                  <p className="text-sm font-medium text-slate-700 px-2">
+                    Selecciona el tipo de búsqueda:
+                  </p>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {Object.entries(servicePatterns).map(([service, config]) => {
+                    const available = isServiceAvailable(service as ServicesType)
 
-        {/* Main Form */}
-        <form onSubmit={handleSubmit}>
-          {activeTab === 'individual' ? (
-            <div className="space-y-6">
-              {/* Entity Type Selection */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">¿Qué deseas buscar?</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  {['person', 'company', 'vehicle'].map((type) => {
-                    const config = getEntityConfig(type)
-                    const isSelected = formData.entityType === type
-                    
                     return (
                       <button
-                        key={type}
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, entityType: type as any }))}
-                        className={`relative p-4 rounded-xl border-2 transition-all duration-200 ${
-                          isSelected
-                            ? `${config.borderColor} ${config.bgLight}`
-                            : 'border-gray-200 hover:border-gray-300 bg-white'
-                        }`}
+                        key={service}
+                        onClick={() => handleServiceSelect(service as ServicesType)}
+                        disabled={!available}
+                        className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-all duration-200 ${!available
+                          ? 'opacity-50 cursor-not-allowed bg-gray-50/50'
+                          : 'cursor-pointer hover:bg-slate-50 hover:shadow-sm'
+                          } ${selectedService === service ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''}`}
                       >
-                        {isSelected && (
-                          <div className="absolute top-3 right-3">
-                            <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-                              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                              </svg>
-                            </div>
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${available ? 'bg-white shadow-sm' : 'bg-gray-100'}`}>
+                            <ServiceIcon service={service} className={`w-5 h-5 ${!available ? 'text-gray-300' : selectedService === service ? 'text-blue-600' : 'text-slate-600'}`} />
                           </div>
-                        )}
-                        
-                        <div className={`w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-br ${config.color} flex items-center justify-center text-white`}>
-                          {config.service ? (
-                            <ServiceIcon service={config.service} className="w-6 h-6" />
-                          ) : (
-                            <DocumentIcon className="w-6 h-6" />
-                          )}
+                          <div>
+                            <div className={`text-sm font-semibold ${!available ? 'text-gray-400' : selectedService === service ? 'text-blue-700' : 'text-slate-800'}`}>
+                              {config.name}
+                            </div>
+                            <div className="text-xs text-slate-500">{config.example}</div>
+                          </div>
                         </div>
-                        
-                        <h4 className="font-semibold text-gray-900 mb-1">{config.title}</h4>
-                        <p className="text-xs text-gray-500 leading-relaxed">{config.description}</p>
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            {/* <div className={`text-xs font-semibold ${available ? 'text-slate-700' : 'text-red-500'}`}>
+                              {cost} créditos
+                            </div> */}
+                            {available && (
+                              <div className="text-xs text-slate-500">
+                                {mockCredits.available} disponibles
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </button>
                     )
                   })}
                 </div>
               </div>
+            )}
+          </form>
 
-              {/* Country and Label */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">País y Etiqueta</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">País</label>
-                    <select
-                      value={formData.country}
-                      onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                    >
-                      {countries.map(country => (
-                        <option key={country.code} value={country.code}>
-                          {country.flag} {country.name} ({country.available} disponibles)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Etiqueta
-                      <span className="text-xs text-gray-400 ml-2">(Opcional)</span>
-                    </label>
-                    <div className="relative">
-                      <BadgeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <input
-                        type="text"
-                        placeholder="Ej: Cliente VIP, Proveedor..."
-                        value={formData.label}
-                        onChange={(e) => setFormData(prev => ({ ...prev, label: e.target.value }))}
-                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Search Parameters */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Datos de Búsqueda</h3>
-                
-                {/* Document Input with Search Type Dropdown */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {formData.searchBy === 'dni' ? 'DNI' : 
-                     formData.searchBy === 'cuit' ? 'CUIT/CUIL' : 
-                     'Patente'}
-                  </label>
-                  <div className="flex gap-0 relative">
-                    {/* Dropdown for search type */}
-                    <select
-                      value={formData.searchBy}
-                      onChange={(e) => setFormData(prev => ({ ...prev, searchBy: e.target.value as 'dni' | 'cuit' | 'patente' }))}
-                      className="px-4 py-3 bg-gray-100 border border-r-0 border-gray-200 rounded-l-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 font-medium text-gray-900 min-w-[140px]"
-                    >
-                      {formData.entityType === 'person' && (
-                        <>
-                          <option value="dni">DNI</option>
-                          <option value="cuit">CUIT/CUIL</option>
-                        </>
-                      )}
-                      {formData.entityType === 'company' && (
-                        <option value="cuit">CUIT</option>
-                      )}
-                      {formData.entityType === 'vehicle' && (
-                        <option value="patente">Patente</option>
-                      )}
-                    </select>
-                    
-                    {/* Input field */}
-                    <input
-                      type="text"
-                      placeholder={
-                        formData.searchBy === 'dni' ? '12345678' : 
-                        formData.searchBy === 'cuit' ? '20-12345678-9' : 
-                        'ABC123'
-                      }
-                      value={formData.documentValue}
-                      onChange={(e) => setFormData(prev => ({ ...prev, documentValue: e.target.value }))}
-                      className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-r-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 text-lg font-mono"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Additional Fields Button */}
-                <button
-                  type="button"
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="text-sm text-gray-600 hover:text-gray-900 font-medium flex items-center gap-2 transition-colors"
-                >
-                  <ArrowRightIcon className={`w-4 h-4 transition-transform duration-200 ${showAdvanced ? 'rotate-90' : ''}`} />
-                  Datos adicionales (opcional)
-                </button>
-
-                {/* Advanced Fields */}
-                {showAdvanced && (
-                  <div className="mt-4 pt-4 border-t border-gray-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                    {formData.entityType === 'person' && (
-                      <>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
-                            <input
-                              type="text"
-                              placeholder="Juan"
-                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Apellido</label>
-                            <input
-                              type="text"
-                              placeholder="Pérez"
-                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Nacimiento</label>
-                          <input
-                            type="date"
-                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                          />
-                        </div>
-                      </>
-                    )}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
-                      <input
-                        type="text"
-                        placeholder="Av. Corrientes 1234, CABA"
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-{/* Priority and Options - Hidden per request */}
-              {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Opciones de Búsqueda</h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">Prioridad</label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { value: 'normal', label: 'Normal', description: '24-48 hs', icon: TimeIcon },
-                        { value: 'high', label: 'Alta', description: '2-6 hs', icon: GeminiStarsIcon },
-                        { value: 'urgent', label: 'Urgente', description: 'Inmediato', icon: GeminiStarsIcon }
-                      ].map((priority) => {
-                        const Icon = priority.icon
-                        const isSelected = formData.priority === priority.value
-                        
-                        return (
-                          <label key={priority.value} className="relative">
-                            <input
-                              type="radio"
-                              name="priority"
-                              value={priority.value}
-                              checked={isSelected}
-                              onChange={(e) => setFormData(prev => ({ ...prev, priority: priority.value as any }))}
-                              className="sr-only peer"
-                            />
-                            <div className={`px-4 py-3 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
-                              isSelected
-                                ? 'border-red-500 bg-red-50'
-                                : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
-                            }`}>
-                              <div className="flex items-center gap-2 mb-1">
-                                <Icon className="w-4 h-4 text-gray-600" />
-                                <span className="font-medium text-gray-900">{priority.label}</span>
-                              </div>
-                              <div className="text-xs text-gray-500">{priority.description}</div>
-                            </div>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Webhook URL
-                      <span className="text-xs text-gray-400 ml-2">(Para notificaciones)</span>
-                    </label>
-                    <div className="relative">
-                      <ArrowRightIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <input
-                        type="url"
-                        placeholder="https://tu-servidor.com/webhook"
-                        value={formData.webhookUrl}
-                        onChange={(e) => setFormData(prev => ({ ...prev, webhookUrl: e.target.value }))}
-                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div> */}
+          {/* Excel Upload Section */}
+          <div className="text-center">
+            <div className="inline-flex items-center gap-4">
+              <div className="h-px bg-gray-200 w-16"></div>
+              <span className="text-xs text-gray-400 font-medium">O</span>
+              <div className="h-px bg-gray-200 w-16"></div>
             </div>
-          ) : (
-            /* Bulk Upload Section */
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <div
-                className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-200 ${
-                  dragActive
-                    ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 hover:border-gray-400 bg-gray-50'
-                }`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-              >
-                <DocumentIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                
-                {formData.bulkFile ? (
-                  <div>
-                    <div className="flex items-center justify-center gap-3 mb-2">
-                      <DocumentIcon className="w-8 h-8 text-gray-600" />
-                      <div className="text-left">
-                        <p className="font-medium text-gray-900">{formData.bulkFile.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {(formData.bulkFile.size / 1024).toFixed(2)} KB
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, bulkFile: undefined }))}
-                        className="p-1 hover:bg-gray-200 rounded-lg transition-colors"
-                      >
-                        <CrossCircleIcon className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('file-upload')?.click()}
-                      className="text-sm text-red-600 hover:text-red-700 font-medium"
-                    >
-                      Cambiar archivo
-                    </button>
+
+            <div className="mt-4">
+              <label className="inline-flex items-center gap-3 px-6 py-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl cursor-pointer transition-all duration-200 text-blue-700 font-medium">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Subir archivo Excel</span>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+              <p className="text-xs text-gray-500 mt-2">Formatos soportados: .xlsx, .xls</p>
+            </div>
+
+            {/* Bulk search summary */}
+            {bulkSearchData.length > 0 && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-green-700">
+                      {bulkSearchData.length} elementos cargados para {servicePatterns[selectedService!].name}
+                    </span>
                   </div>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Arrastra tu archivo aquí
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-4">
-                      o haz clic para seleccionar
-                    </p>
-                    <input
-                      id="file-upload"
-                      type="file"
-                      className="hidden"
-                      accept=".csv,.xlsx,.xls"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          handleFileUpload(e.target.files[0])
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('file-upload')?.click()}
-                      className="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-red-500/25"
-                    >
-                      Seleccionar archivo
-                    </button>
-                  </>
-                )}
-              </div>
-              
-              <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                <InformationIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="text-blue-900 font-medium mb-1">Formato del archivo</p>
-                  <p className="text-blue-700">
-                    El archivo debe ser CSV o Excel con columnas: Tipo, Documento, País, Etiqueta (opcional)
-                  </p>
-                  <a href="#" className="text-blue-600 hover:text-blue-700 font-medium underline mt-2 inline-block">
-                    Descargar plantilla de ejemplo
-                  </a>
+                  <button
+                    onClick={processBulkSearch}
+                    disabled={isProcessing}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {isProcessing ? 'Procesando...' : 'Iniciar búsqueda masiva'}
+                  </button>
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Processing State */}
+          {isProcessing && (
+            <div className="text-center py-8 transition-all duration-500 ease-out">
+              <div className="inline-flex items-center gap-4 px-8 py-4 bg-slate-50 rounded-full">
+                <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-slate-700 font-medium">
+                  Analizando información...
+                </span>
               </div>
             </div>
           )}
 
-{/* Cost Estimation - Hidden per request */}
-          {/* <div className="mt-6 mb-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-white shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold mb-1">Estimación de Créditos</h3>
-                <p className="text-purple-100 text-sm">
-                  {activeTab === 'individual' ? 'Búsqueda individual' : 'Búsqueda múltiple'}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold">
-                  {activeTab === 'individual' ? estimatedCredits : '15-20'}
-                </div>
-                <div className="text-purple-100 text-sm">créditos</div>
+          {/* Validation Error */}
+          {selectedService && input && !detectedService && !isProcessing && (
+            <div className="text-center transition-all duration-300 ease-out">
+              <div className="inline-flex items-center gap-3 px-5 py-3 bg-amber-50 text-amber-700 rounded-xl text-sm border border-amber-200">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>El formato no coincide con {servicePatterns[selectedService].name.toLowerCase()}</span>
               </div>
             </div>
-            
-            {formData.priority === 'urgent' && (
-              <div className="mt-4 flex items-center gap-2 p-3 bg-white/20 rounded-lg backdrop-blur">
-                <AlertCircle className="w-4 h-4" />
-                <p className="text-sm">
-                  Las búsquedas urgentes tienen un costo adicional del 50%
-                </p>
-              </div>
-            )}
-          </div> */}
+          )}
+        </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 mt-6">
-            <Link
-              href="/dashboard/searches"
-              className="flex-1 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors text-center"
-            >
-              Cancelar
-            </Link>
-            <button
-              type="submit"
-              disabled={isProcessing}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-red-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isProcessing ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Procesando...
-                </>
-              ) : (
-                <>
-                  <SearchIcon className="w-5 h-5" />
-                  Iniciar Búsqueda
-                </>
-              )}
-            </button>
+        {/* Trust Indicators */}
+        <div className="mt-20 text-center transition-all duration-700 ease-out">
+          <div className="flex items-center justify-center gap-8 text-xs text-gray-400 font-light">
+            <div className="flex items-center gap-2 hover:text-gray-600 transition-colors duration-300">
+              <div className="w-1 h-1 bg-green-500 rounded-full"></div>
+              <span>Seguro</span>
+            </div>
+            <div className="flex items-center gap-2 hover:text-gray-600 transition-colors duration-300">
+              <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+              <span>Rápido</span>
+            </div>
+            <div className="flex items-center gap-2 hover:text-gray-600 transition-colors duration-300">
+              <div className="w-1 h-1 bg-purple-500 rounded-full"></div>
+              <span>Privado</span>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
+
+      {/* Column Selection Modal */}
+      {showColumnModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800">Seleccionar Columna</h3>
+                <button
+                  onClick={() => setShowColumnModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Se encontraron {excelData.length} filas. Selecciona la columna que contiene los valores para búsqueda de {servicePatterns[selectedService!].name.toLowerCase()}:
+              </p>
+
+              <div className="space-y-3">
+                {excelColumns.map((column) => (
+                  <label
+                    key={column}
+                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${selectedColumn === column
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                  >
+                    <input
+                      type="radio"
+                      name="column"
+                      value={column}
+                      checked={selectedColumn === column}
+                      onChange={(e) => setSelectedColumn(e.target.value)}
+                      className="text-blue-600"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-800">{column}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Ejemplo: {excelData[0][column]}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+
+              {/* Preview of selected data */}
+              {selectedColumn && (
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="text-xs font-medium text-gray-700 mb-2">Vista previa:</div>
+                  <div className="text-xs text-gray-600 space-y-1 max-h-20 overflow-y-auto">
+                    {excelData.slice(0, 3).map((row, index) => (
+                      <div key={index}>{row[selectedColumn]}</div>
+                    ))}
+                    {excelData.length > 3 && (
+                      <div className="text-gray-400">... y {excelData.length - 3} más</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={() => setShowColumnModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleColumnSelection}
+                disabled={!selectedColumn}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirmar Selección
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+      `}</style>
     </div>
   )
 }

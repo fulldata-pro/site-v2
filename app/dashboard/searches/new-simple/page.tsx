@@ -1,7 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, User, Building, Car, CreditCard, ArrowLeft, Info, Phone, Landmark } from 'lucide-react'
+import { SearchIcon } from '@/components/icons/search-icon'
+import { UserIcon } from '@/components/icons/User-icon'
+import { Car2Icon } from '@/components/icons/car-2-icon'
+import { ArrowLeftIcon } from '@/components/icons/ArrowLeft'
+import { PhoneIcon } from '@/components/icons/Phone-icon'
+import { BankIcon } from '@/components/icons/bank-icon'
+import { Building, CreditCard, Info } from 'lucide-react'
 import Link from 'next/link'
 
 interface SearchFormData {
@@ -179,11 +185,11 @@ export default function NewSimpleSearchPage() {
     if (!config) return []
     
     const types = []
-    if (config.person) types.push({ value: 'person', label: 'Persona', icon: User })
+    if (config.person) types.push({ value: 'person', label: 'Persona', icon: UserIcon })
     if (config.company) types.push({ value: 'company', label: 'Empresa', icon: Building })
-    if (config.vehicle) types.push({ value: 'vehicle', label: 'Vehículo', icon: Car })
-    if (config.phone) types.push({ value: 'phone', label: 'Teléfono', icon: Phone })
-    if (config.bank) types.push({ value: 'bank', label: 'Banco', icon: Landmark })
+    if (config.vehicle) types.push({ value: 'vehicle', label: 'Vehículo', icon: Car2Icon })
+    if (config.phone) types.push({ value: 'phone', label: 'Teléfono', icon: PhoneIcon })
+    if (config.bank) types.push({ value: 'bank', label: 'Banco', icon: BankIcon })
     
     return types
   }
@@ -252,7 +258,7 @@ export default function NewSimpleSearchPage() {
   }
 
   const currentEntity = availableEntityTypes.find(e => e.value === formData.entityType)
-  const EntityIcon = currentEntity?.icon || User
+  const EntityIcon = currentEntity?.icon || UserIcon
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -264,7 +270,7 @@ export default function NewSimpleSearchPage() {
             href="/searches"
             className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 transition-colors text-sm"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeftIcon className="text-base" />
             Volver
           </Link>
           
@@ -338,7 +344,7 @@ export default function NewSimpleSearchPage() {
                           : 'border-gray-200 hover:border-gray-300 bg-white text-gray-600'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 mx-auto mb-1 ${
+                      <Icon className={`text-base mx-auto mb-1 ${
                         isSelected ? 'text-red-500' : 'text-gray-400'
                       }`} />
                       <span className="text-xs font-medium block">{type.label}</span>
@@ -449,7 +455,7 @@ export default function NewSimpleSearchPage() {
                 </>
               ) : (
                 <>
-                  <Search className="w-5 h-5" />
+                  <SearchIcon className="text-lg" />
                   Buscar
                 </>
               )}

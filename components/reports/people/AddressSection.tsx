@@ -1,6 +1,6 @@
 import React from 'react'
 import { AddressData } from '@/lib/types/people_types'
-import { MapPin } from 'lucide-react'
+import { PinIcon } from '@/components/icons/Pin-icon'
 
 interface AddressSectionProps {
   addresses: AddressData[]
@@ -56,7 +56,7 @@ export default function AddressSection({ addresses, title }: AddressSectionProps
               <tr key={idx} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <PinIcon className="text-base text-gray-400" />
                     <span className="text-sm font-medium text-blue-600">{addr.address}</span>
                   </div>
                 </td>

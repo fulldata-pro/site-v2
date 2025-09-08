@@ -1,6 +1,8 @@
 import React from 'react'
 import { BondsData } from '@/lib/types/people_types'
-import { Users, Heart, Calendar } from 'lucide-react'
+import { PeopleIcon } from '@/components/icons/People-icon'
+import { TimeIcon } from '@/components/icons/time-icon'
+import { Heart } from 'lucide-react'
 
 interface BondsSectionProps {
   bondsData: BondsData
@@ -45,7 +47,7 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
     if (relationLower.includes('conyugue') || relationLower.includes('esposo') || relationLower.includes('esposa')) {
       return Heart
     }
-    return Users
+    return PeopleIcon
   }
 
   const getRelationshipColor = (relation: string) => {
@@ -70,7 +72,7 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
   if (isEmpty) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <Users className="w-16 h-16 text-gray-400 mb-4" />
+        <PeopleIcon className="text-6xl text-gray-400 mb-4" />
         <p className="text-gray-500 text-lg">Sin vínculos registrados</p>
         <p className="text-gray-400 text-sm mt-2">No se encontraron vínculos familiares o personales</p>
       </div>
@@ -118,7 +120,7 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <TimeIcon className="text-base text-gray-400" />
                           <label className="text-gray-500">Fecha de nacimiento:</label>
                           <span className="text-gray-900 font-medium">{formatDate(bond.birthDate)}</span>
                         </div>
@@ -171,7 +173,7 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <TimeIcon className="text-base text-gray-400" />
                           <label className="text-gray-500">Fecha de nacimiento:</label>
                           <span className="text-gray-900 font-medium">{formatDate(bond.birthDate)}</span>
                         </div>

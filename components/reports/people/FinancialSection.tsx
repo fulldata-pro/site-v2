@@ -1,6 +1,8 @@
 import React from 'react'
 import { FinancialSituationData } from '@/lib/types/people_types'
-import { TrendingUp, Building, AlertTriangle, CreditCard, DollarSign, Calendar } from 'lucide-react'
+import { DangerIcon } from '@/components/icons/danger-icon'
+import { DollarIcon } from '@/components/icons/Dollar-icon'
+import { TrendingUp, Building, CreditCard } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface FinancialSectionProps {
@@ -66,7 +68,7 @@ export default function FinancialSection({ financialData }: FinancialSectionProp
           
           <div className="bg-green-50 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-5 h-5 text-green-600" />
+              <DollarIcon className="text-lg text-green-600" />
               <label className="text-sm font-medium text-green-900">Monto Total</label>
             </div>
             <p className="text-2xl font-bold text-green-600">
@@ -76,7 +78,7 @@ export default function FinancialSection({ financialData }: FinancialSectionProp
           
           <div className="bg-orange-50 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-5 h-5 text-orange-600" />
+              <DangerIcon className="text-lg text-orange-600" />
               <label className="text-sm font-medium text-orange-900">Peor Situación</label>
             </div>
             <p className="text-lg font-bold text-orange-600">
