@@ -28,6 +28,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user has a password (Google users don't have passwords)
+    if (!user.password) {
+      return NextResponse.json(
+        { error: 'Esta cuenta fue creada con Google. Por favor, usa "Continuar con Google"' },
+        { status: 401 }
+      );
+    }
+
     // Compare passwords
     const isPasswordValid = await comparePassword(password, user.password);
     

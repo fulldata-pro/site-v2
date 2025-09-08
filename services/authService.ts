@@ -83,6 +83,89 @@ class AuthService {
     return null
   }
 
+  async register(userData: {
+    firstName: string
+    lastName: string
+    email: string
+    password: string
+  }): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear la cuenta')
+      }
+
+      return {
+        success: true,
+        message: data.message || 'Cuenta creada exitosamente'
+      }
+    } catch (error) {
+      console.error('Auth service register error:', error)
+      throw error
+    }
+  }
+
+  async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al enviar correo de recuperación')
+      }
+
+      return {
+        success: true,
+        message: data.message || 'Correo de recuperación enviado'
+      }
+    } catch (error) {
+      console.error('Auth service forgot password error:', error)
+      throw error
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, password: newPassword }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al restablecer contraseña')
+      }
+
+      return {
+        success: true,
+        message: data.message || 'Contraseña restablecida exitosamente'
+      }
+    } catch (error) {
+      console.error('Auth service reset password error:', error)
+      throw error
+    }
+  }
+
   isAuthenticated(): boolean {
     // Check localStorage first for immediate response
     const token = localStorage.getItem('authToken')
