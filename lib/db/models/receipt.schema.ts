@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types, models } from 'mongoose';
+import { addUidMiddleware } from '../helpers/uid-middleware';
 
 interface IReceiptExtra {
   description: string;
@@ -39,10 +40,10 @@ export interface IReceipt extends Document {
   account: Types.ObjectId;
   statement?: Types.ObjectId;
   createdBy?: Types.ObjectId;
-  createdAt: number;
-  updatedAt?: number;
-  expiredAt?: number;
-  deletedAt?: number;
+  createdAt: Date;
+  updatedAt?: Date;
+  expiredAt?: Date;
+  deletedAt?: Date;
 }
 
 const ReceiptExtraSchema = new Schema<IReceiptExtra>({
@@ -64,7 +65,7 @@ const ReceiptSearchesSchema = new Schema<IReceiptSearches>({
 
 const ReceiptSchema = new Schema<IReceipt>({
   id: { type: Number, required: true, unique: true },
-  uid: { type: String, required: true, unique: true },
+  uid: { type: String, unique: true },
   status: { 
     type: String, 
     enum: ['pending', 'processing', 'completed', 'failed', 'refunded'],
@@ -88,13 +89,16 @@ const ReceiptSchema = new Schema<IReceipt>({
   account: { type: Schema.Types.ObjectId, ref: 'Account', required: true },
   statement: { type: Schema.Types.ObjectId, ref: 'Statement' },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
-  createdAt: { type: Number, default: Date.now },
-  updatedAt: { type: Number },
-  expiredAt: { type: Number },
-  deletedAt: { type: Number }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date },
+  expiredAt: { type: Date },
+  deletedAt: { type: Date }
 }, { 
   collection: 'receipts',
   timestamps: false
 });
+
+// Agregar middleware para generar uid desde _id
+addUidMiddleware(ReceiptSchema);
 
 export default (models.Receipt as any) || model<IReceipt>('Receipt', ReceiptSchema);

@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types, models } from 'mongoose';
+import { addUidMiddleware } from '../helpers/uid-middleware';
 
 interface IRequestRelation {
   request: Types.ObjectId;
@@ -23,9 +24,9 @@ export interface IRequest extends Document {
   relations?: IRequestRelation[];
   account: Types.ObjectId;
   user?: Types.ObjectId;
-  createdAt: number;
-  updatedAt?: number;
-  deletedAt?: number;
+  createdAt: Date;
+  updatedAt?: Date;
+  deletedAt?: Date;
 }
 
 const RequestRelationSchema = new Schema<IRequestRelation>({
@@ -35,7 +36,7 @@ const RequestRelationSchema = new Schema<IRequestRelation>({
 
 const RequestSchema = new Schema<IRequest>({
   id: { type: Number, required: true, unique: true },
-  uid: { type: String, required: true, unique: true },
+  uid: { type: String, unique: true },
   type: { type: String, required: true },
   tag: { type: Schema.Types.ObjectId, ref: 'AccountTag' },
   countryCode: { type: String, required: true },
@@ -55,12 +56,15 @@ const RequestSchema = new Schema<IRequest>({
   relations: [RequestRelationSchema],
   account: { type: Schema.Types.ObjectId, ref: 'Account', required: true },
   user: { type: Schema.Types.ObjectId, ref: 'User' },
-  createdAt: { type: Number, default: Date.now },
-  updatedAt: { type: Number },
-  deletedAt: { type: Number }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date },
+  deletedAt: { type: Date }
 }, { 
   collection: 'requests',
   timestamps: false
 });
+
+// Agregar middleware para generar uid desde _id
+addUidMiddleware(RequestSchema);
 
 export default (models.Request as any) || model<IRequest>('Request', RequestSchema);

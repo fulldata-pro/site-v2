@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types, models } from 'mongoose';
+import { addUidMiddleware } from '../helpers/uid-middleware';
 
 interface IProxyService {
   type: string;
@@ -6,7 +7,7 @@ interface IProxyService {
   cost: number;
   isEnabled: boolean;
   updatedBy?: Types.ObjectId;
-  updatedAt?: number;
+  updatedAt?: Date;
 }
 
 export interface IProxy extends Document {
@@ -16,9 +17,9 @@ export interface IProxy extends Document {
   countryCode: string;
   services?: IProxyService[];
   currency: string;
-  createdAt: number;
-  updatedAt?: number;
-  deletedAt?: number;
+  createdAt: Date;
+  updatedAt?: Date;
+  deletedAt?: Date;
 }
 
 const ProxyServiceSchema = new Schema<IProxyService>({
@@ -27,22 +28,25 @@ const ProxyServiceSchema = new Schema<IProxyService>({
   cost: { type: Number, required: true },
   isEnabled: { type: Boolean, default: true },
   updatedBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
-  updatedAt: { type: Number }
+  updatedAt: { type: Date }
 }, { _id: false });
 
 const ProxySchema = new Schema<IProxy>({
   id: { type: Number, required: true, unique: true },
-  uid: { type: String, required: true, unique: true },
+  uid: { type: String, unique: true },
   name: { type: String, required: true },
   countryCode: { type: String, required: true },
   services: [ProxyServiceSchema],
   currency: { type: String, required: true },
-  createdAt: { type: Number, default: Date.now },
-  updatedAt: { type: Number },
-  deletedAt: { type: Number }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date },
+  deletedAt: { type: Date }
 }, { 
   collection: 'proxies',
   timestamps: false
 });
+
+// Agregar middleware para generar uid desde _id
+addUidMiddleware(ProxySchema);
 
 export default (models.Proxy as any) || model<IProxy>('Proxy', ProxySchema);

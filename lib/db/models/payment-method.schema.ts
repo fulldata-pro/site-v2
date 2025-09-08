@@ -1,4 +1,5 @@
 import { Schema, model, Document, models } from 'mongoose';
+import { addUidMiddleware } from '../helpers/uid-middleware';
 
 export interface IPaymentMethod extends Document {
   id: number;
@@ -10,14 +11,14 @@ export interface IPaymentMethod extends Document {
   color?: string;
   credentials?: object;
   isEnabled: boolean;
-  createdAt: number;
-  updatedAt?: number;
-  deletedAt?: number;
+  createdAt: Date;
+  updatedAt?: Date;
+  deletedAt?: Date;
 }
 
 const PaymentMethodSchema = new Schema<IPaymentMethod>({
   id: { type: Number, required: true, unique: true },
-  uid: { type: String, required: true, unique: true },
+  uid: { type: String, unique: true },
   type: { 
     type: String, 
     enum: ['credit_card', 'debit_card', 'bank_transfer', 'crypto', 'paypal', 'other'],
@@ -29,12 +30,15 @@ const PaymentMethodSchema = new Schema<IPaymentMethod>({
   color: { type: String },
   credentials: { type: Object },
   isEnabled: { type: Boolean, default: true },
-  createdAt: { type: Number, default: Date.now },
-  updatedAt: { type: Number },
-  deletedAt: { type: Number }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date },
+  deletedAt: { type: Date }
 }, { 
   collection: 'payment_methods',
   timestamps: false
 });
+
+// Agregar middleware para generar uid desde _id
+addUidMiddleware(PaymentMethodSchema);
 
 export default (models.PaymentMethod as any) || model<IPaymentMethod>('PaymentMethod', PaymentMethodSchema);
