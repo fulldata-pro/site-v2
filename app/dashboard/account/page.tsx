@@ -8,6 +8,7 @@ import { UserIcon } from '@/components/icons/User-icon'
 import { Setting2Icon } from '@/components/icons/setting-2-icon'
 import { ProfileUserIcon } from '@/components/icons/profile-user-icon'
 import AvatarUpload from '@/components/ui/avatar-upload'
+import { toast } from 'react-toastify'
 import { 
   updateProfileSchema, 
   changePasswordSchema, 
@@ -23,8 +24,6 @@ export default function MyAccountPage() {
   const [activeTab, setActiveTab] = useState('personal')
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<any>({})
-  const [successMessage, setSuccessMessage] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
 
   // Personal Information form state
   const [personalInfo, setPersonalInfo] = useState<UpdateProfileInput>({
@@ -66,7 +65,6 @@ export default function MyAccountPage() {
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: undefined }))
     }
-    clearMessages()
   }
 
   const handleSecurityChange = (field: string, value: string) => {
@@ -78,12 +76,6 @@ export default function MyAccountPage() {
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: undefined }))
     }
-    clearMessages()
-  }
-
-  const clearMessages = () => {
-    if (successMessage) setSuccessMessage('')
-    if (errorMessage) setErrorMessage('')
   }
 
   const handleAvatarChange = (newAvatarUrl: string) => {
@@ -98,7 +90,6 @@ export default function MyAccountPage() {
     e.preventDefault()
     setIsLoading(true)
     setErrors({})
-    clearMessages()
 
     // Validate form
     const result = updateProfileSchema.safeParse(personalInfo)
@@ -131,10 +122,10 @@ export default function MyAccountPage() {
 
       // Update Redux store
       dispatch(updateProfile(data.user))
-      setSuccessMessage('Perfil actualizado exitosamente')
+      toast.success('Perfil actualizado exitosamente')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al actualizar el perfil'
-      setErrorMessage(message)
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
@@ -144,7 +135,6 @@ export default function MyAccountPage() {
     e.preventDefault()
     setIsLoading(true)
     setErrors({})
-    clearMessages()
 
     // Validate form based on user type
     const schema = user?.isGoogleUser ? setPasswordSchema : changePasswordSchema
@@ -177,7 +167,7 @@ export default function MyAccountPage() {
         throw new Error(data.error || 'Error al cambiar la contraseña')
       }
 
-      setSuccessMessage(data.message)
+      toast.success(data.message)
       // Clear form
       setSecurityForm({
         newPassword: '',
@@ -186,7 +176,7 @@ export default function MyAccountPage() {
       })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al cambiar la contraseña'
-      setErrorMessage(message)
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
@@ -258,17 +248,6 @@ export default function MyAccountPage() {
                 </div>
               </div>
 
-              {/* Success/Error Messages */}
-              {successMessage && (
-                <div className="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-lg mb-6">
-                  {successMessage}
-                </div>
-              )}
-              {errorMessage && (
-                <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-6">
-                  {errorMessage}
-                </div>
-              )}
 
               <form onSubmit={handlePersonalInfoSubmit} className="space-y-8">
                 {/* Avatar Upload Section */}
@@ -410,17 +389,6 @@ export default function MyAccountPage() {
                   </div>
                 </div>
 
-                {/* Success/Error Messages */}
-                {successMessage && (
-                  <div className="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-lg mb-6">
-                    {successMessage}
-                  </div>
-                )}
-                {errorMessage && (
-                  <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-6">
-                    {errorMessage}
-                  </div>
-                )}
 
                 <form onSubmit={handlePasswordReset} className="space-y-6 max-w-lg">
                   {!user?.isGoogleUser && (
