@@ -10,9 +10,9 @@ import { HomeIcon } from '@/components/icons/Home-icon'
 import { PeopleIcon } from '@/components/icons/People-icon'
 import { BookOpenIcon } from '@/components/icons/BookOpen-icon'
 import {
-  Shield, Download, CreditCard, TrendingUp,
+  Download, CreditCard, TrendingUp,
   AlertCircle, Edit3, Send, Trash2, Info,
-  CheckCircle
+  CheckCircle, Copy, ChevronDown
 } from 'lucide-react'
 import { CalendarIcon } from '@heroicons/react/24/outline'
 import ReportSummary from '@/components/reports/people/ReportSummary'
@@ -91,31 +91,6 @@ export default function ReportDetailPage() {
     { id: 'adicional', label: 'Información Adicional', icon: Info }
   ]
 
-  const formatDate = (timestamp: number | { $numberLong: string } | { $date: string }) => {
-    let date: Date
-
-    if (typeof timestamp === 'object') {
-      if ('$numberLong' in timestamp) {
-        date = new Date(parseInt(timestamp.$numberLong))
-      } else if ('$date' in timestamp) {
-        date = new Date(timestamp.$date)
-      } else {
-        return 'N/A'
-      }
-    } else if (typeof timestamp === 'number') {
-      date = new Date(timestamp)
-    } else if (typeof timestamp === 'string') {
-      date = new Date(timestamp)
-    } else {
-      return 'N/A'
-    }
-
-    return date.toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    })
-  }
 
   const handleAction = (action: string) => {
     setShowActionsDropdown(false)
@@ -197,13 +172,13 @@ export default function ReportDetailPage() {
 
       default:
         return (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="p-4 bg-amber-50/80 rounded-2xl border border-amber-200/40 mb-4">
-              <AlertCircle className="w-10 h-10 text-amber-600 mx-auto" />
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="p-6 bg-amber-50/50 rounded-3xl border border-amber-200/30 mb-8">
+              <AlertCircle className="w-12 h-12 text-amber-600/80 mx-auto" />
             </div>
-            <div className="text-center space-y-1">
-              <p className="text-zinc-700 font-semibold">Sección en desarrollo</p>
-              <p className="text-zinc-500 text-sm">Esta información estará disponible próximamente</p>
+            <div className="text-center space-y-3">
+              <p className="text-slate-700 font-semibold text-lg">Sección en desarrollo</p>
+              <p className="text-slate-500/70">Esta información estará disponible próximamente</p>
             </div>
           </div>
         )
@@ -212,15 +187,12 @@ export default function ReportDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-slate-50 to-stone-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-12 h-12 border-3 border-zinc-200 rounded-full animate-spin border-t-zinc-900 mx-auto mb-5"></div>
-            <div className="absolute inset-0 w-12 h-12 border-3 border-transparent rounded-full animate-ping border-t-indigo-500 mx-auto opacity-20"></div>
-          </div>
-          <div className="space-y-1">
-            <p className="text-zinc-700 font-semibold text-sm">Cargando reporte</p>
-            <p className="text-sm text-zinc-500">Procesando información...</p>
+      <div className={`min-h-screen bg-gradient-to-br from-slate-50/30 to-stone-50/30 flex items-center justify-center ${isReportPage ? 'ml-16' : 'ml-64'}`}>
+        <div className="text-center bg-white/95 backdrop-blur-lg rounded-3xl p-12 border border-white/20 shadow-lg shadow-slate-200/20">
+          <div className="w-16 h-16 border-4 border-slate-200/40 rounded-full animate-spin border-t-slate-600/70 mx-auto mb-8"></div>
+          <div className="space-y-3">
+            <p className="text-slate-800 font-semibold text-lg">Cargando reporte</p>
+            <p className="text-slate-600/70">Procesando información...</p>
           </div>
         </div>
       </div>
@@ -229,18 +201,18 @@ export default function ReportDetailPage() {
 
   if (!reportData || !reportData.people || !reportData.people.summary) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-slate-50 to-stone-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="p-4 bg-rose-50/80 rounded-2xl border border-rose-200/40 mb-4 inline-block">
-            <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
+      <div className={`min-h-screen bg-gradient-to-br from-slate-50/30 to-stone-50/30 flex items-center justify-center ${isReportPage ? 'ml-16' : 'ml-64'}`}>
+        <div className="text-center bg-white/95 backdrop-blur-lg rounded-3xl p-12 border border-white/20 shadow-lg shadow-slate-200/20">
+          <div className="p-6 bg-rose-50/60 rounded-2xl border border-rose-200/40 mb-8 inline-block">
+            <AlertCircle className="w-12 h-12 text-rose-500/80 mx-auto" />
           </div>
-          <div className="space-y-1">
-            <p className="text-zinc-700 font-semibold text-sm">Error al cargar el reporte</p>
-            <p className="text-sm text-zinc-500">Intenta recargar la página</p>
+          <div className="space-y-4">
+            <p className="text-slate-800 font-semibold text-lg">Error al cargar el reporte</p>
+            <p className="text-slate-600/70">Intenta recargar la página</p>
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="mt-3 px-5 py-2 bg-zinc-900 text-white rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors duration-200"
+            className="mt-8 px-8 py-3 bg-slate-700 text-white rounded-2xl font-medium hover:bg-slate-800 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             Reintentar
           </button>
@@ -254,194 +226,160 @@ export default function ReportDetailPage() {
   const initials = (personData.firstName?.charAt(0) || '') + (personData.lastName?.charAt(0) || '')
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 transition-all duration-500 ease-in-out ${isReportPage ? 'ml-24' : 'ml-64'}`}>
-      {/* Full Height Layout with Left Sticky Card */}
-      <div className="flex h-screen overflow-hidden">
-        {/* Optimized Full Height Sticky Left Card */}
-        <div className="w-72 flex-shrink-0 bg-white border-r border-gray-200 sticky top-0 h-screen overflow-hidden flex flex-col shadow-lg">
-          {/* Compact Profile Header */}
-          <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 px-3 py-4 text-center flex-shrink-0 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-50"></div>
-            <div className="relative z-10">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-sm font-bold mx-auto mb-2 backdrop-blur-sm border border-white/20 shadow-xl transform transition-all duration-300 hover:scale-105">
-                {initials}
-              </div>
-              <h2 className="text-white font-semibold text-sm truncate px-1 transition-all duration-300 hover:text-blue-100">{personName}</h2>
-              <p className="text-blue-100 text-xs mt-0.5 truncate px-1 opacity-90">{personData.taxId}</p>
-            </div>
-          </div>
-
-          {/* Compact Profile Details */}
-          <div className="px-3 py-3 space-y-3 flex-shrink-0">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="group">
-                <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Edad</div>
-                <div className="flex items-center gap-1.5 p-1.5 rounded-lg transition-all duration-300 hover:bg-blue-50/50 group-hover:shadow-sm">
-                  <div className="p-1 bg-blue-50 rounded-md flex-shrink-0 transition-all duration-300 group-hover:bg-blue-100 group-hover:scale-110">
-                    <CalendarIcon className="w-3 h-3 text-blue-600 transition-colors duration-300 group-hover:text-blue-700" />
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50/30 to-stone-50/30 ${isReportPage ? 'ml-16' : 'ml-64'}`}>
+      {/* Two-column layout */}
+      <div className="flex gap-6 p-6 h-screen">
+        {/* Left Sidebar - Profile + Navigation */}
+        <div className="w-80 flex-shrink-0">
+          <div className="bg-white/95 backdrop-blur-lg rounded-3xl border border-white/20 shadow-lg shadow-slate-200/20 h-[calc(100vh-48px)] flex flex-col">
+            {/* Profile Section */}
+            <div className="p-8 flex-shrink-0">
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mx-auto mb-4 shadow-inner">
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-medium text-lg">
+                    {initials}
                   </div>
-                  <span className="text-gray-900 font-medium text-xs truncate transition-colors duration-300 group-hover:text-gray-800">35 años</span>
                 </div>
+                <h1 className="text-xl font-semibold text-slate-800 mb-1">{personName}</h1>
+                <p className="text-sm text-slate-500">Verificación completada</p>
               </div>
-              
-              <div className="group">
-                <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Estado</div>
-                <div className="flex items-center gap-1.5 p-1.5 rounded-lg transition-all duration-300 hover:bg-emerald-50/50 group-hover:shadow-sm">
-                  <div className="p-1 bg-emerald-50 rounded-md flex-shrink-0 transition-all duration-300 group-hover:bg-emerald-100 group-hover:scale-110">
-                    <CheckCircle className="w-3 h-3 text-emerald-600 transition-colors duration-300 group-hover:text-emerald-700" />
+
+              <div className="space-y-6">
+                <div className="bg-slate-50/60 rounded-2xl p-4">
+                  <div className="text-xs text-slate-600 mb-2 font-medium">Fecha de nacimiento</div>
+                  <div className="flex items-center text-slate-700">
+                    <CalendarIcon className="w-4 h-4 mr-2 text-slate-500" />
+                    <span className="text-sm">18 sep, 1989 (35 años)</span>
                   </div>
-                  <span className="text-gray-900 font-medium text-xs truncate transition-colors duration-300 group-hover:text-gray-800">Activo</span>
+                </div>
+
+                <div className="bg-slate-50/60 rounded-2xl p-4">
+                  <div className="text-xs text-slate-600 mb-2 font-medium">Ubicación</div>
+                  <div className="flex items-start text-slate-700">
+                    <PinIcon className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-slate-500" />
+                    <span className="text-sm leading-relaxed">{(reportData.people.addressData?.length > 0)
+                      ? `${reportData.people.addressData[0]?.city || 'José C. Paz'}, ${reportData.people.addressData[0]?.province || 'Buenos Aires'}, Argentina`
+                      : 'José C. Paz, Provincia de Buenos Aires, Argentina'}</span>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50/60 rounded-2xl p-4">
+                  <div className="text-xs text-slate-600 mb-2 font-medium">Identificación</div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-sm text-slate-800">{personData.taxId}</span>
+                    <button className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-all">
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="group">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Ubicación</div>
-              <div className="flex items-start gap-1.5 p-1.5 rounded-lg transition-all duration-300 hover:bg-green-50/50 group-hover:shadow-sm">
-                <div className="p-1 bg-green-50 rounded-md flex-shrink-0 transition-all duration-300 group-hover:bg-green-100 group-hover:scale-110">
-                  <PinIcon className="w-3 h-3 text-green-600 transition-colors duration-300 group-hover:text-green-700" />
-                </div>
-                <div className="text-gray-900 font-medium text-xs leading-tight min-w-0 break-words transition-colors duration-300 group-hover:text-gray-800">
-                  {(reportData.people.addressData?.length > 0) ? (
-                    <>
-                      {reportData.people.addressData[0]?.city || 'José C. Paz'}<br />
-                      <span className="text-gray-600">{reportData.people.addressData[0]?.province || 'Buenos Aires'}</span>
-                    </>
-                  ) : (
-                    'José C. Paz, Buenos Aires'
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-slate-200/60 to-transparent mx-6"></div>
 
-          {/* Optimized Sections Navigation */}
-          <div className="border-t border-gray-200 flex-1 overflow-y-auto">
-            <div className="p-2">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 px-1">Secciones</div>
-              <nav className="space-y-0.5">
-                {sections.map((section, index) => {
+            {/* Navigation Section */}
+            <div className="flex-1 p-6 pt-4 overflow-y-auto">
+              <div className="text-xs text-slate-500 mb-4 font-medium tracking-wide uppercase">Sección del reporte</div>
+              <nav className="space-y-2">
+                {sections.map((section) => {
                   const Icon = section.icon
                   const isActive = activeSection === section.id
                   return (
                     <button
                       key={section.id}
                       onClick={() => setActiveSection(section.id)}
-                      style={{ animationDelay: `${index * 30}ms` }}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium transform transition-all duration-300 hover:scale-[1.01] hover:shadow-sm ${isActive
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        } animate-in slide-in-from-left-4 fade-in`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-300 text-left group ${
+                        isActive
+                        ? 'bg-gradient-to-r from-blue-50 to-indigo-50/50 text-blue-700 shadow-sm border border-blue-100'
+                        : 'text-slate-600 hover:bg-slate-50/80 hover:text-slate-700 hover:shadow-sm'
+                      }`}
                     >
-                      <Icon className={`w-3 h-3 flex-shrink-0 transition-all duration-300 ${isActive ? 'text-white scale-110' : 'text-gray-400 group-hover:scale-105'}`} />
-                      <span className="truncate transition-all duration-300 text-xs">{section.label}</span>
-                      {isActive && (
-                        <div className="w-1.5 h-1.5 bg-white rounded-full ml-auto animate-pulse"></div>
-                      )}
+                      <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${
+                        isActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-600'
+                      }`} />
+                      <span className="truncate">{section.label}</span>
                     </button>
                   )
                 })}
               </nav>
-              
-              {/* Quick Stats */}
-              <div className="mt-4 pt-3 border-t border-gray-100">
-                <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 px-1">Resumen</div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-2 border border-blue-100/50">
-                    <div className="text-xs text-blue-600 font-semibold">Riesgo</div>
-                    <div className="text-xs text-blue-800 font-bold mt-0.5">Bajo</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-2 border border-emerald-100/50">
-                    <div className="text-xs text-emerald-600 font-semibold">Score</div>
-                    <div className="text-xs text-emerald-800 font-bold mt-0.5">8.2/10</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-2 border border-orange-100/50">
-                    <div className="text-xs text-orange-600 font-semibold">Datos</div>
-                    <div className="text-xs text-orange-800 font-bold mt-0.5">12 fuentes</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-2 border border-purple-100/50">
-                    <div className="text-xs text-purple-600 font-semibold">Última Act.</div>
-                    <div className="text-xs text-purple-800 font-bold mt-0.5">2 días</div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Side Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Action Bar Header */}
-          <div className="bg-white/95 backdrop-blur-sm border-b border-slate-200/60 px-4 py-3 flex-shrink-0 shadow-sm">
-            <div className="flex items-center justify-between w-full min-w-0">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-                  <CheckCircle className="w-4 h-4 flex-shrink-0 animate-pulse" />
-                  <div className="text-sm">
-                    <div className="font-semibold">Verificado</div>
+        {/* Content Area - Maximum Space */}
+        <div className="flex-1 min-w-0">
+          <div className="bg-white/95 backdrop-blur-lg rounded-3xl border border-white/20 shadow-lg shadow-slate-200/20 h-[calc(100vh-48px)] flex flex-col overflow-hidden">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-white to-slate-50/30 px-8 py-6 border-b border-slate-100/60">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-8">
+                  <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-emerald-50 to-teal-50/50 text-emerald-700 rounded-2xl border border-emerald-100/60">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <div>
+                      <div className="font-semibold text-sm text-emerald-800">Verificado</div>
+                      <div className="text-xs text-emerald-600/80">Controles completados</div>
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-slate-600">
+                    <div className="font-semibold text-slate-700 mb-1">23 jul, 2025 19:38</div>
+                    <div className="text-slate-500">Fecha de verificación</div>
                   </div>
                 </div>
-                <div className="text-sm text-slate-600 min-w-0 transition-all duration-300 hover:text-slate-800">
-                  <div className="font-medium truncate">{formatDate(reportData.updatedAt)}</div>
-                  <div className="text-slate-400 text-sm">Fecha verificación</div>
-                </div>
-                <div className="text-sm text-slate-600 min-w-0 transition-all duration-300 hover:text-slate-800">
-                  <div className="font-mono font-medium truncate">{reportData._id?.slice(-12) || 'N/A'}</div>
-                  <div className="text-slate-400 text-sm">Número verificación</div>
-                </div>
-              </div>
 
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 text-sm transition-all duration-300 hover:scale-105 hover:shadow-sm">
-                  <Download className="w-3.5 h-3.5 transition-transform duration-300 hover:rotate-12" />
-                  <span className="hidden sm:inline">PDF</span>
-                </button>
-                <button className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 text-sm transition-all duration-300 hover:scale-105 hover:shadow-sm">
-                  <Info className="w-3.5 h-3.5 transition-transform duration-300 hover:rotate-12" />
-                  <span className="hidden sm:inline">Info</span>
-                </button>
-                <div className="relative actions-dropdown">
-                  <button
-                    onClick={() => setShowActionsDropdown(!showActionsDropdown)}
-                    className="px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 flex items-center gap-2 text-sm transition-all duration-300 hover:scale-105 hover:shadow-sm"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 transition-transform duration-300 hover:rotate-12" />
-                    <span className="hidden sm:inline">Borrar</span>
+                <div className="flex gap-3">
+                  <button className="px-5 py-3 bg-white border border-slate-200/60 text-slate-600 rounded-2xl hover:bg-slate-50/50 hover:border-slate-300/80 hover:shadow-sm flex items-center gap-2 text-sm font-medium transition-all duration-300">
+                    <Download className="w-4 h-4" />
+                    <span>Descargar PDF</span>
                   </button>
-
-                  {showActionsDropdown && (
-                    <div className="absolute top-full mt-2 right-0 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                      <button
-                        onClick={() => handleAction('edit')}
-                        className="w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-sm transition-all duration-200 hover:scale-[1.02] hover:translate-x-1"
-                      >
-                        <Edit3 className="w-3.5 h-3.5 text-gray-500 transition-colors duration-200 hover:text-blue-600" />
-                        <span>Editar datos</span>
-                      </button>
-                      <button
-                        onClick={() => handleAction('webhook')}
-                        className="w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-sm transition-all duration-200 hover:scale-[1.02] hover:translate-x-1"
-                      >
-                        <Send className="w-3.5 h-3.5 text-gray-500 transition-colors duration-200 hover:text-green-600" />
-                        <span>Reenviar webhook</span>
-                      </button>
-                    </div>
-                  )}
+                  <button className="px-5 py-3 bg-white border border-slate-200/60 text-slate-600 rounded-2xl hover:bg-slate-50/50 hover:border-slate-300/80 hover:shadow-sm flex items-center gap-2 text-sm font-medium transition-all duration-300">
+                    <Info className="w-4 h-4" />
+                    <span>Detalles</span>
+                  </button>
+                  <div className="relative actions-dropdown">
+                    <button onClick={() => setShowActionsDropdown(!showActionsDropdown)} className="px-5 py-3 bg-white border border-slate-200/60 text-slate-600 rounded-2xl hover:bg-slate-50/50 hover:border-slate-300/80 hover:shadow-sm flex items-center gap-2 text-sm font-medium transition-all duration-300">
+                      <ChevronDown className="w-4 h-4" />
+                      <span>Acciones</span>
+                    </button>
+                    {showActionsDropdown && (
+                      <div className="absolute top-full mt-3 right-0 w-48 bg-white/98 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/40 py-2 z-50">
+                        <button
+                          onClick={() => handleAction('edit')}
+                          className="w-full px-4 py-3 text-left text-slate-700 hover:bg-slate-50/80 flex items-center gap-3 text-sm transition-all duration-200 rounded-xl mx-2"
+                        >
+                          <Edit3 className="w-4 h-4 text-slate-500" />
+                          <span>Editar datos</span>
+                        </button>
+                        <button
+                          onClick={() => handleAction('webhook')}
+                          className="w-full px-4 py-3 text-left text-slate-700 hover:bg-slate-50/80 flex items-center gap-3 text-sm transition-all duration-200 rounded-xl mx-2"
+                        >
+                          <Send className="w-4 h-4 text-slate-500" />
+                          <span>Reenviar webhook</span>
+                        </button>
+                        <div className="h-px bg-slate-200/60 my-2 mx-4"></div>
+                        <button
+                          onClick={() => handleAction('delete')}
+                          className="w-full px-4 py-3 text-left text-rose-600 hover:bg-rose-50/70 flex items-center gap-3 text-sm transition-all duration-200 rounded-xl mx-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span>Eliminar reporte</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="flex-1 bg-white overflow-y-auto min-w-0">
-            <div className="p-6 max-w-none">
-              <div className="transition-all duration-500 ease-in-out min-w-0 animate-in fade-in slide-in-from-right-4">
-                {renderContent()}
-              </div>
+            
+            {/* Content Section */}
+            <div className="flex-1 p-8 overflow-auto bg-gradient-to-br from-white to-slate-50/20">
+              {renderContent()}
             </div>
           </div>
         </div>
       </div>
     </div>
+
   )
 }
