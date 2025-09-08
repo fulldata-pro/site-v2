@@ -245,15 +245,27 @@ export default function Sidebar() {
               <button
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
                 className={`w-full flex items-center ${isReportPage ? 'justify-center px-4' : 'gap-3 px-4'} py-3 hover:bg-gray-800 rounded-lg transition-all duration-300 group`}
-                title={isReportPage ? user.name : undefined}
+                title={isReportPage ? `${user.firstName} ${user.lastName}` : undefined}
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md flex-shrink-0">
-                  {user.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                </div>
+                {user.avatar ? (
+                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 shadow-md">
+                    <Image
+                      src={user.avatar}
+                      alt={`${user.firstName} ${user.lastName}`}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md flex-shrink-0">
+                    {(user.firstName?.[0] || '').toUpperCase()}{(user.lastName?.[0] || '').toUpperCase()}
+                  </div>
+                )}
                 {!isReportPage && (
                   <>
                     <div className="text-left flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+                      <p className="text-sm font-semibold text-white truncate">{user.firstName} {user.lastName}</p>
                       <p className="text-xs text-gray-400 truncate">{user.email}</p>
                     </div>
                     <ArrowRightIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${showUserDropdown ? 'rotate-90' : ''}`} />
