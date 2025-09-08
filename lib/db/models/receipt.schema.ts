@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 interface IReceiptExtra {
   description: string;
@@ -97,4 +97,4 @@ const ReceiptSchema = new Schema<IReceipt>({
   timestamps: false
 });
 
-export default model<IReceipt>('Receipt', ReceiptSchema);
+export default (models.Receipt as any) || model<IReceipt>('Receipt', ReceiptSchema);

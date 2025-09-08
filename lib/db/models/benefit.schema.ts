@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 interface IAdvantage {
   type: 'percentage' | 'fixed' | 'credits';
@@ -63,4 +63,4 @@ const BenefitSchema = new Schema<IBenefit>({
   timestamps: false
 });
 
-export default model<IBenefit>('Benefit', BenefitSchema);
+export default (models.Benefit as any) || model<IBenefit>('Benefit', BenefitSchema);

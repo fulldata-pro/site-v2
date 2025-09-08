@@ -1,73 +1,82 @@
-interface LoginCredentials {
-  email: string
-  password: string
-}
-
-interface User {
-  id: string
-  email: string
-  name: string
-  role: string
-}
+import { User, LoginCredentials, AuthResponse } from '@/types/auth.types'
 
 class AuthService {
-  private mockUsers = [
-    {
-      id: '1',
-      email: 'admin@fulldata.com',
-      password: 'admin123',
-      name: 'Admin User',
-      role: 'admin',
-    },
-    {
-      id: '2',
-      email: 'user@fulldata.com',
-      password: 'user123',
-      name: 'Regular User',
-      role: 'user',
-    },
-  ]
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      })
 
-  async login(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const user = this.mockUsers.find(
-          u => u.email === credentials.email && u.password === credentials.password
-        )
+      const data = await response.json()
 
-        if (user) {
-          const { password, ...userWithoutPassword } = user
-          const mockToken = btoa(JSON.stringify({ userId: user.id, timestamp: Date.now() }))
-          
-          localStorage.setItem('authToken', mockToken)
-          localStorage.setItem('user', JSON.stringify(userWithoutPassword))
-          
-          resolve({
-            user: userWithoutPassword,
-            token: mockToken,
-          })
-        } else {
-          reject(new Error('Credenciales inválidas'))
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al iniciar sesión')
+      }
+
+      if (data.success) {
+        // Store token in localStorage as fallback
+        localStorage.setItem('authToken', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        
+        return {
+          user: data.user,
+          token: data.token,
         }
-      }, 800)
-    })
+      } else {
+        throw new Error(data.error || 'Error al iniciar sesión')
+      }
+    } catch (error) {
+      console.error('Auth service login error:', error)
+      throw error
+    }
   }
 
   async logout(): Promise<void> {
-    localStorage.removeItem('authToken')
-    localStorage.removeItem('user')
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      // Always clear local storage
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('user')
+    }
   }
 
   async validateToken(): Promise<User | null> {
-    const token = localStorage.getItem('authToken')
+    try {
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          // Update localStorage
+          localStorage.setItem('user', JSON.stringify(data.user))
+          return data.user
+        }
+      }
+    } catch (error) {
+      console.error('Validate token error:', error)
+    }
+
+    // Fallback to localStorage
     const userStr = localStorage.getItem('user')
-    
-    if (token && userStr) {
+    if (userStr) {
       try {
-        const user = JSON.parse(userStr)
-        return user
+        return JSON.parse(userStr)
       } catch {
-        return null
+        // Clear invalid data
+        localStorage.removeItem('user')
+        localStorage.removeItem('authToken')
       }
     }
     
@@ -75,7 +84,11 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('authToken')
+    // Check localStorage first for immediate response
+    const token = localStorage.getItem('authToken')
+    const user = localStorage.getItem('user')
+    
+    return !!(token && user)
   }
 }
 

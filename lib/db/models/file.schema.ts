@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, models } from 'mongoose';
 
 export interface IFile extends Document {
   id: number;
@@ -31,4 +31,4 @@ const FileSchema = new Schema<IFile>({
   timestamps: false
 });
 
-export default model<IFile>('File', FileSchema);
+export default (models.File as any) || model<IFile>('File', FileSchema);

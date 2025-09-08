@@ -6,29 +6,68 @@ import Image from 'next/image'
 import { useAppDispatch } from '@/store/hooks'
 import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice'
 import authService from '@/services/authService'
+import { loginSchema, type LoginInput } from '@/lib/validations/auth.validation'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState<LoginInput>({ email: '', password: '' })
+  const [errors, setErrors] = useState<Partial<LoginInput>>({})
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const dispatch = useAppDispatch()
   const router = useRouter()
+
+  const handleInputChange = (field: keyof LoginInput, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    
+    // Clear field error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }))
+    }
+    
+    // Clear general error
+    if (error) {
+      setError('')
+    }
+  }
+
+  const validateForm = (): boolean => {
+    const result = loginSchema.safeParse(formData)
+    
+    if (!result.success) {
+      const fieldErrors: Partial<LoginInput> = {}
+      result.error.issues.forEach((err: any) => {
+        const field = err.path[0] as keyof LoginInput
+        fieldErrors[field] = err.message
+      })
+      setErrors(fieldErrors)
+      return false
+    }
+    
+    setErrors({})
+    return true
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     
+    if (!validateForm()) {
+      return
+    }
+
+    setIsLoading(true)
     dispatch(loginStart())
     
     try {
-      const { user, token } = await authService.login({ email, password })
-      document.cookie = `authToken=${token}; path=/`
+      const { user } = await authService.login(formData)
       dispatch(loginSuccess(user))
       router.push('/dashboard')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión'
       dispatch(loginFailure(errorMessage))
       setError(errorMessage)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -58,12 +97,16 @@ export default function LoginPage() {
               <input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className={`input-field ${errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="usuario@ejemplo.com"
+                disabled={isLoading}
                 required
               />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -73,12 +116,16 @@ export default function LoginPage() {
               <input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                className={`input-field ${errors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="••••••••"
+                disabled={isLoading}
                 required
               />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+              )}
             </div>
 
             {error && (
@@ -89,19 +136,19 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full btn-primary py-3 text-lg font-semibold"
+              disabled={isLoading}
+              className="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Iniciar Sesión
+              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
 
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-sm text-gray-600 text-center">
-              Credenciales de prueba:
+              Para probar la aplicación, primero necesitas crear usuarios en la base de datos.
             </p>
-            <div className="mt-2 space-y-1 text-xs text-center text-gray-500">
-              <p>Admin: admin@fulldata.com / admin123</p>
-              <p>Usuario: user@fulldata.com / user123</p>
+            <div className="mt-2 text-xs text-center text-gray-500">
+              <p>Usa el endpoint POST /api/db/seed para crear datos de prueba</p>
             </div>
           </div>
         </div>

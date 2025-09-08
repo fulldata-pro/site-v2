@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 export interface IProvince extends Document {
   id: number;
@@ -21,4 +21,4 @@ const ProvinceSchema = new Schema<IProvince>({
   timestamps: false
 });
 
-export default model<IProvince>('Province', ProvinceSchema);
+export default (models.Province as any) || model<IProvince>('Province', ProvinceSchema);

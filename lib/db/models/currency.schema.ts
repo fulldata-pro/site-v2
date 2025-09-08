@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 interface IExchangeRate {
   currency: string;
@@ -49,4 +49,4 @@ const CurrencySchema = new Schema<ICurrency>({
   timestamps: false
 });
 
-export default model<ICurrency>('Currency', CurrencySchema);
+export default (models.Currency as any) || model<ICurrency>('Currency', CurrencySchema);

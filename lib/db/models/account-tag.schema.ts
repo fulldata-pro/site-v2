@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 export interface IAccountTag extends Document {
   id: number;
@@ -27,4 +27,4 @@ const AccountTagSchema = new Schema<IAccountTag>({
   timestamps: false
 });
 
-export default model<IAccountTag>('AccountTag', AccountTagSchema);
+export default (models.AccountTag as any) || model<IAccountTag>('AccountTag', AccountTagSchema);

@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 interface IParameterName {
   id: string;
@@ -45,4 +45,4 @@ const ParameterSchema = new Schema<IParameter>({
   timestamps: false
 });
 
-export default model<IParameter>('Parameter', ParameterSchema);
+export default (models.Parameter as any) || model<IParameter>('Parameter', ParameterSchema);

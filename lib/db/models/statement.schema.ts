@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 export interface IStatement extends Document {
   id: number;
@@ -27,4 +27,4 @@ const StatementSchema = new Schema<IStatement>({
   timestamps: false
 });
 
-export default model<IStatement>('Statement', StatementSchema);
+export default (models.Statement as any) || model<IStatement>('Statement', StatementSchema);

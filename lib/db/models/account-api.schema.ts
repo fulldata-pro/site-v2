@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 export interface IAccountApi extends Document {
   id: number;
@@ -33,4 +33,4 @@ const AccountApiSchema = new Schema<IAccountApi>({
   timestamps: false
 });
 
-export default model<IAccountApi>('AccountApi', AccountApiSchema);
+export default (models.AccountApi as any) || model<IAccountApi>('AccountApi', AccountApiSchema);

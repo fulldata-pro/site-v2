@@ -71,35 +71,73 @@ export class DatabaseService {
   async seed(): Promise<void> {
     try {
       await connectDB();
+      const bcrypt = await import('bcryptjs');
       
       const existingUsers = await userRepository.count({});
       
       if (existingUsers === 0) {
-        const testUser = await userRepository.create({
+        // Hash passwords
+        const adminPassword = await bcrypt.hash('admin123', 12);
+        const userPassword = await bcrypt.hash('user123', 12);
+
+        // Create admin user
+        const adminUser = await userRepository.create({
           id: 1,
-          uid: 'test-uid-001',
-          email: 'test@fulldata.com',
-          password: 'password123',
+          uid: 'admin-uid-001',
+          email: 'admin@fulldata.com',
+          password: adminPassword,
+          firstName: 'Admin',
+          lastName: 'User',
+          createdAt: Date.now()
+        });
+
+        // Create regular user
+        const testUser = await userRepository.create({
+          id: 2,
+          uid: 'user-uid-001',
+          email: 'user@fulldata.com',
+          password: userPassword,
           firstName: 'Test',
           lastName: 'User',
           createdAt: Date.now()
         });
 
-        const testAccount = await accountRepository.create({
+        // Create admin account
+        const adminAccount = await accountRepository.create({
           id: 1,
-          name: 'Test Account',
-          owner: testUser._id,
-          users: [testUser._id],
-          credits: 1000,
-          level: 1,
+          uid: 'account-admin-001',
+          name: 'Admin Account',
+          email: 'admin@fulldata.com',
+          type: 'business',
+          status: 'active',
+          users: [{ user: adminUser._id as any, role: 'owner', addedAt: Date.now() }],
           createdAt: Date.now()
         });
 
-        await userRepository.update(testUser._id.toString(), {
+        // Create test account
+        const testAccount = await accountRepository.create({
+          id: 2,
+          uid: 'account-user-001',
+          name: 'Test Account',
+          email: 'user@fulldata.com',
+          type: 'individual',
+          status: 'active',
+          users: [{ user: testUser._id as any, role: 'owner', addedAt: Date.now() }],
+          createdAt: Date.now()
+        });
+
+        // Update users with account references
+        await userRepository.update(String(adminUser._id), {
+          accounts: [adminAccount._id]
+        });
+
+        await userRepository.update(String(testUser._id), {
           accounts: [testAccount._id]
         });
 
-        console.log('✅ Database seeded with test data');
+        console.log('✅ Database seeded with test data:');
+        console.log('📧 Admin: admin@fulldata.com / admin123');
+        console.log('👤 User: user@fulldata.com / user123');
       } else {
         console.log('ℹ️ Database already contains data, skipping seed');
       }

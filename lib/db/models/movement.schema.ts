@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 interface IMovementSearch {
   proxy?: Types.ObjectId;
@@ -57,4 +57,4 @@ const MovementSchema = new Schema<IMovement>({
   timestamps: false
 });
 
-export default model<IMovement>('Movement', MovementSchema);
+export default (models.Movement as any) || model<IMovement>('Movement', MovementSchema);

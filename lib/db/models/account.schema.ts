@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 interface IAccountBalance {
   currency: string;
@@ -135,4 +135,4 @@ const AccountSchema = new Schema<IAccount>({
   timestamps: false
 });
 
-export default model<IAccount>('Account', AccountSchema);
+export default (models.Account as any) || model<IAccount>('Account', AccountSchema);

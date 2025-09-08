@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 export interface IReferral extends Document {
   id: number;
@@ -35,4 +35,4 @@ const ReferralSchema = new Schema<IReferral>({
   timestamps: false
 });
 
-export default model<IReferral>('Referral', ReferralSchema);
+export default (models.Referral as any) || model<IReferral>('Referral', ReferralSchema);

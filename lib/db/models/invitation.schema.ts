@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 export interface IInvitation extends Document {
   id: number;
@@ -37,4 +37,4 @@ const InvitationSchema = new Schema<IInvitation>({
   timestamps: false
 });
 
-export default model<IInvitation>('Invitation', InvitationSchema);
+export default (models.Invitation as any) || model<IInvitation>('Invitation', InvitationSchema);

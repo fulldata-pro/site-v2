@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, models } from 'mongoose';
 
 export interface ICountry extends Document {
   id: number;
@@ -25,4 +25,4 @@ const CountrySchema = new Schema<ICountry>({
   timestamps: false
 });
 
-export default model<ICountry>('Country', CountrySchema);
+export default (models.Country as any) || model<ICountry>('Country', CountrySchema);

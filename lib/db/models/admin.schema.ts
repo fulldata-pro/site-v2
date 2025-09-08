@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 export interface IAdmin extends Document {
   id: number;
@@ -47,4 +47,4 @@ const AdminSchema = new Schema<IAdmin>({
   timestamps: false
 });
 
-export default model<IAdmin>('Admin', AdminSchema);
+export default (models.Admin as any) || model<IAdmin>('Admin', AdminSchema);

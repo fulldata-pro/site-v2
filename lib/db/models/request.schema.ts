@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 interface IRequestRelation {
   request: Types.ObjectId;
@@ -63,4 +63,4 @@ const RequestSchema = new Schema<IRequest>({
   timestamps: false
 });
 
-export default model<IRequest>('Request', RequestSchema);
+export default (models.Request as any) || model<IRequest>('Request', RequestSchema);

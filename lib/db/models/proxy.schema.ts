@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, models } from 'mongoose';
 
 interface IProxyService {
   type: string;
@@ -45,4 +45,4 @@ const ProxySchema = new Schema<IProxy>({
   timestamps: false
 });
 
-export default model<IProxy>('Proxy', ProxySchema);
+export default (models.Proxy as any) || model<IProxy>('Proxy', ProxySchema);

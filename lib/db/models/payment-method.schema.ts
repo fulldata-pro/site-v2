@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, models } from 'mongoose';
 
 export interface IPaymentMethod extends Document {
   id: number;
@@ -37,4 +37,4 @@ const PaymentMethodSchema = new Schema<IPaymentMethod>({
   timestamps: false
 });
 
-export default model<IPaymentMethod>('PaymentMethod', PaymentMethodSchema);
+export default (models.PaymentMethod as any) || model<IPaymentMethod>('PaymentMethod', PaymentMethodSchema);

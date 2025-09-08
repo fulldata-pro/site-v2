@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, models } from 'mongoose';
 
 export interface IConfig extends Document {
   searches: {
@@ -77,4 +77,4 @@ const ConfigSchema = new Schema<IConfig>({
   timestamps: true
 });
 
-export default model<IConfig>('Config', ConfigSchema);
+export default (models.Config as any) || model<IConfig>('Config', ConfigSchema);
