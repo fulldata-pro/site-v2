@@ -9,11 +9,13 @@ El servicio de subida de archivos ha sido implementado exitosamente con soporte 
 ### 📦 Componentes Creados
 
 1. **AWS Configuration** (`services/aws-config.ts`)
+
    - Cliente S3 configurado con validación automática
    - Manejo inteligente de credenciales
    - Soporte para modo de desarrollo con mock
 
 2. **Upload Service** (`services/upload-service.ts`)
+
    - Subida de archivos a S3 con estructura organizada
    - Validación de tipos y tamaños de archivo
    - URLs presigned para subidas directas
@@ -21,17 +23,20 @@ El servicio de subida de archivos ha sido implementado exitosamente con soporte 
    - Fallback automático a servicio mock
 
 3. **Mock Service** (`services/upload-service-mock.ts`)
+
    - Servicio completamente funcional para desarrollo
    - Simula delays reales de red
    - Logging detallado para debug
    - Ocasionales fallas simuladas para testing
 
 4. **API Routes**
+
    - `/api/upload/avatar` - Específico para avatares
    - `/api/upload` - General para todos los archivos
    - `/api/test-aws` - Para diagnóstico de configuración
 
 5. **Avatar Upload Component** (`components/ui/avatar-upload.tsx`)
+
    - Interfaz drag & drop completa
    - Preview en tiempo real
    - Estados de carga y manejo de errores
@@ -39,7 +44,7 @@ El servicio de subida de archivos ha sido implementado exitosamente con soporte 
    - Optimizado con Next.js Image
 
 6. **Integración UI**
-   - Avatar upload en página de cuenta (`/dashboard/account`)
+   - Avatar upload en página de cuenta (` /account`)
    - Actualización automática del estado Redux
    - Persistencia del avatar URL
 

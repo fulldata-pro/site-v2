@@ -14,7 +14,7 @@ Crear una plataforma web que facilite el acceso a información crítica de diver
 
 - **Experiencia de Usuario Optimizada**: Interfaz moderna, intuitiva y completamente responsiva
 - **Búsquedas Especializadas**: Sistema especializado para diferentes tipos de entidades
-- **Gestión de Créditos**: Sistema de créditos integrado para controlar el uso de servicios
+- **Gestión de búsquedas**: Sistema de búsquedas integrado para controlar el uso de servicios
 - **Reportes Detallados**: Presentación elegante y organizada de los resultados de búsqueda
 - **Autenticación Segura**: Sistema de autenticación con gestión de sesiones
 - **Monitoreo en Tiempo Real**: Seguimiento de búsquedas activas y historial completo
@@ -53,27 +53,28 @@ Crear una plataforma web que facilite el acceso a información crítica de diver
 - **Información obtenida**: Titular de cuenta, entidad bancaria
 - **Fuentes**: Sistema bancario argentino
 
-### 2. Sistema de Gestión de Créditos
+### 2. Sistema de Gestión de búsquedas
 
-#### Tipos de Créditos por Región
+#### Tipos de búsquedas por Región
 
 - **Argentina**:
-  - Personas: 478 créditos disponibles
-  - Empresas: 498 créditos disponibles
-  - Teléfonos: 500 créditos disponibles
-  - Vehículos: 499 créditos disponibles
-  - Cuentas Bancarias: 460 créditos disponibles
+
+  - Personas: 478 búsquedas disponibles
+  - Empresas: 498 búsquedas disponibles
+  - Teléfonos: 500 búsquedas disponibles
+  - Vehículos: 499 búsquedas disponibles
+  - Cuentas Bancarias: 460 búsquedas disponibles
 
 - **Global**:
-  - Rastreo Web: 600 créditos disponibles
-  - Validación de Identidad: 86 créditos disponibles
+  - Rastreo Web: 600 búsquedas disponibles
+  - Validación de Identidad: 86 búsquedas disponibles
 
-#### Funcionalidades de Créditos
+#### Funcionalidades de búsquedas
 
 - **Panel de Saldo**: Visualización detallada del saldo total y por categoría
 - **Historial de Compras**: Registro completo de transacciones
-- **Compra de Créditos**: Integración con Mercado Pago
-- **Uso Mensual**: Tracking del consumo de créditos por período
+- **Compra de búsquedas**: Integración con Mercado Pago
+- **Uso Mensual**: Tracking del consumo de búsquedas por período
 
 ### 3. Dashboard y Reportes
 
@@ -148,7 +149,7 @@ frontend/
 │   │   └── bank/         # Búsqueda bancaria
 │   ├── reports/          # Visualización de reportes
 │   ├── history/          # Historial de búsquedas
-│   ├── credits/          # Gestión de créditos
+│   ├── credits/          # Gestión de búsquedas
 │   └── login/            # Autenticación
 ├── components/            # Componentes reutilizables
 │   └── layout/           # Header, Sidebar, layouts
@@ -277,7 +278,7 @@ npm run lint     # Análisis de código
 
 - **Documentación técnica**: Links a Next.js, TypeScript, Tailwind CSS, Redux Toolkit
 - **APIs de terceros**: Integración con proveedores de datos
-- **Servicios de pago**: Mercado Pago para compra de créditos
+- **Servicios de pago**: Mercado Pago para compra de búsquedas
 
 ## Métricas y KPIs
 
@@ -292,7 +293,7 @@ npm run lint     # Análisis de código
 
 - **Búsquedas activas**: 24 consultas simultáneas
 - **Estado de servicios**: Monitoreo en tiempo real de proveedores
-- **Uso de créditos**: 847 créditos consumidos mensualmente
+- **Uso de búsquedas**: 847 búsquedas consumidos mensualmente
 - **Disponibilidad**: Tracking de servicios por proveedor (Nosis, BIND, OSINT)
 
 ---

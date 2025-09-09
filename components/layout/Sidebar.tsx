@@ -28,6 +28,7 @@ import { ServiceIcon } from '@/components/icons/service-icon'
 import { Setting2Icon } from '../icons/setting-2-icon'
 import { UserIcon } from '@/components/icons/User-icon'
 import { ExitIcon } from '@/components/icons/Exit-icon'
+import { DASHBOARD_ROUTES, SEARCH_ROUTES, AUTH_ROUTES, PUBLIC_ROUTES } from '@/lib/routes'
 
 interface MenuItem {
   name: string
@@ -41,49 +42,49 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   {
     name: 'Dashboard',
-    href: '/dashboard',
+    href: DASHBOARD_ROUTES.HOME,
     icon: HomeIcon
   },
   {
     name: 'Nueva Búsqueda',
-    href: '/dashboard/searches/new',
+    href: SEARCH_ROUTES.NEW_SEARCH,
     icon: GeminiStarsIcon,
     badge: 'Quick',
     badgeColor: 'bg-green-500'
   },
   {
     name: 'Personas',
-    href: '/dashboard/search/people',
+    href: SEARCH_ROUTES.PEOPLE,
     icon: ProfileUserIcon
   },
   {
     name: 'Empresas',
-    href: '/dashboard/search/company',
+    href: SEARCH_ROUTES.COMPANIES,
     icon: Cube2Icon
   },
   {
     name: 'Vehículos',
-    href: '/dashboard/search/vehicle',
+    href: SEARCH_ROUTES.VEHICLES,
     icon: Car2Icon
   },
   {
     name: 'Teléfonos',
-    href: '/dashboard/search/phone',
+    href: SEARCH_ROUTES.PHONES,
     icon: WhatsappIcon
   },
   {
     name: 'Cuentas Bancarias',
-    href: '/dashboard/search/bank',
+    href: SEARCH_ROUTES.BANKS,
     icon: BankIcon
   },
   {
     name: 'OSINT',
-    href: '/dashboard/search/osint',
+    href: SEARCH_ROUTES.OSINT,
     icon: Technology4
   },
   {
     name: 'Validación de Identidad',
-    href: '/dashboard/search/identity',
+    href: SEARCH_ROUTES.IDENTITY,
     icon: FaceIdIcon
   },
 ]
@@ -100,7 +101,7 @@ export default function Sidebar() {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Check if we're on a report page
-  const isReportPage = pathname.includes('/dashboard/reports/')
+  const isReportPage = pathname.includes('/reports/')
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems(prev =>
@@ -113,7 +114,7 @@ export default function Sidebar() {
   const handleLogout = async () => {
     await authService.logout()
     dispatch(logout())
-    router.push('/login')
+    router.push(AUTH_ROUTES.LOGIN)
   }
 
   useEffect(() => {
@@ -132,12 +133,12 @@ export default function Sidebar() {
   const isActive = (href?: string) => {
     if (!href) return false
     // Exact match for dashboard to avoid matching dashboard/searches
-    if (href === '/dashboard') {
-      return pathname === '/dashboard'
+    if (href === ' ') {
+      return pathname === ' '
     }
-    // Exact match for searches to avoid matching searches/new
-    if (href === '/dashboard/searches') {
-      return pathname === '/dashboard/searches'
+    // Exact match for searches to avoid matching search/new
+    if (href === ' /searches') {
+      return pathname === ' /searches'
     }
     return pathname === href || pathname.startsWith(href + '/')
   }
@@ -188,14 +189,14 @@ export default function Sidebar() {
       <Link
         key={item.name}
         href={item.href || '#'}
-        className={`flex items-center ${isReportPage ? 'justify-center' : 'justify-between'} ${isReportPage ? 'px-4' : 'px-4'} ${isChild && !isReportPage ? 'py-2 pl-12' : 'py-2.5'} rounded-lg transition-all duration-300 group ${isActive(item.href)
+        className={`flex items-center ${isReportPage ? 'justify-center' : 'justify-between'} ${isReportPage ? 'px-4' : 'px-4'} ${isChild && !isReportPage ? 'py-3 pl-12' : 'py-3.5'} rounded-lg transition-all duration-300 group ${isActive(item.href)
           ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/20'
           : 'text-gray-400 hover:bg-gray-800 hover:text-white'
           }`}
         title={isReportPage ? item.name : undefined}
       >
-        <div className={`flex items-center ${isReportPage ? 'justify-center' : 'gap-3'}`}>
-          <Icon color={isActive(item.href) ? 'white' : 'gray'} className={`w-5 h-5 ${isReportPage ? 'w-6 h-6 text-xl' : ''} ${isActive(item.href)
+        <div className={`flex items-center ${isReportPage ? 'justify-center' : 'gap-2'}`}>
+          <Icon color={isActive(item.href) ? 'white' : 'gray'} className={`w-6  ${isReportPage ? 'w-6  text-xl' : 'text-lg'} ${isActive(item.href)
             ? 'text-white'
             : 'text-gray-500 group-hover:text-white'
             }`} />
@@ -215,7 +216,7 @@ export default function Sidebar() {
     <aside className={`${isReportPage ? 'w-24' : 'w-64'} bg-gray-900 h-screen flex flex-col fixed left-0 top-0 z-40 transition-all duration-300 ease-in-out`}>
       {/* Logo Section */}
       <div className={`${isReportPage ? 'px-2' : 'px-6'} py-4 border-b border-gray-800 transition-all duration-300`}>
-        <Link href="/" className="flex items-center justify-center">
+        <Link href={DASHBOARD_ROUTES.HOME} className="flex items-center justify-center">
           {isReportPage ? (
             <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
               F
@@ -279,7 +280,7 @@ export default function Sidebar() {
                   <button
                     onClick={() => {
                       setShowUserDropdown(false)
-                      router.push('/dashboard/account')
+                      router.push(DASHBOARD_ROUTES.ACCOUNT)
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-3 transition-colors"
                   >
@@ -290,7 +291,7 @@ export default function Sidebar() {
                   <button
                     onClick={() => {
                       setShowUserDropdown(false)
-                      router.push('/dashboard/settings')
+                      router.push(DASHBOARD_ROUTES.SETTINGS)
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-3 transition-colors"
                   >
@@ -301,7 +302,7 @@ export default function Sidebar() {
                   <button
                     onClick={() => {
                       setShowUserDropdown(false)
-                      router.push('/dashboard/help')
+                      router.push(DASHBOARD_ROUTES.HELP)
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-3 transition-colors"
                   >

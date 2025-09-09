@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { registerSchema, type RegisterInput } from '@/lib/validations/auth.validation'
+import { AUTH_ROUTES } from '@/lib/routes'
+import Image from 'next/image'
+import avatar from '/public/images/subject.png'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState<RegisterInput>({
@@ -21,12 +23,12 @@ export default function RegisterPage() {
 
   const handleInputChange = (field: keyof RegisterInput, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    
+
     // Clear field error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }))
     }
-    
+
     // Clear general error and success
     if (error) {
       setError('')
@@ -38,7 +40,7 @@ export default function RegisterPage() {
 
   const validateForm = (): boolean => {
     const result = registerSchema.safeParse(formData)
-    
+
     if (!result.success) {
       const fieldErrors: Partial<RegisterInput> = {}
       result.error.issues.forEach((err: any) => {
@@ -48,7 +50,7 @@ export default function RegisterPage() {
       setErrors(fieldErrors)
       return false
     }
-    
+
     setErrors({})
     return true
   }
@@ -57,13 +59,13 @@ export default function RegisterPage() {
     e.preventDefault()
     setError('')
     setSuccess('')
-    
+
     if (!validateForm()) {
       return
     }
 
     setIsLoading(true)
-    
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -96,108 +98,121 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-secondary to-secondary-light">
-      <div className="max-w-md w-full mx-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <Image
-                src="/logo-icon.svg"
-                alt="Fulldata Logo"
-                width={64}
-                height={64}
-                className="w-16 h-16"
-              />
+    <div className="min-h-screen flex">
+      {/* Left side - 3D Avatar */}
+      <div className='hidden bg-white lg:flex p-1 lg:w-1/2'>
+        <div className="bg-gradient-to-br w-full h-full rounded-xl from-[#4a5c7a] to-[#3a4c63] items-center justify-center relative overflow-hidden">
+          <div className="relative z-10 flex items-center justify-center h-full">
+            <div className="text-center">
+              <div className="mb-8">
+                <Image
+                  src={avatar}
+                  alt="3D Avatar Illustration"
+                  width={1000}
+                  height={1000}
+                  className="w-[500px] h-[500px] object-contain mx-auto"
+                />
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-secondary mb-2">Crear Cuenta</h1>
-            <p className="text-gray-600">Sistema de Búsqueda de Información</p>
+          </div>
+          {/* Subtle background decoration */}
+          <div className="absolute inset-0">
+            <div className="absolute top-20 left-20 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-24 right-24 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+            <div className="absolute top-1/2 right-16 w-24 h-24 bg-white/10 rounded-full blur-lg"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className=" mb-4">
+              <span className="text-sm text-gray-500">¿Ya tienes cuenta? </span>
+              <Link href={AUTH_ROUTES.LOGIN} className="text-sm text-[#eb1034] hover:text-[#d10e2e] font-medium">
+                Inicia sesión
+              </Link>
+            </div>
+            <h1 className="text-3xl font-bold text-[#192440] mb-2">Crear cuenta</h1>
+            <p className="text-gray-600">Únete a Fulldata para empezar</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre
-              </label>
-              <input
-                id="firstName"
-                type="text"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                className={`input-field ${errors.firstName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                placeholder="Tu nombre"
-                disabled={isLoading}
-                required
-              />
-              {errors.firstName && (
-                <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
-              )}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  className={`w-full px-4 py-4 bg-gray-100 border-0 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#eb1034]/20 focus:bg-white transition-all duration-200 ${errors.firstName ? 'ring-2 ring-red-500 bg-red-50' : ''}`}
+                  placeholder="Nombre"
+                  disabled={isLoading}
+                  required
+                />
+                {errors.firstName && (
+                  <p className="mt-2 text-sm text-red-600">{errors.firstName}</p>
+                )}
+              </div>
+
+              <div>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  className={`w-full px-4 py-4 bg-gray-100 border-0 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#eb1034]/20 focus:bg-white transition-all duration-200 ${errors.lastName ? 'ring-2 ring-red-500 bg-red-50' : ''}`}
+                  placeholder="Apellido"
+                  disabled={isLoading}
+                  required
+                />
+                {errors.lastName && (
+                  <p className="mt-2 text-sm text-red-600">{errors.lastName}</p>
+                )}
+              </div>
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                Apellido
-              </label>
-              <input
-                id="lastName"
-                type="text"
-                value={formData.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                className={`input-field ${errors.lastName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                placeholder="Tu apellido"
-                disabled={isLoading}
-                required
-              />
-              {errors.lastName && (
-                <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Correo Electrónico
-              </label>
               <input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`input-field ${errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                placeholder="usuario@ejemplo.com"
+                className={`w-full px-6 py-4 bg-gray-100 border-0 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#eb1034]/20 focus:bg-white transition-all duration-200 ${errors.email ? 'ring-2 ring-red-500 bg-red-50' : ''}`}
+                placeholder="Correo electrónico"
                 disabled={isLoading}
                 required
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
-              </label>
               <input
                 id="password"
                 type="password"
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                className={`input-field ${errors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                placeholder="••••••••"
+                className={`w-full px-6 py-4 bg-gray-100 border-0 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#eb1034]/20 focus:bg-white transition-all duration-200 ${errors.password ? 'ring-2 ring-red-500 bg-red-50' : ''}`}
+                placeholder="Contraseña"
                 disabled={isLoading}
                 required
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
               )}
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
+              <div className="bg-red-50 text-red-800 px-4 py-3 rounded-xl text-sm">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-lg">
+              <div className="bg-green-50 text-green-800 px-4 py-3 rounded-xl text-sm">
                 {success}
               </div>
             )}
@@ -205,17 +220,24 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed bg-[#eb1034] hover:bg-[#d10e2e] text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Creando cuenta...
+                </span>
+              ) : (
+                'Crear cuenta'
+              )}
             </button>
           </form>
 
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
             <p className="text-sm text-gray-600">
-              ¿Ya tienes una cuenta?{' '}
-              <Link href="/login" className="text-primary hover:underline font-medium">
-                Inicia sesión aquí
+              ¿Olvidaste tu contraseña?{' '}
+              <Link href={AUTH_ROUTES.FORGOT_PASSWORD} className="text-[#eb1034] hover:text-[#d10e2e] font-medium">
+                Recuperar contraseña
               </Link>
             </p>
           </div>

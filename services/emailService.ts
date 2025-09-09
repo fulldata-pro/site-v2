@@ -1,32 +1,39 @@
-import sgMail from '@sendgrid/mail'
+import sgMail from "@sendgrid/mail";
 
 class EmailService {
-  private isDevelopment: boolean
+  private isDevelopment: boolean;
 
   constructor() {
-    this.isDevelopment = process.env.NODE_ENV === 'development'
-    
-    const apiKey = process.env.SENDGRID_API_KEY
+    this.isDevelopment = process.env.NODE_ENV === "development";
+
+    const apiKey = process.env.SENDGRID_API_KEY;
     if (apiKey && !this.isDevelopment) {
-      sgMail.setApiKey(apiKey)
+      sgMail.setApiKey(apiKey);
     }
   }
 
-  async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
-    const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`
-    
+  async sendPasswordResetEmail(
+    email: string,
+    resetToken: string
+  ): Promise<void> {
+    const resetUrl = `${
+      process.env.NEXTAUTH_URL || "http://localhost:3000"
+    }/reset-password?token=${resetToken}`;
+
     if (this.isDevelopment) {
-      console.log('\n🔧 [DESARROLLO] Email de recuperación de contraseña NO enviado')
-      console.log('📧 Para:', email)
-      console.log('🔗 URL de recuperación:', resetUrl)
-      console.log('🚀 En producción se enviaría el email real\n')
-      return
+      console.log(
+        "\n🔧 [DESARROLLO] Email de recuperación de contraseña NO enviado"
+      );
+      console.log("📧 Para:", email);
+      console.log("🔗 URL de recuperación:", resetUrl);
+      console.log("🚀 En producción se enviaría el email real\n");
+      return;
     }
 
     const msg = {
       to: email,
-      from: process.env.FROM_EMAIL || 'noreply@fulldata.com',
-      subject: 'Recuperar Contraseña - Fulldata',
+      from: process.env.FROM_EMAIL || "noreply@fulldata.com",
+      subject: "Recuperar Contraseña - Fulldata",
       text: `
         Hola,
         
@@ -88,34 +95,34 @@ class EmailService {
           </div>
         </body>
         </html>
-      `
-    }
+      `,
+    };
 
     try {
-      await sgMail.send(msg)
+      await sgMail.send(msg);
     } catch (error) {
-      console.error('Error sending email:', error)
+      console.error("Error sending email:", error);
       if (error instanceof Error) {
-        throw new Error(`Failed to send email: ${error.message}`)
+        throw new Error(`Failed to send email: ${error.message}`);
       }
-      throw new Error('Failed to send email')
+      throw new Error("Failed to send email");
     }
   }
 
   async sendWelcomeEmail(email: string, firstName: string): Promise<void> {
     if (this.isDevelopment) {
-      console.log('\n🔧 [DESARROLLO] Email de bienvenida NO enviado')
-      console.log('📧 Para:', email)
-      console.log('👤 Nombre:', firstName)
-      console.log('💌 Mensaje: ¡Bienvenido a Fulldata!')
-      console.log('🚀 En producción se enviaría el email real\n')
-      return
+      console.log("\n🔧 [DESARROLLO] Email de bienvenida NO enviado");
+      console.log("📧 Para:", email);
+      console.log("👤 Nombre:", firstName);
+      console.log("💌 Mensaje: ¡Bienvenido a Fulldata!");
+      console.log("🚀 En producción se enviaría el email real\n");
+      return;
     }
 
     const msg = {
       to: email,
-      from: process.env.FROM_EMAIL || 'noreply@fulldata.com',
-      subject: 'Bienvenido a Fulldata',
+      from: process.env.FROM_EMAIL || "noreply@fulldata.com",
+      subject: "Bienvenido a Fulldata",
       text: `
         Hola ${firstName},
         
@@ -123,7 +130,9 @@ class EmailService {
         
         Tu cuenta ha sido creada exitosamente. Ahora puedes acceder a nuestro sistema de búsqueda de información.
         
-        Para iniciar sesión, visita: ${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/login
+        Para iniciar sesión, visita: ${
+          process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/login
         
         Si tienes alguna pregunta, no dudes en contactarnos.
         
@@ -154,7 +163,9 @@ class EmailService {
             <p>Tu cuenta ha sido creada exitosamente. Ahora puedes acceder a nuestro sistema de búsqueda de información.</p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/login" 
+              <a href="${
+                process.env.NEXTAUTH_URL || "http://localhost:3000"
+              }/login" 
                  style="background-color: #eb1034; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
                 Iniciar Sesión
               </a>
@@ -171,31 +182,36 @@ class EmailService {
           </div>
         </body>
         </html>
-      `
-    }
+      `,
+    };
 
     try {
-      await sgMail.send(msg)
+      await sgMail.send(msg);
     } catch (error) {
-      console.error('Error sending welcome email:', error)
+      console.error("Error sending welcome email:", error);
       // Don't throw error for welcome email as it's not critical
     }
   }
 
-  async sendPasswordChangeNotification(email: string, firstName: string): Promise<void> {
+  async sendPasswordChangeNotification(
+    email: string,
+    firstName: string
+  ): Promise<void> {
     if (this.isDevelopment) {
-      console.log('\n🔧 [DESARROLLO] Email de notificación de cambio de contraseña NO enviado')
-      console.log('📧 Para:', email)
-      console.log('👤 Nombre:', firstName)
-      console.log('🔐 Mensaje: Tu contraseña ha sido cambiada exitosamente')
-      console.log('🚀 En producción se enviaría el email real\n')
-      return
+      console.log(
+        "\n🔧 [DESARROLLO] Email de notificación de cambio de contraseña NO enviado"
+      );
+      console.log("📧 Para:", email);
+      console.log("👤 Nombre:", firstName);
+      console.log("🔐 Mensaje: Tu contraseña ha sido cambiada exitosamente");
+      console.log("🚀 En producción se enviaría el email real\n");
+      return;
     }
 
     const msg = {
       to: email,
-      from: process.env.FROM_EMAIL || 'noreply@fulldata.com',
-      subject: 'Contraseña Cambiada - Fulldata',
+      from: process.env.FROM_EMAIL || "noreply@fulldata.com",
+      subject: "Contraseña Cambiada - Fulldata",
       text: `
         Hola ${firstName},
         
@@ -204,7 +220,9 @@ class EmailService {
         Si no realizaste este cambio, por favor contacta a nuestro equipo de soporte inmediatamente.
         
         Detalles del cambio:
-        - Fecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/Mexico_City' })}
+        - Fecha: ${new Date().toLocaleString("es-ES", {
+          timeZone: "America/Mexico_City",
+        })}
         - IP: (No disponible en este momento)
         
         Por tu seguridad, te recomendamos:
@@ -246,7 +264,9 @@ class EmailService {
             
             <h3 style="color: #192440;">Detalles del cambio:</h3>
             <ul style="background-color: #f3f4f6; padding: 15px; border-radius: 4px; margin: 15px 0;">
-              <li><strong>Fecha:</strong> ${new Date().toLocaleString('es-ES', { timeZone: 'America/Mexico_City' })}</li>
+              <li><strong>Fecha:</strong> ${new Date().toLocaleString("es-ES", {
+                timeZone: "America/Mexico_City",
+              })}</li>
               <li><strong>Dispositivo:</strong> Navegador web</li>
             </ul>
             
@@ -259,7 +279,7 @@ class EmailService {
             </ul>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/dashboard" 
+              <a href="${process.env.NEXTAUTH_URL || "http://localhost:3000"} " 
                  style="background-color: #192440; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
                 Ir a Mi Cuenta
               </a>
@@ -274,16 +294,16 @@ class EmailService {
           </div>
         </body>
         </html>
-      `
-    }
+      `,
+    };
 
     try {
-      await sgMail.send(msg)
+      await sgMail.send(msg);
     } catch (error) {
-      console.error('Error sending password change notification:', error)
+      console.error("Error sending password change notification:", error);
       // Don't throw error for notification email as it's not critical
     }
   }
 }
 
-export default new EmailService()
+export default new EmailService();

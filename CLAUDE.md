@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 - `npm run dev` - Start development server
-- `npm run build` - Build production application  
+- `npm run build` - Build production application
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint for code quality checks
 - `npm test` - No test framework configured yet (displays error message)
@@ -29,7 +29,7 @@ This is a Next.js 14 frontend application for the Fulldata microservices platfor
   - `dashboard/` - Main dashboard after login
   - `search/` - Search functionality for different entities (people, company, vehicle, phone, bank)
   - `history/` - Search history
-  - `reports/` - Individual report views  
+  - `reports/` - Individual report views
   - `credits/` - Credit management
   - `login/` - Authentication page
 - `components/` - Reusable UI components
@@ -45,7 +45,7 @@ This is a Next.js 14 frontend application for the Fulldata microservices platfor
 Redux store configured with three main slices:
 
 - `auth` - Authentication state
-- `search` - Search functionality state  
+- `search` - Search functionality state
 - `report` - Report data state
 
 ### Routing & Authentication
@@ -53,7 +53,7 @@ Redux store configured with three main slices:
 - Protected routes via `middleware.ts`
 - Cookie-based authentication (`authToken`)
 - Redirects unauthenticated users to `/login`
-- Redirects authenticated users from `/login` to `/dashboard`
+- Redirects authenticated users from `/login` to ` `
 
 ### Styling System
 
