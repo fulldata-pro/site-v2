@@ -35,7 +35,7 @@ class AccountRepository extends BaseRepository<IAccount> {
     await this.ensureConnection();
     return await this.model.findByIdAndUpdate(
       accountId,
-      { credits, updatedAt: Date.now() },
+      { credits, updatedAt: new Date() },
       { new: true }
     ).exec();
   }
@@ -46,7 +46,7 @@ class AccountRepository extends BaseRepository<IAccount> {
       accountId,
       { 
         $inc: { credits: amount },
-        updatedAt: Date.now()
+        updatedAt: new Date()
       },
       { new: true }
     ).exec();
@@ -58,7 +58,7 @@ class AccountRepository extends BaseRepository<IAccount> {
       accountId,
       { 
         $inc: { credits: -amount },
-        updatedAt: Date.now()
+        updatedAt: new Date()
       },
       { new: true }
     ).exec();
@@ -68,7 +68,7 @@ class AccountRepository extends BaseRepository<IAccount> {
     await this.ensureConnection();
     return await this.model.findByIdAndUpdate(
       accountId,
-      { savedSearch, updatedAt: Date.now() },
+      { savedSearch, updatedAt: new Date() },
       { new: true }
     ).exec();
   }
@@ -77,7 +77,7 @@ class AccountRepository extends BaseRepository<IAccount> {
     await this.ensureConnection();
     return await this.model.findByIdAndUpdate(
       accountId,
-      { settings, updatedAt: Date.now() },
+      { settings, updatedAt: new Date() },
       { new: true }
     ).exec();
   }
@@ -86,7 +86,7 @@ class AccountRepository extends BaseRepository<IAccount> {
     await this.ensureConnection();
     return await this.model.findByIdAndUpdate(
       accountId,
-      { deletedAt: Date.now() },
+      { deletedAt: new Date() },
       { new: true }
     ).exec();
   }

@@ -3,9 +3,7 @@ import { forgotPasswordSchema } from '@/lib/validations/auth.validation';
 import { db } from '@/lib/db/services/database.service';
 import emailService from '@/services/emailService';
 import crypto from 'crypto';
-
-// Simple in-memory store for reset tokens (in production, use Redis or database)
-const resetTokens = new Map<string, { email: string; expiresAt: number }>();
+import { resetTokens, cleanupExpiredTokens } from '@/lib/auth/token-store';
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,14 +64,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function cleanupExpiredTokens() {
-  const now = Date.now();
-  for (const [token, data] of resetTokens.entries()) {
-    if (data.expiresAt < now) {
-      resetTokens.delete(token);
-    }
-  }
-}
-
-// Export reset tokens for use in reset-password endpoint
-export { resetTokens };

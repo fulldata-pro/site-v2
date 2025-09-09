@@ -34,7 +34,7 @@ class UserRepository extends BaseRepository<IUser> {
     await this.ensureConnection();
     return await this.model.findByIdAndUpdate(
       userId,
-      { updatedAt: Date.now() },
+      { updatedAt: new Date() },
       { new: true }
     ).exec();
   }
@@ -43,7 +43,7 @@ class UserRepository extends BaseRepository<IUser> {
     await this.ensureConnection();
     return await this.model.findByIdAndUpdate(
       userId,
-      { deletedAt: Date.now() },
+      { deletedAt: new Date() },
       { new: true }
     ).exec();
   }

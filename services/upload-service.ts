@@ -1,6 +1,5 @@
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { s3Client, AWS_CONFIG } from './aws-config';
 
 export interface UploadResponse {
   success: boolean;
@@ -17,6 +16,15 @@ export interface PresignedUrlResponse {
 
 
 export class UploadService {
+  private static async getAWSConfig() {
+    try {
+      const { s3Client, AWS_CONFIG } = await import('./aws-config');
+      return { s3Client, AWS_CONFIG };
+    } catch (error) {
+      return { s3Client: null, AWS_CONFIG: null };
+    }
+  }
+
   private static getEnvironmentPrefix(): string {
     // Usar variable específica o NODE_ENV
     const env = process.env.UPLOAD_ENV || process.env.NODE_ENV || 'development';
@@ -31,11 +39,13 @@ export class UploadService {
   }
 
   static async uploadFile(file: Buffer, fileName: string, contentType: string): Promise<UploadResponse> {
-    // Validar que tenemos s3Client
-    if (!s3Client) {
+    // Obtener configuración AWS dinámicamente
+    const { s3Client, AWS_CONFIG } = await this.getAWSConfig();
+    
+    if (!s3Client || !AWS_CONFIG) {
       return {
         success: false,
-        error: 'Cliente S3 no configurado correctamente'
+        error: 'Servicio de subida no configurado (falta configuración AWS)'
       };
     }
 
@@ -101,10 +111,12 @@ export class UploadService {
   }
 
   static async getPresignedUploadUrl(originalName: string, userId: string, type: 'avatar' | 'document' = 'document'): Promise<PresignedUrlResponse> {
-    if (!s3Client) {
+    const { s3Client, AWS_CONFIG } = await this.getAWSConfig();
+    
+    if (!s3Client || !AWS_CONFIG) {
       return {
         success: false,
-        error: 'Cliente S3 no configurado correctamente'
+        error: 'Servicio de subida no configurado (falta configuración AWS)'
       };
     }
 
@@ -138,10 +150,12 @@ export class UploadService {
   }
 
   static async deleteFile(fileName: string): Promise<{ success: boolean; error?: string }> {
-    if (!s3Client) {
+    const { s3Client, AWS_CONFIG } = await this.getAWSConfig();
+    
+    if (!s3Client || !AWS_CONFIG) {
       return {
         success: false,
-        error: 'Cliente S3 no configurado correctamente'
+        error: 'Servicio de subida no configurado (falta configuración AWS)'
       };
     }
 

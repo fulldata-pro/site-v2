@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { CheckCircleIcon, HomeIcon, ReceiptPercentIcon } from 'lucide-react'
+import { CheckCircleIcon, HomeIcon, Receipt } from 'lucide-react'
 import Link from 'next/link'
 
 export default function PaymentSuccessPage() {
@@ -69,7 +69,7 @@ export default function PaymentSuccessPage() {
               className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 mb-6 text-left"
             >
               <h3 className="font-semibold text-emerald-800 mb-2 flex items-center gap-2">
-                <ReceiptPercentIcon className="w-4 h-4" />
+                <Receipt className="w-4 h-4" />
                 Detalles del pago
               </h3>
               <div className="space-y-1 text-sm text-emerald-700">

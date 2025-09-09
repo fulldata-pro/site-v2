@@ -152,7 +152,7 @@ export default function PeopleSearchPage() {
       const matchesStatus = statusFilter === 'all' || search.status === statusFilter
       return matchesSearch && matchesStatus
     })
-  }, [searchTerm, statusFilter])
+  }, [searchTerm, statusFilter, searches])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50/30 to-stone-50/30 ">
@@ -269,7 +269,6 @@ export default function PeopleSearchPage() {
                     <div className="text-sm text-slate-500">{search.date.split(',')[0]}</div>
                   )
                 },
-                ,
                 {
                   key: 'action',
                   header: 'Acción',

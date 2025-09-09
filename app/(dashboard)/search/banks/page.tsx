@@ -164,7 +164,7 @@ export default function BankSearchPage() {
       const matchesStatus = statusFilter === 'all' || search.status === statusFilter
       return matchesSearch && matchesStatus
     })
-  }, [searchTerm, statusFilter])
+  }, [searchTerm, statusFilter, searches])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50/30 to-stone-50/30 ">

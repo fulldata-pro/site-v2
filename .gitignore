@@ -2,7 +2,6 @@
 /node_modules
 /.pnp
 .pnp.js
-./data
 
 # testing
 /coverage
@@ -34,3 +33,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.tstemp_reports/
 temp_db/
+
+data/

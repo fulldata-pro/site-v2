@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       // Generate unique ID and UID
       const userCount = await db.users.count({});
       const newId = userCount + 1;
-      const uid = `user-google-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      const uid = `user-google-${new Date()}-${Math.random().toString(36).substring(2, 9)}`;
 
       // Create user with Google data
       const newUser = await db.users.create({
@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
         avatar: image,
         googleId: googleId,
         // No password for Google users
-        createdAt: Date.now(),
-        updatedAt: Date.now()
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
 
       // Create default account for the user
@@ -68,9 +68,9 @@ export async function POST(request: NextRequest) {
         email: email,
         type: 'individual',
         status: 'active',
-        users: [{ user: newUser._id as any, role: 'owner', addedAt: Date.now() }],
-        createdAt: Date.now(),
-        updatedAt: Date.now()
+        users: [{ user: newUser._id as any, role: 'owner', addedAt: new Date() }],
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
 
       // Update user with account reference

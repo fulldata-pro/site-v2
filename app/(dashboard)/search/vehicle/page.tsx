@@ -38,7 +38,6 @@ export default function VehicleSearchPage() {
       status: RequestStatus.SUCCESS,
       date: '06/09/2025, 2:15 p.m.',
       credits: 1,
-      provider: 'OSINT',
       label: 'Quick Search'
     },
     {
@@ -49,7 +48,6 @@ export default function VehicleSearchPage() {
       status: RequestStatus.PROCESSING,
       date: '05/09/2025, 11:45 a.m.',
       credits: 1,
-      provider: 'Agildata'
     },
     {
       id: 354,
@@ -59,7 +57,6 @@ export default function VehicleSearchPage() {
       status: RequestStatus.SUCCESS,
       date: '04/09/2025, 9:30 a.m.',
       credits: 1,
-      provider: 'Nosis',
       label: 'Insurance Check'
     },
     {
@@ -70,7 +67,6 @@ export default function VehicleSearchPage() {
       status: RequestStatus.ERROR,
       date: '03/09/2025, 4:00 p.m.',
       credits: 1,
-      provider: 'Coelsa'
     },
     {
       id: 332,
@@ -80,7 +76,6 @@ export default function VehicleSearchPage() {
       status: RequestStatus.SUCCESS,
       date: '02/09/2025, 10:30 a.m.',
       credits: 1,
-      provider: 'OSINT',
       label: 'Priority'
     },
     {
@@ -157,7 +152,7 @@ export default function VehicleSearchPage() {
       const matchesStatus = statusFilter === 'all' || search.status === statusFilter
       return matchesSearch && matchesStatus
     })
-  }, [searchTerm, statusFilter])
+  }, [searchTerm, statusFilter, searches])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50/30 to-stone-50/30 ">
@@ -274,7 +269,6 @@ export default function VehicleSearchPage() {
                     <div className="text-sm text-slate-500">{search.date.split(',')[0]}</div>
                   )
                 },
-                ,
                 {
                   key: 'action',
                   header: 'Acción',

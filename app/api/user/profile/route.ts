@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest) {
       phone,
       phonePrefix,
       ...(avatar !== undefined && { avatar }),
-      updatedAt: Date.now()
+      updatedAt: new Date()
     });
 
     if (!updatedUser) {

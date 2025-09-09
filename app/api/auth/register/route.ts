@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
       password: hashedPassword,
       firstName,
       lastName,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
 
     // Create default account for the user
@@ -56,9 +56,9 @@ export async function POST(request: NextRequest) {
       email: email,
       type: 'individual',
       status: 'active',
-      users: [{ user: user._id as any, role: 'owner', addedAt: Date.now() }],
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      users: [{ user: user._id as any, role: 'owner', addedAt: new Date() }],
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
 
     // Update user with account reference

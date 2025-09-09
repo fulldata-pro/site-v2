@@ -17,27 +17,33 @@ const validateAWSConfig = () => {
   }
 };
 
-// Validar configuración antes de crear el cliente
+// Create S3 client only if AWS config is available
+let s3Client: S3Client | null = null;
+let AWS_CONFIG: any = null;
+
 try {
   validateAWSConfig();
+  
+  s3Client = new S3Client({
+    region: process.env.AWS_REGION || 'us-east-1',
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
+  });
+
+  AWS_CONFIG = {
+    region: process.env.AWS_REGION || 'us-east-1',
+    bucketName: process.env.AWS_S3_BUCKET_NAME!,
+    cloudfrontDomain: process.env.AWS_CLOUDFRONT_DOMAIN || '',
+  } as const;
+  
 } catch (error) {
   if (process.env.NODE_ENV === 'development') {
-    console.warn('⚠️ [DESARROLLO] AWS validation failed, using mock service:', error);
+    console.warn('⚠️ [DESARROLLO] AWS not configured, uploads will be disabled:', error);
   } else {
     throw error;
   }
 }
 
-export const s3Client = new S3Client({
-      region: process.env.AWS_REGION || 'us-east-1',
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-      },
-    });
-
-export const AWS_CONFIG = {
-  region: process.env.AWS_REGION || 'us-east-1',
-  bucketName: process.env.AWS_S3_BUCKET_NAME!,
-  cloudfrontDomain: process.env.AWS_CLOUDFRONT_DOMAIN || '',
-} as const;
+export { s3Client, AWS_CONFIG };
