@@ -1,11 +1,12 @@
 import { Schema, model, Document, Types, models } from 'mongoose';
+import { addUidMiddleware } from '../helpers/uid-middleware';
 
 interface IMovementSearch {
   proxy?: Types.ObjectId;
   type: string;
   status: string;
   cost: number;
-  createdAt: number;
+  createdAt: Date;
 }
 
 export interface IMovement extends Document {
@@ -18,11 +19,11 @@ export interface IMovement extends Document {
   receipt?: Types.ObjectId;
   account: Types.ObjectId;
   createdBy?: Types.ObjectId;
-  createdAt: number;
-  updatedAt?: number;
+  createdAt: Date;
+  updatedAt?: Date;
   expired?: boolean;
-  expirationAt?: number;
-  deletedAt?: number;
+  expirationAt?: Date;
+  deletedAt?: Date;
 }
 
 const MovementSearchSchema = new Schema<IMovementSearch>({
@@ -30,12 +31,12 @@ const MovementSearchSchema = new Schema<IMovementSearch>({
   type: { type: String, required: true },
   status: { type: String, required: true },
   cost: { type: Number, required: true },
-  createdAt: { type: Number, default: Date.now }
+  createdAt: { type: Date, default: Date.now }
 }, { _id: false });
 
 const MovementSchema = new Schema<IMovement>({
   id: { type: Number, required: true, unique: true },
-  uid: { type: String, required: true, unique: true },
+  uid: { type: String, unique: true },
   description: { type: String, required: true },
   status: { 
     type: String, 
@@ -47,14 +48,17 @@ const MovementSchema = new Schema<IMovement>({
   receipt: { type: Schema.Types.ObjectId, ref: 'Receipt' },
   account: { type: Schema.Types.ObjectId, ref: 'Account', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
-  createdAt: { type: Number, default: Date.now },
-  updatedAt: { type: Number },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date },
   expired: { type: Boolean, default: false },
-  expirationAt: { type: Number },
-  deletedAt: { type: Number }
+  expirationAt: { type: Date },
+  deletedAt: { type: Date }
 }, { 
   collection: 'movements',
   timestamps: false
 });
+
+// Agregar middleware para generar uid desde _id
+addUidMiddleware(MovementSchema);
 
 export default (models.Movement as any) || model<IMovement>('Movement', MovementSchema);

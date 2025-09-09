@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types, models } from 'mongoose';
+import { addUidMiddleware } from '../helpers/uid-middleware';
 
 interface IParameterName {
   id: string;
@@ -34,7 +35,7 @@ const SalarySchema = new Schema<ISalarySchema>({
 
 const ParameterSchema = new Schema<IParameter>({
   id: { type: Number, required: true, unique: true },
-  uid: { type: String, required: true, unique: true },
+  uid: { type: String, unique: true },
   country: { type: Schema.Types.ObjectId, ref: 'Country', required: true },
   activities: [ParameterNameSchema],
   incomeTaxType: [ParameterNameSchema],
@@ -44,5 +45,8 @@ const ParameterSchema = new Schema<IParameter>({
   collection: 'parameters',
   timestamps: false
 });
+
+// Agregar middleware para generar uid desde _id
+addUidMiddleware(ParameterSchema);
 
 export default (models.Parameter as any) || model<IParameter>('Parameter', ParameterSchema);

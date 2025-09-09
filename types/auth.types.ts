@@ -8,6 +8,9 @@ export interface User {
   phone?: string
   phonePrefix?: string
   accounts: any[]
+  isGoogleUser?: boolean
+  createdAt?: number
+  updatedAt?: number
 }
 
 export interface LoginCredentials {

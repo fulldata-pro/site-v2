@@ -35,6 +35,11 @@ const authSlice = createSlice({
       state.user = null
       state.error = action.payload
     },
+    updateProfile: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload }
+      }
+    },
     logout: (state) => {
       state.user = null
       state.isAuthenticated = false
@@ -44,5 +49,5 @@ const authSlice = createSlice({
   },
 })
 
-export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.actions
+export const { loginStart, loginSuccess, loginFailure, updateProfile, logout } = authSlice.actions
 export default authSlice.reducer

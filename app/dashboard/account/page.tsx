@@ -1,38 +1,70 @@
 'use client'
 
-import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store/store'
+import { updateProfile } from '@/store/slices/authSlice'
 import { UserIcon } from '@/components/icons/User-icon'
 import { Setting2Icon } from '@/components/icons/setting-2-icon'
 import { ProfileUserIcon } from '@/components/icons/profile-user-icon'
+import AvatarUpload from '@/components/ui/avatar-upload'
+import { toast } from 'react-toastify'
+import { 
+  updateProfileSchema, 
+  changePasswordSchema, 
+  setPasswordSchema,
+  type UpdateProfileInput,
+  type ChangePasswordInput,
+  type SetPasswordInput
+} from '@/lib/validations/auth.validation'
 
 export default function MyAccountPage() {
   const { user } = useSelector((state: RootState) => state.auth)
+  const dispatch = useDispatch()
   const [activeTab, setActiveTab] = useState('personal')
+  const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<any>({})
 
   // Personal Information form state
-  const [personalInfo, setPersonalInfo] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    role: user?.role || '',
+  const [personalInfo, setPersonalInfo] = useState<UpdateProfileInput>({
+    firstName: '',
+    lastName: '',
     phone: '',
-    company: '',
-    address: ''
+    phonePrefix: ''
   })
+
+  // Avatar state
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '')
 
   // Security form state  
-  const [securityForm, setSecurityForm] = useState({
-    currentPassword: '',
+  const [securityForm, setSecurityForm] = useState<ChangePasswordInput | SetPasswordInput>({
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    ...(user?.isGoogleUser ? {} : { currentPassword: '' })
   })
 
-  const handlePersonalInfoChange = (field: string, value: string) => {
+  // Load user data on mount
+  useEffect(() => {
+    if (user) {
+      setPersonalInfo({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        phone: user.phone || '',
+        phonePrefix: user.phonePrefix || ''
+      })
+      setAvatarUrl(user.avatar || '')
+    }
+  }, [user])
+
+  const handlePersonalInfoChange = (field: keyof UpdateProfileInput, value: string) => {
     setPersonalInfo(prev => ({
       ...prev,
       [field]: value
     }))
+    // Clear field error
+    if (errors[field]) {
+      setErrors((prev: any) => ({ ...prev, [field]: undefined }))
+    }
   }
 
   const handleSecurityChange = (field: string, value: string) => {
@@ -40,31 +72,114 @@ export default function MyAccountPage() {
       ...prev,
       [field]: value
     }))
+    // Clear field error
+    if (errors[field]) {
+      setErrors((prev: any) => ({ ...prev, [field]: undefined }))
+    }
   }
 
-  const handlePersonalInfoSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // TODO: Implement API call to update personal information
-    console.log('Updating personal info:', personalInfo)
+  const handleAvatarChange = (newAvatarUrl: string) => {
+    setAvatarUrl(newAvatarUrl)
+    // También actualizar el store de Redux si es necesario
+    if (user) {
+      dispatch(updateProfile({ ...user, avatar: newAvatarUrl }))
+    }
   }
 
-  const handlePasswordReset = (e: React.FormEvent) => {
+  const handlePersonalInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
+    setErrors({})
 
-    if (securityForm.newPassword !== securityForm.confirmPassword) {
-      alert('Las contraseñas no coinciden')
+    // Validate form
+    const result = updateProfileSchema.safeParse(personalInfo)
+    if (!result.success) {
+      const fieldErrors: any = {}
+      result.error.issues.forEach((err: any) => {
+        const field = err.path[0] as keyof UpdateProfileInput
+        fieldErrors[field] = err.message
+      })
+      setErrors(fieldErrors)
+      setIsLoading(false)
       return
     }
 
-    // TODO: Implement API call to reset password
-    console.log('Resetting password')
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(personalInfo),
+        credentials: 'include'
+      })
 
-    // Clear form
-    setSecurityForm({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al actualizar el perfil')
+      }
+
+      // Update Redux store
+      dispatch(updateProfile(data.user))
+      toast.success('Perfil actualizado exitosamente')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error al actualizar el perfil'
+      toast.error(message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setErrors({})
+
+    // Validate form based on user type
+    const schema = user?.isGoogleUser ? setPasswordSchema : changePasswordSchema
+    const result = schema.safeParse(securityForm)
+
+    if (!result.success) {
+      const fieldErrors: any = {}
+      result.error.issues.forEach((err: any) => {
+        const field = err.path[0]
+        fieldErrors[field] = err.message
+      })
+      setErrors(fieldErrors)
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      const response = await fetch('/api/user/change-password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(securityForm),
+        credentials: 'include'
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al cambiar la contraseña')
+      }
+
+      toast.success(data.message)
+      // Clear form
+      setSecurityForm({
+        newPassword: '',
+        confirmPassword: '',
+        ...(user?.isGoogleUser ? {} : { currentPassword: '' })
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error al cambiar la contraseña'
+      toast.error(message)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const tabs = [
@@ -133,114 +248,111 @@ export default function MyAccountPage() {
                 </div>
               </div>
 
+
               <form onSubmit={handlePersonalInfoSubmit} className="space-y-8">
+                {/* Avatar Upload Section */}
+                <div className="flex justify-center pb-8 border-b border-gray-200">
+                  <AvatarUpload
+                    currentAvatar={avatarUrl}
+                    onAvatarChange={handleAvatarChange}
+                    userId={user?.id || 'anonymous'}
+                    size="large"
+                    disabled={isLoading}
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
-                    <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <label htmlFor="firstName" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      Nombre Completo
+                      Nombre
                     </label>
                     <input
                       type="text"
-                      id="name"
-                      value={personalInfo.name}
-                      onChange={(e) => handlePersonalInfoChange('name', e.target.value)}
-                      className="w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-gray-400"
-                      placeholder="Tu nombre completo"
+                      id="firstName"
+                      value={personalInfo.firstName}
+                      onChange={(e) => handlePersonalInfoChange('firstName', e.target.value)}
+                      className={`w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-gray-400 ${
+                        errors.firstName ? 'ring-red-300 focus:ring-red-500' : ''
+                      }`}
+                      placeholder="Tu nombre"
+                      disabled={isLoading}
                     />
+                    {errors.firstName && (
+                      <p className="text-sm text-red-600">{errors.firstName}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <label htmlFor="lastName" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      Apellido
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      value={personalInfo.lastName}
+                      onChange={(e) => handlePersonalInfoChange('lastName', e.target.value)}
+                      className={`w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder:text-gray-400 ${
+                        errors.lastName ? 'ring-red-300 focus:ring-red-500' : ''
+                      }`}
+                      placeholder="Tu apellido"
+                      disabled={isLoading}
+                    />
+                    {errors.lastName && (
+                      <p className="text-sm text-red-600">{errors.lastName}</p>
+                    )}
                   </div>
 
                   <div className="space-y-3">
                     <label htmlFor="email" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       Correo Electrónico
+                      {user?.isGoogleUser && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Google</span>
+                      )}
                     </label>
                     <input
                       type="email"
                       id="email"
-                      value={personalInfo.email}
-                      onChange={(e) => handlePersonalInfoChange('email', e.target.value)}
-                      className="w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder:text-gray-400"
-                      placeholder="correo@ejemplo.com"
+                      value={user?.email || ''}
+                      disabled
+                      className="w-full px-4 py-3 border-0 bg-gray-50/80 rounded-xl shadow-sm ring-1 ring-gray-200 text-gray-500 cursor-not-allowed"
                     />
+                    <p className="text-xs text-gray-500 bg-gray-50/50 rounded-lg p-3 border-l-4 border-gray-200">
+                      🔒 El correo electrónico no puede ser modificado
+                    </p>
                   </div>
 
                   <div className="space-y-3">
                     <label htmlFor="phone" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                       Teléfono
                     </label>
                     <input
                       type="tel"
                       id="phone"
-                      value={personalInfo.phone}
+                      value={personalInfo.phone || ''}
                       onChange={(e) => handlePersonalInfoChange('phone', e.target.value)}
-                      className="w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder:text-gray-400"
+                      className={`w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all placeholder:text-gray-400 ${
+                        errors.phone ? 'ring-red-300 focus:ring-red-500' : ''
+                      }`}
                       placeholder="+1 (555) 123-4567"
+                      disabled={isLoading}
                     />
+                    {errors.phone && (
+                      <p className="text-sm text-red-600">{errors.phone}</p>
+                    )}
                   </div>
-
-                  <div className="space-y-3">
-                    <label htmlFor="company" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      Empresa
-                    </label>
-                    <input
-                      type="text"
-                      id="company"
-                      value={personalInfo.company}
-                      onChange={(e) => handlePersonalInfoChange('company', e.target.value)}
-                      className="w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all placeholder:text-gray-400"
-                      placeholder="Tu empresa"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label htmlFor="address" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                    Dirección
-                  </label>
-                  <textarea
-                    id="address"
-                    rows={4}
-                    value={personalInfo.address}
-                    onChange={(e) => handlePersonalInfoChange('address', e.target.value)}
-                    className="w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all placeholder:text-gray-400 resize-none"
-                    placeholder="Tu dirección completa"
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <label htmlFor="role" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                    Rol
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="role"
-                      value={personalInfo.role}
-                      disabled
-                      className="w-full px-4 py-3 border-0 bg-gray-50/80 rounded-xl shadow-sm ring-1 ring-gray-200 text-gray-500 cursor-not-allowed"
-                    />
-                    <div className="absolute right-3 top-3">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-4v2m0 0v2m0-2h2m-2 0H10m0-2V9a3 3 0 116 0v2.25" />
-                      </svg>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 bg-gray-50/50 rounded-lg p-3 border-l-4 border-gray-200">
-                    🔒 El rol es asignado por el administrador y no puede ser modificado
-                  </p>
                 </div>
 
                 <div className="flex justify-end pt-6 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl hover:from-blue-600 hover:to-indigo-600 focus:outline-none focus:ring-4 focus:ring-blue-300/50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
+                    disabled={isLoading}
+                    className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl hover:from-blue-600 hover:to-indigo-600 focus:outline-none focus:ring-4 focus:ring-blue-300/50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
-                    💾 Guardar Cambios
+                    {isLoading ? '⏳ Guardando...' : '💾 Guardar Cambios'}
                   </button>
                 </div>
               </form>
@@ -258,34 +370,55 @@ export default function MyAccountPage() {
                   <div className="flex items-center gap-3 mb-4">
                     <div>
                       <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                        Cambiar Contraseña
+                        {user?.isGoogleUser ? 'Establecer Contraseña' : 'Cambiar Contraseña'}
                       </h2>
-                      <p className="text-gray-600 mt-1">Actualiza tu contraseña para mantener tu cuenta segura</p>
+                      <p className="text-gray-600 mt-1">
+                        {user?.isGoogleUser 
+                          ? 'Establece una contraseña para poder acceder también sin Google'
+                          : 'Actualiza tu contraseña para mantener tu cuenta segura'
+                        }
+                      </p>
+                      {user?.isGoogleUser && (
+                        <div className="mt-2 p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                          <p className="text-sm text-blue-700">
+                            🔑 Como iniciaste sesión con Google, puedes establecer una contraseña adicional para mayor flexibilidad.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
+
                 <form onSubmit={handlePasswordReset} className="space-y-6 max-w-lg">
-                  <div className="space-y-3">
-                    <label htmlFor="currentPassword" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      Contraseña Actual
-                    </label>
-                    <input
-                      type="password"
-                      id="currentPassword"
-                      value={securityForm.currentPassword}
-                      onChange={(e) => handleSecurityChange('currentPassword', e.target.value)}
-                      required
-                      className="w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all"
-                      placeholder="Ingresa tu contraseña actual"
-                    />
-                  </div>
+                  {!user?.isGoogleUser && (
+                    <div className="space-y-3">
+                      <label htmlFor="currentPassword" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        Contraseña Actual
+                      </label>
+                      <input
+                        type="password"
+                        id="currentPassword"
+                        value={(securityForm as ChangePasswordInput).currentPassword || ''}
+                        onChange={(e) => handleSecurityChange('currentPassword', e.target.value)}
+                        required={!user?.isGoogleUser}
+                        className={`w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all ${
+                          errors.currentPassword ? 'ring-red-300 focus:ring-red-500' : ''
+                        }`}
+                        placeholder="Ingresa tu contraseña actual"
+                        disabled={isLoading}
+                      />
+                      {errors.currentPassword && (
+                        <p className="text-sm text-red-600">{errors.currentPassword}</p>
+                      )}
+                    </div>
+                  )}
 
                   <div className="space-y-3">
                     <label htmlFor="newPassword" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      Nueva Contraseña
+                      {user?.isGoogleUser ? 'Contraseña' : 'Nueva Contraseña'}
                     </label>
                     <input
                       type="password"
@@ -293,19 +426,25 @@ export default function MyAccountPage() {
                       value={securityForm.newPassword}
                       onChange={(e) => handleSecurityChange('newPassword', e.target.value)}
                       required
-                      minLength={8}
-                      className="w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all"
-                      placeholder="Ingresa tu nueva contraseña"
+                      minLength={6}
+                      className={`w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all ${
+                        errors.newPassword ? 'ring-red-300 focus:ring-red-500' : ''
+                      }`}
+                      placeholder={user?.isGoogleUser ? 'Ingresa tu contraseña' : 'Ingresa tu nueva contraseña'}
+                      disabled={isLoading}
                     />
+                    {errors.newPassword && (
+                      <p className="text-sm text-red-600">{errors.newPassword}</p>
+                    )}
                     <p className="text-xs text-gray-500 bg-gray-50/50 rounded-lg p-3 border-l-4 border-green-200">
-                      🔐 La contraseña debe tener al menos 8 caracteres
+                      🔐 La contraseña debe tener al menos 6 caracteres
                     </p>
                   </div>
 
                   <div className="space-y-3">
                     <label htmlFor="confirmPassword" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      Confirmar Nueva Contraseña
+                      Confirmar {user?.isGoogleUser ? 'Contraseña' : 'Nueva Contraseña'}
                     </label>
                     <input
                       type="password"
@@ -313,17 +452,29 @@ export default function MyAccountPage() {
                       value={securityForm.confirmPassword}
                       onChange={(e) => handleSecurityChange('confirmPassword', e.target.value)}
                       required
-                      className="w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                      placeholder="Confirma tu nueva contraseña"
+                      className={`w-full px-4 py-3 border-0 bg-white/80 rounded-xl shadow-sm ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all ${
+                        errors.confirmPassword ? 'ring-red-300 focus:ring-red-500' : ''
+                      }`}
+                      placeholder={user?.isGoogleUser ? 'Confirma tu contraseña' : 'Confirma tu nueva contraseña'}
+                      disabled={isLoading}
                     />
+                    {errors.confirmPassword && (
+                      <p className="text-sm text-red-600">{errors.confirmPassword}</p>
+                    )}
                   </div>
 
                   <div className="flex justify-end pt-6 border-t border-gray-200">
                     <button
                       type="submit"
-                      className="px-8 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:from-red-600 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-red-300/50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
+                      disabled={isLoading}
+                      className="px-8 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:from-red-600 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-red-300/50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
-                      🔒 Cambiar Contraseña
+                      {isLoading 
+                        ? '⏳ Procesando...' 
+                        : user?.isGoogleUser 
+                          ? '🔑 Establecer Contraseña' 
+                          : '🔒 Cambiar Contraseña'
+                      }
                     </button>
                   </div>
                 </form>

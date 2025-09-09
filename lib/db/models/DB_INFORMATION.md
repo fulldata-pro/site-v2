@@ -14,7 +14,7 @@ Relationships: createdBy, updatedBy, and deletedBy reference the ADMINS collecti
 
 Users (DBUser): Represents platform users.
 
-Fields: id: Number, uid: String, accounts: [ObjectId], email: String, password: String, firstName: String, lastName: String, avatar: String, phone: String, phonePrefix: String, createdAt: Number, updatedAt: Number, deletedAt: Number.
+Fields: id: Number, uid: String, accounts: [ObjectId], email: String, password: String, firstName: String, lastName: String, avatar: String, phone: String, phonePrefix: String, googleId: String, createdAt: Date, updatedAt: Date, deletedAt: Date.
 
 Relationships: accounts is an array of ObjectIds referencing the ACCOUNTS collection.
 

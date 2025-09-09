@@ -1,21 +1,22 @@
 import { Schema, model, Document, Types, models } from 'mongoose';
+import { addUidMiddleware } from '../helpers/uid-middleware';
 
 interface IAccountBalance {
   currency: string;
   amount: number;
-  updatedAt: number;
+  updatedAt: Date;
 }
 
 interface IAccountUser {
   user: Types.ObjectId;
   role: string;
-  addedAt: number;
+  addedAt: Date;
 }
 
 interface IAccountBenefit {
   benefit: Types.ObjectId;
-  appliedAt: number;
-  expiresAt?: number;
+  appliedAt: Date;
+  expiresAt?: Date;
 }
 
 interface IServiceConfig {
@@ -45,10 +46,10 @@ export interface IAccount extends Document {
   type: 'individual' | 'business';
   status: 'active' | 'inactive' | 'suspended' | 'pending';
   balance: IAccountBalance[];
-  verifiedAt?: number;
-  emailVerifiedAt?: number;
-  phoneVerifiedAt?: number;
-  fiscalVerifiedAt?: number;
+  verifiedAt?: Date;
+  emailVerifiedAt?: Date;
+  phoneVerifiedAt?: Date;
+  fiscalVerifiedAt?: Date;
   serviceConfig?: IServiceConfig;
   webhooks?: any;
   users: IAccountUser[];
@@ -56,28 +57,28 @@ export interface IAccount extends Document {
   referredBy?: Types.ObjectId;
   referralCode?: string;
   referralBalance?: number;
-  expiration?: number;
+  expiration?: Date;
   createdBy?: Types.ObjectId;
-  createdAt: number;
-  updatedAt?: number;
+  createdAt: Date;
+  updatedAt?: Date;
 }
 
 const AccountBalanceSchema = new Schema<IAccountBalance>({
   currency: { type: String, required: true },
   amount: { type: Number, default: 0 },
-  updatedAt: { type: Number, default: Date.now }
+  updatedAt: { type: Date, default: Date.now }
 }, { _id: false });
 
 const AccountUserSchema = new Schema<IAccountUser>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   role: { type: String, default: 'member' },
-  addedAt: { type: Number, default: Date.now }
+  addedAt: { type: Date, default: Date.now }
 }, { _id: false });
 
 const AccountBenefitSchema = new Schema<IAccountBenefit>({
   benefit: { type: Schema.Types.ObjectId, ref: 'Benefit', required: true },
-  appliedAt: { type: Number, default: Date.now },
-  expiresAt: { type: Number }
+  appliedAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date }
 }, { _id: false });
 
 const ServiceConfigSchema = new Schema<IServiceConfig>({
@@ -89,7 +90,7 @@ const ServiceConfigSchema = new Schema<IServiceConfig>({
 
 const AccountSchema = new Schema<IAccount>({
   id: { type: Number, required: true, unique: true },
-  uid: { type: String, required: true, unique: true },
+  uid: { type: String, unique: true },
   name: { type: String, required: true },
   taxId: { type: String },
   email: { type: String, required: true },
@@ -115,10 +116,10 @@ const AccountSchema = new Schema<IAccount>({
     default: 'pending'
   },
   balance: [AccountBalanceSchema],
-  verifiedAt: { type: Number },
-  emailVerifiedAt: { type: Number },
-  phoneVerifiedAt: { type: Number },
-  fiscalVerifiedAt: { type: Number },
+  verifiedAt: { type: Date },
+  emailVerifiedAt: { type: Date },
+  phoneVerifiedAt: { type: Date },
+  fiscalVerifiedAt: { type: Date },
   serviceConfig: ServiceConfigSchema,
   webhooks: { type: Schema.Types.Mixed },
   users: [AccountUserSchema],
@@ -126,13 +127,16 @@ const AccountSchema = new Schema<IAccount>({
   referredBy: { type: Schema.Types.ObjectId, ref: 'Account' },
   referralCode: { type: String, unique: true, sparse: true },
   referralBalance: { type: Number, default: 0 },
-  expiration: { type: Number },
+  expiration: { type: Date },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
-  createdAt: { type: Number, default: Date.now },
-  updatedAt: { type: Number }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date }
 }, { 
   collection: 'accounts',
   timestamps: false
 });
+
+// Agregar middleware para generar uid desde _id
+addUidMiddleware(AccountSchema);
 
 export default (models.Account as any) || model<IAccount>('Account', AccountSchema);
