@@ -190,8 +190,8 @@ export default function BankSearchPage() {
         <div className="border-b border-gray-200 mb-6">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                <ServiceIcon service={ServicesType.BANKS} className="text-2xl text-red-600" />
+              <div className="w-12 h-12 bg-services-banks rounded-xl flex items-center justify-center">
+                <ServiceIcon service={ServicesType.BANKS} className="text-2xl" />
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Bancos</h1>
@@ -352,7 +352,7 @@ export default function BankSearchPage() {
               </span>{' '}
               de <span className="font-medium">{filteredSearches.length}</span> resultados
             </div>
-            
+
             <div className="flex gap-2">
               <button
                 onClick={() => setCurrentPage(currentPage - 1)}
@@ -361,21 +361,20 @@ export default function BankSearchPage() {
               >
                 Anterior
               </button>
-              
+
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-1 text-sm border border-gray-300 rounded-md ${
-                    page === currentPage
+                  className={`px-3 py-1 text-sm border border-gray-300 rounded-md ${page === currentPage
                       ? 'bg-gray-900 text-white border-gray-900'
                       : 'text-gray-900 bg-white hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   {page}
                 </button>
               ))}
-              
+
               <button
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === totalPages}

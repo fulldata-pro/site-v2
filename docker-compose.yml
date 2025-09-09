@@ -1,0 +1,16 @@
+services:
+
+  fulldata-db:
+    image: mongo:latest
+    container_name: FulldataDB
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/db:/data/db
+    networks:
+      - fulldata-network
+
+networks:
+  fulldata-network:
+    driver: bridge

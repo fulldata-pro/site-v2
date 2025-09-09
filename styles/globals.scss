@@ -17,26 +17,67 @@
   }
 }
 
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    scroll-behavior: smooth;
+  }
+}
+// people: "#1E90FF",
+// 		companies: "#FF4500",
+// 		vehicles: "#9370DB",
+// 		phones: "#32CD32",
+// 		banks: "#0e7490",
+// 		osint: "#FF6347",
+// 		identity: "#FFD700",
 .text-services-people {
-  color: #eb1034;
+  color: #1E90FF;
+}
+.bg-services-people {
+  background-color: lighten($color: #1E90FF, $amount: 40%) ;
 }
 .text-services-companies {
-  color: #1e90ff;
+  color: #FF4500;
+}
+.bg-services-companies {
+  background-color: lighten($color: #FF4500, $amount: 45%) ;
 }
 .text-services-vehicles {
-  color: #32cd32;
+  color: #9370DB;
+}
+.bg-services-vehicles {
+  background-color: lighten($color: #9370DB, $amount: 30%) ;
 }
 .text-services-phones {
   color: #ffa500;
 }
+.bg-services-phones {
+  background-color: lighten($color: #ffa500, $amount: 40%) ;
+}
 .text-services-banks {
-  color: #8a2be2;
+  color: #0e7490;
+}
+.bg-services-banks {
+  background-color: lighten($color: #0e7490, $amount: 45%) ;
 }
 .text-services-identity {
-  color: #ff1493;
+  color: #c9ab02;
+}
+.bg-services-identity {
+  background-color: lighten($color: #c9ab02, $amount: 45%) ;
 }
 .text-services-osint {
-  color: #20b2aa;
+  color: #FF6347;
+}
+.bg-services-osint {
+  background-color: lighten($color: #FF6347, $amount: 30%) ;
 }
 
 

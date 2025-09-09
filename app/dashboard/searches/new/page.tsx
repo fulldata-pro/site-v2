@@ -341,14 +341,6 @@ export default function NewSearchPage() {
       <div className="w-full max-w-2xl">
         {/* Header with Animated Logo */}
         <div className="text-center mb-20 transition-all duration-700 ease-out">
-          {/* Credits Display */}
-          <div className="absolute top-4 right-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-gray-600">Créditos:</span>
-              <span className="font-semibold text-gray-800">{mockCredits.available.toLocaleString()}</span>
-            </div>
-          </div>
 
           <div className="mb-4 mt-24">
             <div className="inline-block">
@@ -479,7 +471,7 @@ export default function NewSearchPage() {
                       >
                         <div className="flex items-center gap-3">
                           <div className={`p-2 rounded-lg ${available ? 'bg-white shadow-sm' : 'bg-gray-100'}`}>
-                            <ServiceIcon service={service} className={`w-5 h-5 ${!available ? 'text-gray-300' : selectedService === service ? 'text-blue-600' : 'text-slate-600'}`} />
+                            <ServiceIcon service={service} className={`text-xl ${!available ? 'text-gray-300' : selectedService === service ? '' : 'text-slate-600'}`} />
                           </div>
                           <div>
                             <div className={`text-sm font-semibold ${!available ? 'text-gray-400' : selectedService === service ? 'text-blue-700' : 'text-slate-800'}`}>
