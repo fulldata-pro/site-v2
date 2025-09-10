@@ -3,36 +3,21 @@ import { BondsData } from '@/lib/types/people_types'
 import { PeopleIcon } from '@/components/icons/People-icon'
 import { TimeIcon } from '@/components/icons/time-icon'
 import { Heart } from 'lucide-react'
+import { formatDate, calculateAge } from '@/lib/utils/dateUtils'
+import { 
+  translateRelationship, 
+  translateSex, 
+  getRelationshipStyle 
+} from '@/lib/constants/relationshipConstants'
 
 interface BondsSectionProps {
   bondsData: BondsData
 }
 
 export default function BondsSection({ bondsData }: BondsSectionProps) {
-  const formatDate = (timestamp: number | { $numberLong: string } | { $date: string }) => {
-    let date: Date
-    
-    if (typeof timestamp === 'object') {
-      if ('$numberLong' in timestamp) {
-        date = new Date(parseInt(timestamp.$numberLong))
-      } else if ('$date' in timestamp) {
-        date = new Date(timestamp.$date)
-      } else {
-        return 'N/A'
-      }
-    } else if (typeof timestamp === 'number') {
-      date = new Date(timestamp)
-    } else if (typeof timestamp === 'string') {
-      date = new Date(timestamp)
-    } else {
-      return 'N/A'
-    }
-    
-    return date.toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
+  const formatLocalDate = (timestamp: number | { $numberLong: string } | { $date: string } | null | undefined) => {
+    const formatted = formatDate(timestamp)
+    return formatted === 'No disponible' ? 'N/A' : formatted
   }
 
   const formatTaxId = (taxId: number | { $numberLong: string } | string) => {
@@ -42,26 +27,21 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
     return String(taxId)
   }
 
-  const getRelationshipIcon = (relation: string) => {
-    const relationLower = relation.toLowerCase()
-    if (relationLower.includes('conyugue') || relationLower.includes('esposo') || relationLower.includes('esposa')) {
-      return Heart
+  const getAge = (ageFromData: number | null, birthDate: number | { $numberLong: string } | { $date: string } | null | undefined): string => {
+    // Use provided age if available
+    if (ageFromData !== null && ageFromData !== undefined) {
+      return `${ageFromData} años`
     }
-    return PeopleIcon
-  }
-
-  const getRelationshipColor = (relation: string) => {
-    const relationLower = relation.toLowerCase()
-    if (relationLower.includes('conyugue') || relationLower.includes('esposo') || relationLower.includes('esposa')) {
-      return 'text-pink-600 bg-pink-50 border-pink-200'
+    
+    // Calculate age from birth date if available
+    if (birthDate) {
+      const calculatedAge = calculateAge(birthDate)
+      if (calculatedAge !== null) {
+        return `${calculatedAge} años`
+      }
     }
-    if (relationLower.includes('hijo') || relationLower.includes('hija')) {
-      return 'text-blue-600 bg-blue-50 border-blue-200'
-    }
-    if (relationLower.includes('padre') || relationLower.includes('madre')) {
-      return 'text-green-600 bg-green-50 border-green-200'
-    }
-    return 'text-gray-600 bg-gray-50 border-gray-200'
+    
+    return 'N/A'
   }
 
   const isEmpty = (
@@ -89,11 +69,12 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {bondsData.main.map((bond, idx) => {
-              const IconComponent = getRelationshipIcon(bond.relation)
-              const colorClasses = getRelationshipColor(bond.relation)
+              const relationshipStyle = getRelationshipStyle(bond.relation, bond.sex)
+              const IconComponent = relationshipStyle.icon === 'heart' ? Heart : PeopleIcon
+              const translatedRelation = translateRelationship(bond.relation, bond.sex)
               
               return (
-                <div key={idx} className={`border p-4 rounded-lg ${colorClasses}`}>
+                <div key={idx} className={`border p-4 rounded-lg ${relationshipStyle.colorClasses}`}>
                   <div className="flex items-start gap-3">
                     <IconComponent className="w-5 h-5 mt-0.5" />
                     <div className="flex-1">
@@ -105,24 +86,24 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
                         </div>
                         <div>
                           <label className="text-gray-500">Relación:</label>
-                          <span className="ml-2 text-gray-900 font-medium capitalize">{bond.relation}</span>
+                          <span className="ml-2 text-gray-900 font-medium">{translatedRelation}</span>
                         </div>
                         <div>
                           <label className="text-gray-500">Sexo:</label>
                           <span className="ml-2 text-gray-900 font-medium">
-                            {bond.sex === 'M' ? 'Masculino' : bond.sex === 'F' ? 'Femenino' : bond.sex}
+                            {translateSex(bond.sex)}
                           </span>
                         </div>
                         <div>
                           <label className="text-gray-500">Edad:</label>
                           <span className="ml-2 text-gray-900 font-medium">
-                            {bond.age ? `${bond.age} años` : 'N/A'}
+                            {getAge(bond.age, bond.birthDate)}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <TimeIcon className="text-base text-gray-400" />
                           <label className="text-gray-500">Fecha de nacimiento:</label>
-                          <span className="text-gray-900 font-medium">{formatDate(bond.birthDate)}</span>
+                          <span className="text-gray-900 font-medium">{formatLocalDate(bond.birthDate)}</span>
                         </div>
                       </div>
                     </div>
@@ -142,11 +123,12 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {bondsData.others.map((bond, idx) => {
-              const IconComponent = getRelationshipIcon(bond.relation)
-              const colorClasses = getRelationshipColor(bond.relation)
+              const relationshipStyle = getRelationshipStyle(bond.relation, bond.sex)
+              const IconComponent = relationshipStyle.icon === 'heart' ? Heart : PeopleIcon
+              const translatedRelation = translateRelationship(bond.relation, bond.sex)
               
               return (
-                <div key={idx} className={`border p-4 rounded-lg ${colorClasses}`}>
+                <div key={idx} className={`border p-4 rounded-lg ${relationshipStyle.colorClasses}`}>
                   <div className="flex items-start gap-3">
                     <IconComponent className="w-5 h-5 mt-0.5" />
                     <div className="flex-1">
@@ -158,24 +140,24 @@ export default function BondsSection({ bondsData }: BondsSectionProps) {
                         </div>
                         <div>
                           <label className="text-gray-500">Relación:</label>
-                          <span className="ml-2 text-gray-900 font-medium capitalize">{bond.relation}</span>
+                          <span className="ml-2 text-gray-900 font-medium">{translatedRelation}</span>
                         </div>
                         <div>
                           <label className="text-gray-500">Sexo:</label>
                           <span className="ml-2 text-gray-900 font-medium">
-                            {bond.sex === 'M' ? 'Masculino' : bond.sex === 'F' ? 'Femenino' : bond.sex}
+                            {translateSex(bond.sex)}
                           </span>
                         </div>
                         <div>
                           <label className="text-gray-500">Edad:</label>
                           <span className="ml-2 text-gray-900 font-medium">
-                            {bond.age ? `${bond.age} años` : 'N/A'}
+                            {getAge(bond.age, bond.birthDate)}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <TimeIcon className="text-base text-gray-400" />
                           <label className="text-gray-500">Fecha de nacimiento:</label>
-                          <span className="text-gray-900 font-medium">{formatDate(bond.birthDate)}</span>
+                          <span className="text-gray-900 font-medium">{formatLocalDate(bond.birthDate)}</span>
                         </div>
                       </div>
                     </div>

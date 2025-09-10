@@ -4,29 +4,22 @@ import { BriefcaseIcon } from '@/components/icons/Briefcase-icon'
 import { TimeIcon } from '@/components/icons/time-icon'
 import { PeopleIcon } from '@/components/icons/People-icon'
 import { Building2, Shield } from 'lucide-react'
+import { formatDate } from '@/lib/utils/dateUtils'
+import { 
+  translateLaborSituation, 
+  translateActivityType, 
+  translateSalaryCategory,
+  getLaborSituationColor 
+} from '@/lib/constants/laborConstants'
 
 interface LaborSectionProps {
   laborData: LaborData
 }
 
 export default function LaborSection({ laborData }: LaborSectionProps) {
-  const formatDate = (timestamp: number | { $numberLong: string }) => {
-    if (!timestamp) return 'N/A'
-    
-    let date: Date
-    if (typeof timestamp === 'object' && '$numberLong' in timestamp) {
-      date = new Date(parseInt(timestamp.$numberLong))
-    } else if (typeof timestamp === 'number') {
-      date = new Date(timestamp)
-    } else {
-      return 'N/A'
-    }
-    
-    return date.toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
+  const formatLocalDate = (timestamp: number | { $numberLong: string } | null | undefined) => {
+    const formatted = formatDate(timestamp)
+    return formatted === 'No disponible' ? 'N/A' : formatted
   }
 
   const formatTaxId = (taxId: number | { $numberLong: string }) => {
@@ -48,8 +41,8 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
             <label className="text-sm text-gray-500">Situación Laboral</label>
             <div className="mt-2">
               {laborData.laborSituation?.map((situation, idx) => (
-                <span key={idx} className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-800 mr-2">
-                  {situation}
+                <span key={idx} className={`inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium mr-2 ${getLaborSituationColor(situation)}`}>
+                  {translateLaborSituation(situation)}
                 </span>
               ))}
             </div>
@@ -111,7 +104,7 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
                     <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <label className="text-gray-500">Tipo:</label>
-                        <p className="text-gray-900 font-medium">{activity.type || 'N/A'}</p>
+                        <p className="text-gray-900 font-medium">{activity.type ? translateActivityType(activity.type) : 'N/A'}</p>
                       </div>
                       <div>
                         <label className="text-gray-500">Sector:</label>
@@ -123,7 +116,7 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
                       </div>
                       <div>
                         <label className="text-gray-500">Fecha de inicio:</label>
-                        <p className="text-gray-900 font-medium">{formatDate(activity.startDate || 0)}</p>
+                        <p className="text-gray-900 font-medium">{formatLocalDate(activity.startDate)}</p>
                       </div>
                     </div>
                   </div>
@@ -163,7 +156,7 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
                         )}
                         {employer.salary && (
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                            Salario: {employer.salary}
+                            Salario: {translateSalaryCategory(employer.salary)}
                           </span>
                         )}
                       </div>
@@ -173,7 +166,7 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
                       <div className="flex items-center gap-1">
                         <TimeIcon className="text-base text-gray-400" />
                         <span className="text-gray-600">
-                          {formatDate(employer.startDate)} - {formatDate(employer.finishDate)}
+                          {formatLocalDate(employer.startDate)} - {formatLocalDate(employer.finishDate)}
                         </span>
                       </div>
                       
@@ -268,7 +261,7 @@ export default function LaborSection({ laborData }: LaborSectionProps) {
                   </div>
                   <div>
                     <label className="text-gray-500">Fecha:</label>
-                    <p className="text-gray-900 font-medium">{formatDate(laborData.osDate || 0)}</p>
+                    <p className="text-gray-900 font-medium">{formatLocalDate(laborData.osDate)}</p>
                   </div>
                 </div>
               </div>
