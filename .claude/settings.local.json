@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(./**)",
+      "Bash(npx create-next-app:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(npm run lint:*)",
+      "Bash(sed:*)",
+      "Bash(npm run build:*)",
+      "Bash(for file in components/icons/*.tsx)",
+      "Bash(do sed -i '' 's|@/functions/classNames|@/lib/utils|g' \"$file\")",
+      "Bash(done)",
+      "Bash(for file in components/icons/{Exit-icon,Focus-icon,Home-icon,information-icon,Magic-wand,noteIcon,People-icon,Phone-icon,Pin-icon,question-2-icon,search-icon,search-list-icon,Sms-icon,square-brackets,technology-4,time-icon,user-pause,User-icon}.tsx)",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(then sed -i '' 's|@/functions/classNames|@/lib/utils|g' \"$file\")",
+      "Bash(fi)",
+      "Bash(for file in components/icons/{empty-icon,exclamation-icon,face-id-icon}.tsx)",
+      "Bash(do sed -i '' 's|@/interfaces|@/lib/interfaces|g' \"$file\")",
+      "Bash(for file in components/icons/brands/*.tsx)",
+      "Bash(find:*)",
+      "Bash(for file in lib/db/models/*.schema.ts)",
+      "Bash(do)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

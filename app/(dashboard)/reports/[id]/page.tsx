@@ -14,19 +14,10 @@ import { BookOpenIcon } from '@/components/icons/BookOpen-icon'
 import {
   Download, CreditCard, TrendingUp,
   AlertCircle, Edit3, Send, Trash2, Info,
-  CheckCircle, Copy, ChevronDown
+  CheckCircle, Copy, ChevronDown, Building2, Car, Phone, Banknote
 } from 'lucide-react'
 import { CalendarIcon } from '@heroicons/react/24/outline'
-import ReportSummary from '@/components/reports/people/ReportSummary'
-import AddressSection from '@/components/reports/people/AddressSection'
-import ContactSection from '@/components/reports/people/ContactSection'
-import LaborSection from '@/components/reports/people/LaborSection'
-import TaxSection from '@/components/reports/people/TaxSection'
-import FinancialSection from '@/components/reports/people/FinancialSection'
-import PersonalPropertySection from '@/components/reports/people/PersonalPropertySection'
-import OfficialBulletinSection from '@/components/reports/people/OfficialBulletinSection'
-import BondsSection from '@/components/reports/people/BondsSection'
-import AdditionalDataSection from '@/components/reports/people/AdditionalDataSection'
+import ReportViewer, { ReportType } from '@/components/reports/ReportViewer'
 
 interface ReportSection {
   id: string
@@ -89,18 +80,89 @@ export default function ReportDetailPage() {
     }
   }, [showActionsDropdown])
 
-  const sections: ReportSection[] = [
-    { id: 'resumen', label: 'Resumen', icon: DocumentIcon },
-    { id: 'direcciones', label: 'Direcciones', icon: PinIcon },
-    { id: 'contacto', label: 'Datos de Contacto', icon: PhoneIcon },
-    { id: 'laborales', label: 'Datos Laborales', icon: BriefcaseIcon },
-    { id: 'impuestos', label: 'Impuestos', icon: CreditCard },
-    { id: 'financiera', label: 'Situación Financiera', icon: TrendingUp },
-    { id: 'vinculos', label: 'Vínculos', icon: PeopleIcon },
-    { id: 'bienes', label: 'Bienes Personales', icon: HomeIcon },
-    { id: 'boletin', label: 'Boletín Oficial', icon: BookOpenIcon },
-    { id: 'adicional', label: 'Información Adicional', icon: Info }
-  ]
+  // Get report type to determine sections
+  const getReportType = (): ReportType | null => {
+    if (!reportData) return null
+    const feature = reportData.feature?.toUpperCase()
+    
+    switch (feature) {
+      case 'PEOPLE':
+      case 'PERSON':
+        return ReportType.PEOPLE
+      case 'COMPANY':
+      case 'COMPANIES':
+        return ReportType.COMPANY
+      case 'VEHICLE':
+      case 'VEHICLES':
+        return ReportType.VEHICLE
+      case 'PHONE':
+      case 'PHONES':
+        return ReportType.PHONE
+      case 'BANK':
+      case 'BANKS':
+        return ReportType.BANK
+      default:
+        return null
+    }
+  }
+
+  const reportType = getReportType()
+
+  // Define sections based on report type
+  const getSections = (): ReportSection[] => {
+    switch (reportType) {
+      case ReportType.PEOPLE:
+        return [
+          { id: 'resumen', label: 'Resumen', icon: DocumentIcon },
+          { id: 'direcciones', label: 'Direcciones', icon: PinIcon },
+          { id: 'contacto', label: 'Datos de Contacto', icon: PhoneIcon },
+          { id: 'laborales', label: 'Datos Laborales', icon: BriefcaseIcon },
+          { id: 'impuestos', label: 'Impuestos', icon: CreditCard },
+          { id: 'financiera', label: 'Situación Financiera', icon: TrendingUp },
+          { id: 'vinculos', label: 'Vínculos', icon: PeopleIcon },
+          { id: 'bienes', label: 'Bienes Personales', icon: HomeIcon },
+          { id: 'boletin', label: 'Boletín Oficial', icon: BookOpenIcon },
+          { id: 'adicional', label: 'Información Adicional', icon: Info }
+        ]
+      case ReportType.COMPANY:
+        return [
+          { id: 'resumen', label: 'Resumen', icon: DocumentIcon },
+          { id: 'fiscal', label: 'Información Fiscal', icon: CreditCard },
+          { id: 'direcciones', label: 'Direcciones', icon: PinIcon },
+          { id: 'socios', label: 'Socios', icon: PeopleIcon },
+          { id: 'actividades', label: 'Actividades', icon: BriefcaseIcon },
+          { id: 'adicional', label: 'Información Adicional', icon: Info }
+        ]
+      case ReportType.VEHICLE:
+        return [
+          { id: 'resumen', label: 'Resumen', icon: DocumentIcon },
+          { id: 'titular', label: 'Titular', icon: PeopleIcon },
+          { id: 'historial', label: 'Historial', icon: BookOpenIcon },
+          { id: 'infracciones', label: 'Infracciones', icon: AlertCircle },
+          { id: 'adicional', label: 'Información Adicional', icon: Info }
+        ]
+      case ReportType.PHONE:
+        return [
+          { id: 'resumen', label: 'Resumen', icon: DocumentIcon },
+          { id: 'titular', label: 'Titular', icon: PeopleIcon },
+          { id: 'ubicacion', label: 'Ubicación', icon: PinIcon },
+          { id: 'adicional', label: 'Información Adicional', icon: Info }
+        ]
+      case ReportType.BANK:
+        return [
+          { id: 'resumen', label: 'Resumen', icon: DocumentIcon },
+          { id: 'titular', label: 'Titular', icon: PeopleIcon },
+          { id: 'movimientos', label: 'Movimientos', icon: TrendingUp },
+          { id: 'adicional', label: 'Información Adicional', icon: Info }
+        ]
+      default:
+        return [
+          { id: 'resumen', label: 'Resumen', icon: DocumentIcon }
+        ]
+    }
+  }
+
+  const sections = getSections()
 
 
   const handleAction = async (action: string) => {
@@ -166,74 +228,14 @@ export default function ReportDetailPage() {
 
   const renderContent = () => {
     if (!reportData) return null
-
-    switch (activeSection) {
-      case 'resumen':
-        return (
-          <ReportSummary
-            summary={reportData.people.summary}
-            scoreHistory={reportData.people.summary?.score || []}
-          />
-        )
-
-      case 'direcciones':
-        return (
-          <div className="space-y-8">
-            <AddressSection
-              addresses={(reportData.people.addressData || []).filter((addr: any) => addr.type === 'TAX')}
-              title="Domicilios Fiscales"
-            />
-            <AddressSection
-              addresses={(reportData.people.addressData || []).filter((addr: any) => addr.type === 'OTHER')}
-              title="Otros Domicilios"
-            />
-          </div>
-        )
-
-      case 'contacto':
-        return <ContactSection contactData={reportData.people.contactData || []} />
-
-      case 'laborales':
-        return <LaborSection laborData={reportData.people.laborData || []} />
-
-      case 'impuestos':
-        return <TaxSection taxData={reportData.people.taxes || []} />
-
-      case 'financiera':
-        return <FinancialSection financialData={reportData.people.financialSituation || []} />
-
-      case 'vinculos':
-        return <BondsSection bondsData={reportData.people.bonds || []} />
-
-      case 'bienes':
-        return <PersonalPropertySection propertyData={reportData.people.personalProperty || []} />
-
-      case 'boletin':
-        return <OfficialBulletinSection bulletinData={reportData.people.officialBulletin || []} />
-
-      case 'adicional':
-        return (
-          <AdditionalDataSection
-            nicDomains={reportData.people.nicDomains || []}
-            isDuplicated={reportData.people.isDuplicated || false}
-            duplicatedList={reportData.people.duplicatedList || []}
-            isBanked={reportData.people.isBanked || false}
-          />
-        )
-
-      default:
-        return (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="p-6 bg-amber-50/50 rounded-3xl border border-amber-200/30 mb-8">
-              <AlertCircle className="w-12 h-12 text-amber-600/80 mx-auto" />
-            </div>
-            <div className="text-center space-y-3">
-              <p className="text-slate-700 font-semibold text-lg">Sección en desarrollo</p>
-              <p className="text-slate-500/70">Esta información estará disponible próximamente</p>
-            </div>
-          </div>
-        )
-    }
+    
+    return (
+      <ReportViewer 
+        reportData={reportData}
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+      />
+    )
   }
 
   if (loading) {
@@ -250,7 +252,7 @@ export default function ReportDetailPage() {
     )
   }
 
-  if (!reportData || !reportData.people || !reportData.people.summary) {
+  if (!reportData) {
     return (
       <div className={`min-h-screen bg-gradient-to-br from-slate-50/30 to-stone-50/30 flex items-center justify-center ${isReportPage ? 'ml-16' : 'ml-64'}`}>
         <div className="text-center bg-white/95 backdrop-blur-lg rounded-3xl p-12 border border-white/20 shadow-lg shadow-slate-200/20">
@@ -272,9 +274,60 @@ export default function ReportDetailPage() {
     )
   }
 
-  const personData = reportData.people.summary
-  const personName = `${personData.firstName || ''} ${personData.lastName || ''}`.trim()
-  const initials = (personData.firstName?.charAt(0) || '') + (personData.lastName?.charAt(0) || '')
+  // Get display data based on report type
+  const getDisplayData = () => {
+    switch (reportType) {
+      case ReportType.PEOPLE:
+        const personData = reportData.people?.summary
+        return {
+          name: `${personData?.firstName || ''} ${personData?.lastName || ''}`.trim(),
+          initials: (personData?.firstName?.charAt(0) || '') + (personData?.lastName?.charAt(0) || ''),
+          subtitle: 'Verificación completada',
+          identifier: personData?.taxId || '',
+          birthDate: personData?.birthDate,
+          age: personData?.age,
+          location: reportData.people?.addressData?.[0]
+        }
+      case ReportType.COMPANY:
+        return {
+          name: reportData.companies?.summary?.rz || 'Empresa',
+          initials: reportData.companies?.summary?.rz?.substring(0, 2).toUpperCase() || 'EM',
+          subtitle: 'Verificación de empresa',
+          identifier: reportData.companies?.summary?.taxId || '',
+          location: reportData.companies?.addressData?.[0]
+        }
+      case ReportType.VEHICLE:
+        return {
+          name: reportData.vehicle?.vehicleInformation?.licensePlate || 'Vehículo',
+          initials: 'VH',
+          subtitle: `${reportData.vehicle?.vehicleInformation?.brand || ''} ${reportData.vehicle?.vehicleInformation?.model || ''}`.trim(),
+          identifier: reportData.vehicle?.vehicleInformation?.licensePlate || ''
+        }
+      case ReportType.PHONE:
+        return {
+          name: reportData.phone?.phoneNumber || 'Teléfono',
+          initials: 'TL',
+          subtitle: reportData.phone?.operator || 'Verificación telefónica',
+          identifier: reportData.phone?.phoneNumber || ''
+        }
+      case ReportType.BANK:
+        return {
+          name: reportData.bank?.alias || reportData.bank?.cbu || 'Cuenta Bancaria',
+          initials: 'CB',
+          subtitle: 'Verificación bancaria',
+          identifier: reportData.bank?.cbu || ''
+        }
+      default:
+        return {
+          name: 'Reporte',
+          initials: 'RP',
+          subtitle: 'Verificación',
+          identifier: reportData._id || ''
+        }
+    }
+  }
+
+  const displayData = getDisplayData()
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50/30 to-stone-50/30 ${isReportPage ? 'ml-16' : 'ml-64'}`}>
@@ -288,38 +341,42 @@ export default function ReportDetailPage() {
               <div className="text-center mb-8">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mx-auto mb-4 shadow-inner">
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-medium text-lg">
-                    {initials}
+                    {displayData.initials}
                   </div>
                 </div>
-                <h1 className="text-xl font-semibold text-slate-800 mb-1">{personName}</h1>
-                <p className="text-sm text-slate-500">Verificación completada</p>
+                <h1 className="text-xl font-semibold text-slate-800 mb-1">{displayData.name}</h1>
+                <p className="text-sm text-slate-500">{displayData.subtitle}</p>
               </div>
 
               <div className="space-y-6">
-                <div className="bg-slate-50/60 rounded-2xl p-4">
-                  <div className="text-xs text-slate-600 mb-2 font-medium">Fecha de nacimiento</div>
-                  <div className="flex items-center text-slate-700">
-                    <CalendarIcon className="w-4 h-4 mr-2 text-slate-500" />
-                    <span className="text-sm">
-                      {formatBirthDateWithAge(personData.birthDate, personData.age)}
-                    </span>
+                {displayData.birthDate && (
+                  <div className="bg-slate-50/60 rounded-2xl p-4">
+                    <div className="text-xs text-slate-600 mb-2 font-medium">Fecha de nacimiento</div>
+                    <div className="flex items-center text-slate-700">
+                      <CalendarIcon className="w-4 h-4 mr-2 text-slate-500" />
+                      <span className="text-sm">
+                        {formatBirthDateWithAge(displayData.birthDate, displayData.age)}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="bg-slate-50/60 rounded-2xl p-4">
-                  <div className="text-xs text-slate-600 mb-2 font-medium">Ubicación</div>
-                  <div className="flex items-start text-slate-700">
-                    <PinIcon className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-slate-500" />
-                    <span className="text-sm leading-relaxed">{(reportData.people.addressData?.length > 0)
-                      ? `${reportData.people.addressData[0]?.city || 'José C. Paz'}, ${reportData.people.addressData[0]?.province || 'Buenos Aires'}, Argentina`
-                      : 'José C. Paz, Provincia de Buenos Aires, Argentina'}</span>
+                {displayData.location && (
+                  <div className="bg-slate-50/60 rounded-2xl p-4">
+                    <div className="text-xs text-slate-600 mb-2 font-medium">Ubicación</div>
+                    <div className="flex items-start text-slate-700">
+                      <PinIcon className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-slate-500" />
+                      <span className="text-sm leading-relaxed">
+                        {`${displayData.location.city || ''}, ${displayData.location.province || ''}`}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="bg-slate-50/60 rounded-2xl p-4">
                   <div className="text-xs text-slate-600 mb-2 font-medium">Identificación</div>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm text-slate-800">{personData.taxId}</span>
+                    <span className="font-mono text-sm text-slate-800">{displayData.identifier}</span>
                     <button className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-all">
                       <Copy className="w-4 h-4" />
                     </button>

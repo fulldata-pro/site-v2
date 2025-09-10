@@ -8,7 +8,7 @@ const API_KEY = process.env.NEXT_PUBLIC_API_KEY || 'cly979x1v0000zcdpdobsl4nm'
 
 export interface ReportRequest {
   uid: string
-  type?: 'people' | 'company' | 'vehicle' | 'phone' | 'bank'
+  type?: 'people' | 'companies' | 'vehicle' | 'phone' | 'bank'
 }
 
 export interface ReportResponse {
@@ -21,7 +21,7 @@ export interface ReportResponse {
   version: string
   vendorId: string
   people?: PeopleData
-  company?: CompaniesData
+  companies?: CompaniesData
   vehicle?: VehicleData
   phone?: PhoneData
   bank?: any
