@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useParams } from 'next/navigation'
+import reportService from '@/services/reportService'
+import { formatBirthDateWithAge, formatDateTime } from '@/lib/utils/dateUtils'
 import { DocumentIcon } from '@/components/icons/Document-icon'
 import { PinIcon } from '@/components/icons/Pin-icon'
 import { PhoneIcon } from '@/components/icons/Phone-icon'
@@ -35,6 +37,8 @@ interface ReportSection {
 
 export default function ReportDetailPage() {
   const pathname = usePathname()
+  const params = useParams()
+  const reportId = params.id as string
   const [activeSection, setActiveSection] = useState('resumen')
   const [reportData, setReportData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -43,22 +47,29 @@ export default function ReportDetailPage() {
   // Check if we're on a report page (matches sidebar logic)
   const isReportPage = pathname.includes('/dashboard/reports/')
 
-  // Load mock data
+  // Load report data from API
   useEffect(() => {
-    const loadMockData = async () => {
+    const loadReportData = async () => {
+      if (!reportId) {
+        setLoading(false)
+        return
+      }
+
       try {
-        const response = await fetch('/Requests.Reports.json')
-        const data = await response.json()
-        setReportData(data[0]) // Get first report from array
+        setLoading(true)
+        // Fetch report data using the service
+        const data = await reportService.getReport(reportId)
+        setReportData(data)
         setLoading(false)
       } catch (error) {
-        console.error('Error loading mock data:', error)
+        console.error('Error loading report data:', error)
+        // If API fails, it will automatically fallback to mock data
         setLoading(false)
       }
     }
 
-    loadMockData()
-  }, [])
+    loadReportData()
+  }, [reportId])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -92,7 +103,7 @@ export default function ReportDetailPage() {
   ]
 
 
-  const handleAction = (action: string) => {
+  const handleAction = async (action: string) => {
     setShowActionsDropdown(false)
 
     switch (action) {
@@ -100,14 +111,54 @@ export default function ReportDetailPage() {
         alert('Función de editar datos - Por implementar')
         break
       case 'refresh':
-        alert('Actualizando reporte...')
+        try {
+          setLoading(true)
+          const data = await reportService.getReport(reportId)
+          setReportData(data)
+          setLoading(false)
+          alert('Reporte actualizado correctamente')
+        } catch (error) {
+          console.error('Error updating report:', error)
+          alert('Error al actualizar el reporte')
+          setLoading(false)
+        }
         break
       case 'webhook':
-        alert('Reenviando webhook...')
+        try {
+          const result = await reportService.resendWebhook(reportId)
+          alert(result.message || 'Webhook reenviado correctamente')
+        } catch (error) {
+          console.error('Error resending webhook:', error)
+          alert('Error al reenviar el webhook')
+        }
         break
       case 'delete':
         if (confirm('¿Estás seguro de que quieres eliminar este reporte?')) {
-          alert('Eliminando reporte...')
+          try {
+            await reportService.deleteReport(reportId)
+            alert('Reporte eliminado correctamente')
+            // Redirect to reports list or dashboard
+            window.location.href = '/dashboard'
+          } catch (error) {
+            console.error('Error deleting report:', error)
+            alert('Error al eliminar el reporte')
+          }
+        }
+        break
+      case 'download':
+        try {
+          const blob = await reportService.downloadReportPDF(reportId)
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.style.display = 'none'
+          a.href = url
+          a.download = `report-${reportId}.pdf`
+          document.body.appendChild(a)
+          a.click()
+          window.URL.revokeObjectURL(url)
+        } catch (error) {
+          console.error('Error downloading PDF:', error)
+          alert('Error al descargar el PDF')
         }
         break
     }
@@ -249,7 +300,9 @@ export default function ReportDetailPage() {
                   <div className="text-xs text-slate-600 mb-2 font-medium">Fecha de nacimiento</div>
                   <div className="flex items-center text-slate-700">
                     <CalendarIcon className="w-4 h-4 mr-2 text-slate-500" />
-                    <span className="text-sm">18 sep, 1989 (35 años)</span>
+                    <span className="text-sm">
+                      {formatBirthDateWithAge(personData.birthDate, personData.age)}
+                    </span>
                   </div>
                 </div>
 
@@ -322,13 +375,17 @@ export default function ReportDetailPage() {
                   </div>
 
                   <div className="text-sm text-slate-600">
-                    <div className="font-semibold text-slate-700 mb-1">23 jul, 2025 19:38</div>
+                    <div className="font-semibold text-slate-700 mb-1">
+                      {formatDateTime(reportData.updatedAt)}
+                    </div>
                     <div className="text-slate-500">Fecha de verificación</div>
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <button className="px-5 py-3 bg-white border border-slate-200/60 text-slate-600 rounded-2xl hover:bg-slate-50/50 hover:border-slate-300/80 hover:shadow-sm flex items-center gap-2 text-sm font-medium transition-all duration-300">
+                  <button 
+                    onClick={() => handleAction('download')}
+                    className="px-5 py-3 bg-white border border-slate-200/60 text-slate-600 rounded-2xl hover:bg-slate-50/50 hover:border-slate-300/80 hover:shadow-sm flex items-center gap-2 text-sm font-medium transition-all duration-300">
                     <Download className="w-4 h-4" />
                     <span>Descargar PDF</span>
                   </button>
