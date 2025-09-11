@@ -151,8 +151,7 @@ export default function ForgotPasswordPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                {/* empty string */}
-                <span className="px-4 bg-white text-gray-500"> </span>
+                <span className="px-4 bg-white text-gray-500">{' '}</span>
               </div>
             </div>
           </div>
