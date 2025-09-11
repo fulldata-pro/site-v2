@@ -164,7 +164,7 @@ export default function OSINTSearchPage() {
       const matchesStatus = statusFilter === 'all' || search.status === statusFilter
       return matchesSearch && matchesStatus
     })
-  }, [searchTerm, statusFilter])
+  }, [searches, searchTerm, statusFilter])
 
   const paginatedSearches = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage

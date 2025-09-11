@@ -233,7 +233,7 @@ export default function NewSimpleSearchPage() {
         }
       }
     }
-  }, [formData.country])
+  }, [formData.country, formData.entityType, getAvailableEntityTypes])
 
   // Actualizar el tipo de búsqueda cuando cambia la entidad
   useEffect(() => {
@@ -245,7 +245,7 @@ export default function NewSimpleSearchPage() {
         documentValue: ''
       }))
     }
-  }, [formData.entityType])
+  }, [formData.entityType, formData.searchBy, getSearchTypes])
 
   const currentSearchType = searchTypes.find(t => t.value === formData.searchBy)
 

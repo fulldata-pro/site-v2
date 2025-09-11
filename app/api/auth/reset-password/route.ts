@@ -2,23 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { resetPasswordSchema } from '@/lib/validations/auth.validation';
 import { hashPassword } from '@/lib/auth/jwt';
 import { db } from '@/lib/db/services/database.service';
-
-// Import the reset tokens from forgot-password
-// In a real app, this would be stored in Redis or database
-let resetTokens: Map<string, { email: string; expiresAt: number }>;
-
-// Dynamic import to get the reset tokens
-async function getResetTokens() {
-  if (!resetTokens) {
-    try {
-      const forgotPasswordModule = await import('../forgot-password/route');
-      resetTokens = forgotPasswordModule.resetTokens;
-    } catch {
-      resetTokens = new Map();
-    }
-  }
-  return resetTokens;
-}
+import { resetTokens } from '@/lib/auth/reset-tokens';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,12 +18,9 @@ export async function POST(request: NextRequest) {
     }
 
     const { token, password } = validationResult.data;
-
-    // Get reset tokens
-    const tokens = await getResetTokens();
     
     // Check if token exists
-    const tokenData = tokens.get(token);
+    const tokenData = resetTokens.get(token);
     if (!tokenData) {
       return NextResponse.json(
         { error: 'Token de recuperación inválido o expirado' },
@@ -49,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Check if token is expired
     if (tokenData.expiresAt < Date.now()) {
-      tokens.delete(token);
+      resetTokens.delete(token);
       return NextResponse.json(
         { error: 'Token de recuperación expirado' },
         { status: 400 }
@@ -59,7 +40,7 @@ export async function POST(request: NextRequest) {
     // Find user
     const user = await db.users.findByEmail(tokenData.email);
     if (!user) {
-      tokens.delete(token);
+      resetTokens.delete(token);
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
         { status: 404 }
@@ -72,11 +53,11 @@ export async function POST(request: NextRequest) {
     // Update user password
     await db.users.update(String(user._id), {
       password: hashedPassword,
-      updatedAt: Date.now()
+      updatedAt: new Date()
     });
 
     // Delete used token
-    tokens.delete(token);
+    resetTokens.delete(token);
 
     return NextResponse.json({
       success: true,

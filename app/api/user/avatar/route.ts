@@ -43,7 +43,7 @@ export async function PUT(request: NextRequest) {
     // Update user avatar
     const updatedUser = await db.users.update(payload.userId, {
       avatar,
-      updatedAt: Date.now()
+      updatedAt: new Date()
     });
 
     if (!updatedUser) {

@@ -255,7 +255,7 @@ export default function MyAccountPage() {
                   <AvatarUpload
                     currentAvatar={avatarUrl}
                     onAvatarChange={handleAvatarChange}
-                    userId={user?.id || 'anonymous'}
+                    userId={String(user?.id || 'anonymous')}
                     size="large"
                     disabled={isLoading}
                   />

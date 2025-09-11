@@ -181,7 +181,7 @@ export default function NewSearchPage() {
     return () => {
       clearInterval(clearIntervalId)
     }
-  }, [placeholder])
+  }, [placeholder, displayedPlaceholder])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

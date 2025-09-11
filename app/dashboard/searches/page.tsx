@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { SearchIcon } from '@/components/icons/search-icon'
 import GeminiStarsIcon from '@/components/icons/Magic-wand'
 import { ArrowRightIcon } from '@/components/icons/ArrowRight'
@@ -533,10 +534,12 @@ export default function SearchesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <img
+                          <Image
                             src={`https://flagcdn.com/16x12/${search.country === 'Argentina' ? 'ar' : 'un'
                               }.png`}
                             alt={search.country}
+                            width={16}
+                            height={12}
                             className="w-4 h-3"
                           />
                           <span className="text-sm text-gray-600">{search.country}</span>

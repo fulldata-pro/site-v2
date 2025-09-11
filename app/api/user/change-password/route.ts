@@ -63,7 +63,7 @@ export async function PUT(request: NextRequest) {
 
     // For regular users, verify current password
     if (!isGoogleUser && 'currentPassword' in data) {
-      const isCurrentPasswordValid = await comparePassword(data.currentPassword, user.password!);
+      const isCurrentPasswordValid = await comparePassword(data.currentPassword as string, user.password!);
       if (!isCurrentPasswordValid) {
         return NextResponse.json(
           { error: 'Contraseña actual incorrecta' },
@@ -78,7 +78,7 @@ export async function PUT(request: NextRequest) {
     // Update user password
     await db.users.update(payload.userId, {
       password: hashedNewPassword,
-      updatedAt: Date.now()
+      updatedAt: new Date()
     });
 
     // Send notification email (don't wait for it)

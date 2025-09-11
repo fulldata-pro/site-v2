@@ -88,7 +88,7 @@ export class DatabaseService {
           password: adminPassword,
           firstName: 'Admin',
           lastName: 'User',
-          createdAt: Date.now()
+          createdAt: new Date()
         });
 
         // Create regular user
@@ -99,7 +99,7 @@ export class DatabaseService {
           password: userPassword,
           firstName: 'Test',
           lastName: 'User',
-          createdAt: Date.now()
+          createdAt: new Date()
         });
 
         // Create admin account
@@ -110,8 +110,8 @@ export class DatabaseService {
           email: 'admin@fulldata.com',
           type: 'business',
           status: 'active',
-          users: [{ user: adminUser._id as any, role: 'owner', addedAt: Date.now() }],
-          createdAt: Date.now()
+          users: [{ user: adminUser._id as any, role: 'owner', addedAt: new Date() }],
+          createdAt: new Date()
         });
 
         // Create test account
@@ -122,8 +122,8 @@ export class DatabaseService {
           email: 'user@fulldata.com',
           type: 'individual',
           status: 'active',
-          users: [{ user: testUser._id as any, role: 'owner', addedAt: Date.now() }],
-          createdAt: Date.now()
+          users: [{ user: testUser._id as any, role: 'owner', addedAt: new Date() }],
+          createdAt: new Date()
         });
 
         // Update users with account references
