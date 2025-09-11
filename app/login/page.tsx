@@ -11,6 +11,7 @@ import authService from '@/services/authService'
 import { loginSchema, type LoginInput } from '@/lib/validations/auth.validation'
 import { DASHBOARD_ROUTES, AUTH_ROUTES } from '@/lib/routes'
 import avatar from '/public/images/subject.png'
+import AuthLogo from '@/components/ui/AuthLogo'
 
 export default function LoginPage() {
   const [formData, setFormData] = useState<LoginInput>({ email: '', password: '' })
@@ -102,10 +103,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
 
       {/* Login Form */}
-      <div className="w-full w-full flex items-center justify-center p-8 bg-white">
+      <div className="w-full flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            
+            <AuthLogo  />
             <h1 className="text-3xl font-bold text-[#192440] mb-2">¡Hola de nuevo!</h1>
             <p className="text-gray-600">¡Bienvenido de vuelta, te hemos extrañado!</p>
           </div>
