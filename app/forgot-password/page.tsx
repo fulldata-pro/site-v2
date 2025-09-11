@@ -4,8 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { forgotPasswordSchema, type ForgotPasswordInput } from '@/lib/validations/auth.validation'
 import { AUTH_ROUTES } from '@/lib/routes'
-import Image from 'next/image'
-import avatar from '/public/images/subject.png'
+import AuthLogo from '@/components/ui/AuthLogo'
 
 export default function ForgotPasswordPage() {
   const [formData, setFormData] = useState<ForgotPasswordInput>({
@@ -92,41 +91,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left side - 3D Avatar */}
-      <div className='hidden bg-white lg:flex p-1 lg:w-1/2'>
-        <div className="bg-gradient-to-br w-full h-full rounded-xl from-[#4a5c7a] to-[#3a4c63] items-center justify-center relative overflow-hidden">
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="mb-8">
-                <Image
-                  src={avatar}
-                  alt="3D Avatar Illustration"
-                  width={1000}
-                  height={1000}
-                  className="w-[500px] h-[500px] object-contain mx-auto"
-                />
-              </div>
-            </div>
-          </div>
-          {/* Subtle background decoration */}
-          <div className="absolute inset-0">
-            <div className="absolute top-20 left-20 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-24 right-24 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute top-1/2 right-16 w-24 h-24 bg-white/10 rounded-full blur-lg"></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+      {/* Forgot Password Form */}
+      <div className="w-full flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className=" mb-4">
-              <span className="text-sm text-gray-500">¿Recordaste tu contraseña? </span>
-              <Link href={AUTH_ROUTES.LOGIN} className="text-sm text-[#eb1034] hover:text-[#d10e2e] font-medium">
-                Inicia sesión
-              </Link>
-            </div>
+            <AuthLogo />
             <h1 className="text-3xl font-bold text-[#192440] mb-2">Recuperar contraseña</h1>
             <p className="text-gray-600">Ingresa tu email para recuperar tu contraseña</p>
           </div>
@@ -138,7 +107,7 @@ export default function ForgotPasswordPage() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full px-6 py-4 bg-gray-100 border-0 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#eb1034]/20 focus:bg-white transition-all duration-200 ${errors.email ? 'ring-2 ring-red-500 bg-red-50' : ''}`}
+                className={`w-full px-6 py-4 bg-gray-100 border-0 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200 ${errors.email ? 'ring-2 ring-red-500 bg-red-50' : ''}`}
                 placeholder="Ingresa tu email"
                 disabled={isLoading}
                 required
@@ -163,7 +132,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed bg-[#eb1034] hover:bg-[#d10e2e] text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed bg-[#eb1034] hover:bg-[#d10e2e] text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/20"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -176,13 +145,33 @@ export default function ForgotPasswordPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <p className="text-sm text-gray-600">
-              ¿No tienes una cuenta?{' '}
-              <Link href={AUTH_ROUTES.REGISTER} className="text-[#eb1034] hover:text-[#d10e2e] font-medium">
-                Crear cuenta
-              </Link>
-            </p>
+          <div className="mt-8">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                {/* empty string */}
+                <span className="px-4 bg-white text-gray-500"> </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">
+                ¿Recordaste tu contraseña?{' '}
+                <Link href={AUTH_ROUTES.LOGIN} className="text-[#eb1034] hover:text-[#d10e2e] font-medium">
+                  Inicia sesión
+                </Link>
+              </p>
+              <p className="text-sm text-gray-500">
+                ¿No tienes una cuenta?{' '}
+                <Link href={AUTH_ROUTES.REGISTER} className="text-[#eb1034] hover:text-[#d10e2e] font-medium">
+                  Crear cuenta
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
