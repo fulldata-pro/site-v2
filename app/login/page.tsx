@@ -100,41 +100,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left side - 3D Avatar */}
-      <div className='hidden bg-white  lg:flex p-1 lg:w-1/2'>
-        <div className=" bg-gradient-to-br w-full h-full rounded-xl from-[#7186b3] to-[#5a6689] items-center justify-center relative overflow-hidden">
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="mb-8">
-                <Image
-                  src={avatar}
-                  alt="3D Avatar Illustration"
-                  width={1000}
-                  height={1000}
-                  className="w-[500px] h-[500px] object-contain mx-auto"
-                />
-              </div>
-            </div>
-          </div>
-          {/* Subtle background decoration */}
-          <div className="absolute inset-0">
-            <div className="absolute top-20 left-20 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-24 right-24 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute top-1/2 right-16 w-24 h-24 bg-white/10 rounded-full blur-lg"></div>
-          </div>
-        </div>
-      </div>
 
-      {/* Right side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+      {/* Login Form */}
+      <div className="w-full w-full flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className=" mb-4">
-              <span className="text-sm text-gray-500">¿No tienes cuenta? </span>
-              <Link href={AUTH_ROUTES.REGISTER} className="text-sm text-[#eb1034] hover:text-[#d10e2e] font-medium">
-                Regístrate
-              </Link>
-            </div>
+            
             <h1 className="text-3xl font-bold text-[#192440] mb-2">¡Hola de nuevo!</h1>
             <p className="text-gray-600">¡Bienvenido de vuelta, te hemos extrañado!</p>
           </div>
@@ -193,7 +164,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed bg-[#eb1034] hover:bg-[#d10e2e] text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed bg-[#eb1034] hover:bg-[#d10e2e] text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/20"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -212,7 +183,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-gray-50 text-gray-500">o continúa con</span>
+                <span className="px-4 bg-white text-gray-500">o continúa con</span>
               </div>
             </div>
 
@@ -230,6 +201,12 @@ export default function LoginPage() {
                 </svg>
                 Continuar con Google
               </button>
+            </div>
+            <div className="text-center mt-4">
+              <span className="text-sm text-gray-500">¿No tienes cuenta? </span>
+              <Link href={AUTH_ROUTES.REGISTER} className="text-sm text-[#eb1034] hover:text-[#d10e2e] font-medium">
+                Regístrate
+              </Link>
             </div>
           </div>
         </div>
